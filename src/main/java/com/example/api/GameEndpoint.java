@@ -1,10 +1,17 @@
 package com.example.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.example.application.DotGameEntity;
+import com.example.domain.DotGame;
+import com.example.domain.DotGame.Board;
+import com.example.domain.DotGame.Player;
+
 import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
-import com.example.application.GameAgent;
 
 /**
  * Game endpoint for the me-dot-u-dot game. Handles player moves and AI responses.
@@ -12,47 +19,45 @@ import com.example.application.GameAgent;
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 @HttpEndpoint
 public class GameEndpoint {
+  static final Logger log = LoggerFactory.getLogger(GameEndpoint.class);
 
-  public record GameMove(String gameId, int row, int col, String gameState) {}
+  public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}
 
-  public record GameResponse(String move, String gameState, String message) {}
+  public record MakeMove(String gameId, String playerId, String dotId) {}
 
-  private final ComponentClient componentClient;
+  public record GameResponse(DotGame.State gameState) {}
+
+  final ComponentClient componentClient;
 
   public GameEndpoint(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
 
-  @Post("/api/game/move")
-  public GameResponse makeMove(GameMove request) {
-    // Update game state with player's move
-    var updatedGameState = updateGameState(request.gameState, request.row, request.col, 1);
+  @Post("/api/game/create-game")
+  public GameResponse createGame(CreateGame request) {
+    log.info("Create game: {}", request);
 
-    // Get AI's move
-    var aiMove = componentClient
-        .forAgent()
-        .inSession(request.gameId)
-        .method(GameAgent::selectMove)
-        .invoke(updatedGameState);
+    var command = new DotGame.Command.CreateGame(request.gameId, request.player1, request.player2, request.level);
 
-    // Parse AI move and update game state
-    var aiCoords = aiMove.split(",");
-    var aiRow = Integer.parseInt(aiCoords[0]);
-    var aiCol = Integer.parseInt(aiCoords[1]);
-    var finalGameState = updateGameState(updatedGameState, aiRow, aiCol, 2);
+    var gameState = componentClient
+        .forEventSourcedEntity(request.gameId)
+        .method(DotGameEntity::createGame)
+        .invoke(command);
 
-    return new GameResponse(
-        aiMove,
-        finalGameState,
-        "AI moved to " + aiMove);
+    return new GameResponse(gameState);
   }
 
-  private String updateGameState(String gameState, int row, int col, int player) {
-    var rows = gameState.split("\\|");
-    var cells = rows[row].split(",");
-    cells[col] = String.valueOf(player);
-    rows[row] = String.join(",", cells);
+  @Post("/api/game/make-move")
+  public GameResponse makeMove(MakeMove request) {
+    log.info("Make move: {}", request);
 
-    return String.join("|", rows);
+    var command = new DotGame.Command.MakeMove(request.gameId, request.playerId, request.dotId);
+
+    var gameState = componentClient
+        .forEventSourcedEntity(request.gameId)
+        .method(DotGameEntity::makeMove)
+        .invoke(command);
+
+    return new GameResponse(gameState);
   }
 }

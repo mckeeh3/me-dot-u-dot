@@ -24,8 +24,8 @@ public class Bootstrap implements ServiceSetup {
       log.info("Model provider: {}: {}", key, value);
     });
 
-    log.info("agent-1");
-    config.getObject("agent-1").unwrapped().forEach((key, value) -> {
+    log.info("open-ai-gpt-5-mini");
+    config.getObject("open-ai-gpt-5-mini").unwrapped().forEach((key, value) -> {
       log.info("Model provider: {}: {}", key, value);
     });
   }

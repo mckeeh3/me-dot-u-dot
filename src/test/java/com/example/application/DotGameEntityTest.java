@@ -1,6 +1,5 @@
 package com.example.application;
 
-import static akka.Done.done;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import com.example.domain.DotGame;
 
-import akka.Done;
 import akka.javasdk.testkit.EventSourcedResult;
 import akka.javasdk.testkit.EventSourcedTestKit;
 
@@ -28,14 +26,14 @@ public class DotGameEntityTest {
     var result = testKit.method(DotGameEntity::createGame).invoke(command);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     var event = result.getNextEventOfType(DotGame.Event.GameCreated.class);
     assertEquals(gameId, event.gameId());
     assertEquals(DotGame.Status.in_progress, event.status());
     assertEquals(player1Status, event.player1Status());
     assertEquals(player2Status, event.player2Status());
-    assertEquals(player1Status, event.currentPlayerStatus());
+    assertEquals(player1Status, event.currentPlayerStatus().get());
     assertEquals(DotGame.Board.Level.one, event.level());
 
     var state = testKit.getState();
@@ -67,7 +65,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player1", dotId);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     var event = result.getNextEventOfType(DotGame.Event.MoveMade.class);
     assertEquals(gameId, event.gameId());
@@ -102,7 +100,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player1", dotId);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the game doesn't exist
     assertEquals(0, result.getAllEvents().size());
@@ -123,7 +121,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player2", dotId);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since it's not player2's turn
     assertEquals(0, result.getAllEvents().size());
@@ -147,7 +145,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player2", dotId);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the dot is already occupied
     assertEquals(0, result.getAllEvents().size());
@@ -168,7 +166,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player1", invalidDotId);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the coordinates are invalid
     assertEquals(0, result.getAllEvents().size());
@@ -194,7 +192,7 @@ public class DotGameEntityTest {
     var result = makeMove(testKit, gameId, "player1", "C4");
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     var state = testKit.getState();
     assertEquals(gameId, state.gameId());
@@ -264,7 +262,7 @@ public class DotGameEntityTest {
     var result = testKit.method(DotGameEntity::createGame).invoke(duplicateCommand);
 
     assertTrue(result.isReply());
-    assertEquals(done(), result.getReply());
+    assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the game already exists
     assertEquals(0, result.getAllEvents().size());
@@ -348,7 +346,7 @@ public class DotGameEntityTest {
   }
 
   @Test
-  void testGameCompleted() {
+  void testGameCompletedPlayer1Wins() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-909";
     var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
@@ -364,6 +362,7 @@ public class DotGameEntityTest {
     makeMove(testKit, gameId, "player2", "B3");
     makeMove(testKit, gameId, "player1", "A4");
     makeMove(testKit, gameId, "player2", "B4");
+
     var result = makeMove(testKit, gameId, "player1", "A5"); // Player1 wins
     assertTrue(result.isReply());
     assertEquals(DotGame.Status.won_by_player, result.getReply().status());
@@ -400,7 +399,62 @@ public class DotGameEntityTest {
     assertFalse(state.player2Status().isWinner());
   }
 
-  static EventSourcedResult<Done> createGame(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, DotGame.Player player1, DotGame.Player player2, DotGame.Board.Level level) {
+  @Test
+  void testGameCompletedPlayer2Wins() {
+    var testKit = EventSourcedTestKit.of(DotGameEntity::new);
+    var gameId = "game-909";
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+
+    createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
+
+    makeMove(testKit, gameId, "player1", "A1");
+    makeMove(testKit, gameId, "player2", "B1");
+    makeMove(testKit, gameId, "player1", "A2");
+    makeMove(testKit, gameId, "player2", "B2");
+    makeMove(testKit, gameId, "player1", "A3");
+    makeMove(testKit, gameId, "player2", "B3");
+    makeMove(testKit, gameId, "player1", "C4");
+    makeMove(testKit, gameId, "player2", "B4");
+    makeMove(testKit, gameId, "player1", "C5");
+
+    var result = makeMove(testKit, gameId, "player2", "B5"); // Player2 wins
+    assertTrue(result.isReply());
+    assertEquals(DotGame.Status.won_by_player, result.getReply().status());
+
+    assertEquals(2, result.getAllEvents().size());
+    assertEquals(DotGame.Event.MoveMade.class, result.getAllEvents().get(0).getClass());
+    assertEquals(DotGame.Event.GameCompleted.class, result.getAllEvents().get(1).getClass());
+
+    {
+      var event = result.getNextEventOfType(DotGame.Event.MoveMade.class);
+      assertEquals(gameId, event.gameId());
+      assertEquals(DotGame.Status.won_by_player, event.status());
+      assertEquals(10, event.moveHistory().size());
+      assertEquals(new DotGame.Move("B5", "player2"), event.moveHistory().get(event.moveHistory().size() - 1));
+    }
+
+    {
+      var event = result.getNextEventOfType(DotGame.Event.GameCompleted.class);
+      assertEquals(gameId, event.gameId());
+      assertEquals(DotGame.Status.won_by_player, event.status());
+      assertEquals(player1, event.player1Status().player());
+      assertEquals(player2, event.player2Status().player());
+      assertTrue(event.winningPlayerStatus().isPresent());
+      assertEquals(player2, event.winningPlayerStatus().get().player());
+    }
+
+    var state = testKit.getState();
+
+    assertEquals(DotGame.Status.won_by_player, state.status());
+    assertEquals(player1, state.player1Status().player());
+    assertEquals(player2, state.player2Status().player());
+    assertTrue(state.currentPlayer().isEmpty());
+    assertFalse(state.player1Status().isWinner());
+    assertTrue(state.player2Status().isWinner());
+  }
+
+  static EventSourcedResult<DotGame.State> createGame(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, DotGame.Player player1, DotGame.Player player2, DotGame.Board.Level level) {
     var command = new DotGame.Command.CreateGame(gameId, player1, player2, level);
     return testKit.method(DotGameEntity::createGame).invoke(command);
   }

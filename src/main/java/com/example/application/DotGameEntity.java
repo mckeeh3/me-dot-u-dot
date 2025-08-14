@@ -1,15 +1,13 @@
 package com.example.application;
 
-import static akka.Done.done;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import akka.Done;
+import com.example.domain.DotGame;
+
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.eventsourcedentity.EventSourcedEntity;
 import akka.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.example.domain.DotGame;
 
 @ComponentId("dot-game-entity")
 public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Event> {
@@ -25,12 +23,12 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
     return DotGame.State.empty();
   }
 
-  public Effect<Done> createGame(DotGame.Command.CreateGame command) {
+  public Effect<DotGame.State> createGame(DotGame.Command.CreateGame command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()
         .persistAll(currentState().onCommand(command).stream().toList())
-        .thenReply(newState -> done());
+        .thenReply(newState -> newState);
   }
 
   public Effect<DotGame.State> makeMove(DotGame.Command.MakeMove command) {

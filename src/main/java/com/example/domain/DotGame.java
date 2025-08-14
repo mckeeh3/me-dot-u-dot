@@ -88,6 +88,13 @@ public interface DotGame {
 
       var newStatus = gameStatus(newBoard, newPlayer1Status, newPlayer2Status);
 
+      if (!newStatus.equals(Status.in_progress)) {
+        if (newStatus == Status.won_by_player) {
+          newPlayer1Status = isCurrentPlayer(newPlayer1Status) ? newPlayer1Status.setWinner() : newPlayer1Status.setLoser();
+          newPlayer2Status = isCurrentPlayer(newPlayer2Status) ? newPlayer2Status.setWinner() : newPlayer2Status.setLoser();
+        }
+      }
+
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(new Move(command.dotId, command.playerId)))
           .toList();
 
@@ -105,8 +112,8 @@ public interface DotGame {
 
       if (!newStatus.equals(Status.in_progress)) {
         if (newStatus == Status.won_by_player) {
-          newPlayer1Status = newStatus == Status.won_by_player ? newPlayer1Status.setWinner() : newPlayer1Status.setLoser();
-          newPlayer2Status = newStatus == Status.won_by_player ? newPlayer2Status.setLoser() : newPlayer2Status.setWinner();
+          newPlayer1Status = isCurrentPlayer(newPlayer1Status) ? newPlayer1Status.setWinner() : newPlayer1Status.setLoser();
+          newPlayer2Status = isCurrentPlayer(newPlayer2Status) ? newPlayer2Status.setWinner() : newPlayer2Status.setLoser();
         }
 
         var winningPlayerStatus = Optional.<PlayerStatus>empty();
@@ -186,6 +193,14 @@ public interface DotGame {
       }
 
       return Status.in_progress;
+    }
+
+    boolean isCurrentPlayer(PlayerStatus playerStatus) {
+      return isCurrentPlayer(playerStatus.player());
+    }
+
+    boolean isCurrentPlayer(Player player) {
+      return currentPlayer.isPresent() && currentPlayer.get().player().id().equals(player.id());
     }
 
     Optional<PlayerStatus> getCurrentPlayer() {
