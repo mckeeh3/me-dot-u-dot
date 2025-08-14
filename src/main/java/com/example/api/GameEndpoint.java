@@ -19,7 +19,7 @@ import akka.javasdk.client.ComponentClient;
 import akka.javasdk.http.HttpResponses;
 
 /**
- * Game endpoint for the me-dot-u-dot game. Handles player moves and AI responses.
+ * Game endpoint for the me-dot-u-dot game. Handles player moves and game move responses.
  */
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 @HttpEndpoint("/game")
@@ -66,10 +66,11 @@ public class GameEndpoint {
     return new GameResponse(gameState);
   }
 
-  @Get("/get-move-stream-by-game-id")
-  public HttpResponse getMoveStreamByGameId(GetMoveStreamByGameIdRequest request) {
-    log.info("Get move stream by game id: {}", request);
+  @Get("/get-move-stream-by-game-id/{gameId}")
+  public HttpResponse getMoveStreamByGameId(String gameId) {
+    log.info("Get move stream by game id: {}", gameId);
 
+    var request = new GetMoveStreamByGameIdRequest(gameId);
     var gameState = componentClient
         .forView()
         .stream(DotGameView::getMoveStreamByGameId)

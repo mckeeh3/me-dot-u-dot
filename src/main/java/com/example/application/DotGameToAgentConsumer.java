@@ -40,11 +40,13 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().id(),
           agentPlayer.player().name());
 
-      componentClient
+      var result = componentClient
           .forAgent()
           .inSession(event.gameId())
           .method(DotGameAgent::makeMove)
           .invoke(prompt);
+
+      log.debug("Make move (1 game created) result: {}", result);
     }
 
     return effects().done();
@@ -63,11 +65,13 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().id(),
           agentPlayer.player().name());
 
-      componentClient
+      var result = componentClient
           .forAgent()
           .inSession(sessionId)
           .method(DotGameAgent::makeMove)
           .invoke(prompt);
+
+      log.debug("Make move (2 game in progress) result: {}", result);
     }
 
     if (!event.status().equals(DotGame.Status.in_progress)) {
@@ -81,11 +85,13 @@ public class DotGameToAgentConsumer extends Consumer {
             agentPlayer.player().id(),
             agentPlayer.player().name());
 
-        componentClient
+        var result = componentClient
             .forAgent()
             .inSession(sessionId)
             .method(DotGameAgent::makeMove)
             .invoke(prompt);
+
+        log.debug("Make move (3 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
       }
 
       if (event.player2Status().player().isAgent()) {
@@ -98,11 +104,13 @@ public class DotGameToAgentConsumer extends Consumer {
             agentPlayer.player().id(),
             agentPlayer.player().name());
 
-        componentClient
+        var result = componentClient
             .forAgent()
             .inSession(sessionId)
             .method(DotGameAgent::makeMove)
             .invoke(prompt);
+
+        log.debug("Make move (4 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
       }
 
       return effects().done();

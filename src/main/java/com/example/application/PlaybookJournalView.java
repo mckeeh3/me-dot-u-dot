@@ -50,7 +50,7 @@ public class PlaybookJournalView extends View {
       String instructions,
       Instant updatedAt) {}
 
-  public record GetByAgentIdRequest(String agentId, long limit, long offset) {}
+  public record GetByAgentIdRequest(String agentId, int limit, int offset) {}
 
   public record JournalsPage(List<JournalRow> journals) {}
 }

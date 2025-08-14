@@ -1,157 +1,171 @@
-let gameState = initializeGameState();
-let gameId = generateGameId();
-let isPlayerTurn = true;
-let playerScore = 0;
-let aiScore = 0;
+let state = {
+  game: null,
+  p1: null,
+  p2: null,
+};
 
-function initializeGameState() {
-  // Create 5x5 grid with all cells empty (0)
-  let state = [];
-  for (let i = 0; i < 5; i++) {
-    let row = [];
-    for (let j = 0; j < 5; j++) {
-      row.push(0);
-    }
-    state.push(row);
-  }
-  return state;
+function $(id) {
+  return document.getElementById(id);
 }
 
-function generateGameId() {
-  return 'game-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+function currentSize() {
+  if (!state.game) return 5;
+  const level = state.game.board.level; // enum name string
+  const map = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
+  return map[level] || 5;
+}
+
+function setStatus(msg) {
+  const el = $('status');
+  el.textContent = msg;
+}
+
+function renderGameInfo() {
+  if (!state.game) return;
+  const p1 = state.game.player1Status;
+  const p2 = state.game.player2Status;
+  $('p1-label').textContent = `${p1.player.name}`;
+  $('p2-label').textContent = `${p2.player.name}`;
+  $('p1-score').textContent = p1.score;
+  $('p2-score').textContent = p2.score;
+
+  const turnName = state.game.currentPlayer?.player?.name || '';
+  $('turn').textContent = state.game.status === 'in_progress' ? `Turn: ${turnName}` : `Status: ${state.game.status}`;
 }
 
 function renderBoard() {
-  const board = document.getElementById('gameBoard');
+  const board = $('gameBoard');
   board.innerHTML = '';
+  const size = currentSize();
+  board.style.setProperty('--size', size);
 
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 5; j++) {
+  const dots = state.game ? state.game.board.dots : [];
+  const byId = new Map(dots.map((d) => [d.id, d]));
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
+      const id = rowChar + (c + 1);
+      const d = byId.get(id);
       const cell = document.createElement('div');
       cell.className = 'cell';
-      cell.dataset.row = i;
-      cell.dataset.col = j;
+      cell.dataset.dotId = id;
 
-      if (gameState[i][j] === 1) {
-        cell.classList.add('player');
-        cell.textContent = '●';
-      } else if (gameState[i][j] === 2) {
-        cell.classList.add('ai');
+      if (d && d.player && d.player.id) {
+        const pid = d.player.id;
+        const cls = pid === state.p1?.id ? 'player' : pid === state.p2?.id ? 'ai' : '';
+        if (cls) cell.classList.add(cls);
         cell.textContent = '●';
       }
 
-      if (gameState[i][j] === 0 && isPlayerTurn) {
-        cell.addEventListener('click', () => makeMove(i, j));
-      }
-
+      cell.addEventListener('click', () => onCellClick(id));
       board.appendChild(cell);
     }
   }
 }
 
-function updateStatus(message, isPlayerTurn) {
-  const status = document.getElementById('status');
-  status.textContent = message;
-  status.className = 'status ' + (isPlayerTurn ? 'player-turn' : 'ai-turn');
-}
-
-function updateScore() {
-  document.getElementById('playerScore').textContent = playerScore;
-  document.getElementById('aiScore').textContent = aiScore;
-}
-
-function gameStateToString() {
-  return gameState.map((row) => row.join(',')).join('|');
-}
-
-function stringToGameState(stateStr) {
-  const rows = stateStr.split('|');
-  return rows.map((row) => row.split(',').map((cell) => parseInt(cell)));
-}
-
-async function makeMove(row, col) {
-  if (!isPlayerTurn || gameState[row][col] !== 0) {
+async function createPlayer(which) {
+  const id = $(which + '-id').value.trim();
+  const name = $(which + '-name').value.trim();
+  const type = $(which + '-type').value;
+  if (!id || !name) {
+    alert('Player id and name are required');
     return;
   }
 
-  isPlayerTurn = false;
-  updateStatus('AI is thinking...', false);
+  const cmd = { id, type, name };
+  await fetch('/player/create-player', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmd),
+  });
+  await loadPlayer(which);
+}
 
-  try {
-    const response = await fetch('/api/game/move', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        gameId: gameId,
-        row: row,
-        col: col,
-        gameState: gameStateToString(),
-      }),
-    });
-
-    const result = await response.json();
-
-    // Update game state with both player's and AI's moves
-    gameState = stringToGameState(result.gameState);
-
-    // Set player turn to true before rendering board
-    isPlayerTurn = true;
-    renderBoard();
-
-    updateStatus(result.message + ' - Your turn!', true);
-
-    // Check for wins
-    checkForWins();
-  } catch (error) {
-    console.error('Error making move:', error);
-    updateStatus('Error making move. Please try again.', true);
-    isPlayerTurn = true;
+async function loadPlayer(which) {
+  const id = $(which + '-id').value.trim();
+  if (!id) {
+    alert('Enter player id');
+    return;
   }
+  const res = await fetch(`/player/get-player/${encodeURIComponent(id)}`);
+  const player = await res.json();
+  if (which === 'p1') state.p1 = player;
+  else state.p2 = player;
+  renderGameInfo();
 }
 
-function checkForWins() {
-  // Simple win detection - check for 3 in a row
-  // This is a basic implementation - you can enhance it later
-  let playerWins = 0;
-  let aiWins = 0;
-
-  // Check rows, columns, and diagonals for 3 in a row
-  // (Simplified for now - you can add more sophisticated win detection)
-
-  if (playerWins > 0) {
-    playerScore++;
-    updateScore();
-    updateStatus('You won this round!', true);
-  } else if (aiWins > 0) {
-    aiScore++;
-    updateScore();
-    updateStatus('AI won this round!', true);
+async function createGame() {
+  const gameId = $('game-id').value.trim() || 'game-' + Date.now();
+  const level = $('level').value;
+  if (!state.p1 || !state.p2) {
+    alert('Load or create both players first');
+    return;
   }
+
+  const req = {
+    gameId,
+    player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },
+    player2: { id: state.p2.id, type: state.p2.type, name: state.p2.name },
+    level,
+  };
+  const res = await fetch('/game/create-game', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  const { gameState } = await res.json();
+  state.game = gameState;
+  $('game-id').value = state.game.gameId;
+  setStatus('Game created');
+  renderGameInfo();
+  renderBoard();
+
+  openMoveStream(state.game.gameId);
 }
 
-function newGame() {
-  gameState = initializeGameState();
-  gameId = generateGameId();
-  isPlayerTurn = true;
-  updateStatus('New game! Your turn!', true);
+async function onCellClick(dotId) {
+  if (!state.game || state.game.status !== 'in_progress') return;
+  const current = state.game.currentPlayer?.player?.id;
+  if (!current) return;
+
+  const req = { gameId: state.game.gameId, playerId: current, dotId };
+  const res = await fetch('/game/make-move', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  const { gameState } = await res.json();
+  state.game = gameState;
+  renderGameInfo();
   renderBoard();
 }
 
-function resetGame() {
-  gameState = initializeGameState();
-  gameId = generateGameId();
-  isPlayerTurn = true;
-  playerScore = 0;
-  aiScore = 0;
-  updateScore();
-  updateStatus('Game reset! Your turn!', true);
-  renderBoard();
+let evtSrc;
+function openMoveStream(gameId) {
+  if (evtSrc) evtSrc.close();
+  const url = `/game/get-move-stream-by-game-id?gameId=${encodeURIComponent(gameId)}`;
+  evtSrc = new EventSource(url);
+  evtSrc.onmessage = (e) => {
+    try {
+      const row = JSON.parse(e.data);
+      // Optionally, we could refresh from server; for now, we only update status/labels
+      if (row) {
+        $('p1-label').textContent = row.player1Name;
+        $('p2-label').textContent = row.player2Name;
+        $('p1-score').textContent = row.player1Score;
+        $('p2-score').textContent = row.player2Score;
+        $('turn').textContent = row.status === 'in_progress' ? `Turn: ${row.currentPlayerName}` : `Status: ${row.status}`;
+      }
+    } catch {}
+  };
 }
 
-// Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+  // Prefill ids
+  $('p1-id').value = 'player-1';
+  $('p2-id').value = 'player-2';
+  $('game-id').value = 'game-' + Date.now();
+  setStatus('Create players and a game to begin');
   renderBoard();
-  updateStatus('Your turn! Click a cell to place your dot.', true);
 });
