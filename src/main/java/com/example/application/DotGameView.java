@@ -42,7 +42,6 @@ public class DotGameView extends View {
       return switch (event) {
         case DotGame.Event.GameCreated e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveMade e -> effects().updateRow(onEvent(e));
-        case DotGame.Event.GameCompleted e -> effects().updateRow(onEvent(e));
       };
     }
 
@@ -98,32 +97,6 @@ public class DotGameView extends View {
           player2.isWinner(),
           currentPlayerId,
           currentPlayerName,
-          winnerId);
-    }
-
-    private DotGameRow onEvent(DotGame.Event.GameCompleted e) {
-      var p1 = e.player1Status();
-      var p2 = e.player2Status();
-      var winnerId = e.winningPlayerStatus().map(ps -> ps.player().id());
-
-      return new DotGameRow(
-          e.gameId(),
-          rowState().createdAt(),
-          e.timestamp(),
-          e.status().toString(),
-          rowState().level(),
-          p1.player().id(),
-          p1.player().name(),
-          p1.moves(),
-          p1.score(),
-          p1.isWinner(),
-          p2.player().id(),
-          p2.player().name(),
-          p2.moves(),
-          p2.score(),
-          p2.isWinner(),
-          "",
-          "",
           winnerId);
     }
   }

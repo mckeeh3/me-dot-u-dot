@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.example.domain.DotGame.Event.MoveMade;
+
 import akka.javasdk.annotations.TypeName;
 
 public interface DotGame {
@@ -59,24 +61,24 @@ public interface DotGame {
     // ============================================================
     // Command MakeMove
     // ============================================================
-    public List<Event> onCommand(Command.MakeMove command) {
+    public Optional<MoveMade> onCommand(Command.MakeMove command) {
       if (!status.equals(Status.in_progress)) {
-        return List.of();
+        return Optional.empty();
       }
 
       var dotOptional = board.dotAt(command.dotId);
       if (dotOptional.isEmpty()) {
-        return List.of();
+        return Optional.empty();
       }
 
       var dot = dotOptional.get();
       if (isEmpty() || isGameOver() || dot.isOccupied()) {
-        return List.of();
+        return Optional.empty();
       }
 
       // Check if it's the player's turn
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
-        return List.of();
+        return Optional.empty();
       }
 
       var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
@@ -98,41 +100,17 @@ public interface DotGame {
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(new Move(command.dotId, command.playerId)))
           .toList();
 
-      var newCurrentPlayer = getNextPlayer();
+      var newCurrentPlayer = newStatus == Status.in_progress ? Optional.of(getNextPlayer()) : Optional.<PlayerStatus>empty();
 
-      var moveMadeEvent = new Event.MoveMade(
+      return Optional.of(new Event.MoveMade(
           gameId,
           newBoard,
           newStatus,
           newPlayer1Status,
           newPlayer2Status,
-          Optional.of(newCurrentPlayer),
+          newCurrentPlayer,
           newMoveHistory,
-          Instant.now());
-
-      if (!newStatus.equals(Status.in_progress)) {
-        if (newStatus == Status.won_by_player) {
-          newPlayer1Status = isCurrentPlayer(newPlayer1Status) ? newPlayer1Status.setWinner() : newPlayer1Status.setLoser();
-          newPlayer2Status = isCurrentPlayer(newPlayer2Status) ? newPlayer2Status.setWinner() : newPlayer2Status.setLoser();
-        }
-
-        var winningPlayerStatus = Optional.<PlayerStatus>empty();
-        if (newStatus == Status.won_by_player) {
-          winningPlayerStatus = isPlayer1Turn() ? Optional.of(newPlayer1Status) : Optional.of(newPlayer2Status);
-        }
-
-        var gameCompletedEvent = new Event.GameCompleted(
-            gameId,
-            newStatus,
-            newPlayer1Status,
-            newPlayer2Status,
-            winningPlayerStatus,
-            Instant.now());
-
-        return List.of(moveMadeEvent, gameCompletedEvent);
-      }
-
-      return List.of(moveMadeEvent);
+          Instant.now()));
     }
 
     // ============================================================
@@ -160,18 +138,6 @@ public interface DotGame {
           event.player2Status,
           event.currentPlayerStatus,
           event.moveHistory);
-    }
-
-    public State onEvent(Event.GameCompleted event) {
-      return new State(
-          gameId,
-          createdAt,
-          board,
-          event.status,
-          event.player1Status,
-          event.player2Status,
-          Optional.empty(),
-          moveHistory);
     }
 
     boolean isGameOver() {
@@ -282,15 +248,6 @@ public interface DotGame {
         PlayerStatus player2Status,
         Optional<PlayerStatus> currentPlayerStatus,
         List<Move> moveHistory,
-        Instant timestamp) implements Event {}
-
-    @TypeName("game-completed")
-    public record GameCompleted(
-        String gameId,
-        Status status,
-        PlayerStatus player1Status,
-        PlayerStatus player2Status,
-        Optional<PlayerStatus> winningPlayerStatus,
         Instant timestamp) implements Event {}
   }
 

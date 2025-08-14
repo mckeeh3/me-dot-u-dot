@@ -35,7 +35,7 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()
-        .persistAll(currentState().onCommand(command))
+        .persistAll(currentState().onCommand(command).stream().toList())
         .thenReply(newState -> newState);
   }
 
@@ -56,7 +56,6 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
     return switch (event) {
       case DotGame.Event.GameCreated e -> currentState().onEvent(e);
       case DotGame.Event.MoveMade e -> currentState().onEvent(e);
-      case DotGame.Event.GameCompleted e -> currentState().onEvent(e);
     };
   }
 }

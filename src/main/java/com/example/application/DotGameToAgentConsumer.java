@@ -25,7 +25,6 @@ public class DotGameToAgentConsumer extends Consumer {
     return switch (event) {
       case DotGame.Event.GameCreated e -> onEvent(e);
       case DotGame.Event.MoveMade e -> onEvent(e);
-      case DotGame.Event.GameCompleted e -> onEvent(e);
     };
   }
 
@@ -33,19 +32,13 @@ public class DotGameToAgentConsumer extends Consumer {
     var currentPlayer = event.currentPlayerStatus();
 
     if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var player1 = event.player1Status();
-      var player2 = event.player2Status();
-
       var agentPlayer = currentPlayer.get();
-      var opponentPlayer = agentPlayer.player().id().equals(player1.player().id()) ? player2 : player1;
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
-          event.board(),
           event.status(),
-          agentPlayer,
-          opponentPlayer,
-          event.moveHistory());
+          agentPlayer.player().id(),
+          agentPlayer.player().name());
 
       componentClient
           .forAgent()
@@ -60,56 +53,60 @@ public class DotGameToAgentConsumer extends Consumer {
   Effect onEvent(DotGame.Event.MoveMade event) {
     var currentPlayer = event.currentPlayerStatus();
 
-    if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var player1 = event.player1Status();
-      var player2 = event.player2Status();
-
+    if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
-      var opponentPlayer = agentPlayer.player().id().equals(player1.player().id()) ? player2 : player1;
+      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
-          event.board(),
           event.status(),
-          agentPlayer,
-          opponentPlayer,
-          event.moveHistory());
+          agentPlayer.player().id(),
+          agentPlayer.player().name());
 
       componentClient
           .forAgent()
-          .inSession(event.gameId())
+          .inSession(sessionId)
           .method(DotGameAgent::makeMove)
           .invoke(prompt);
     }
 
-    return effects().done();
-  }
+    if (!event.status().equals(DotGame.Status.in_progress)) {
+      if (event.player1Status().player().isAgent()) {
+        var agentPlayer = event.player1Status();
+        var sessionId = event.gameId() + "-" + agentPlayer.player().id();
 
-  Effect onEvent(DotGame.Event.GameCompleted event) {
-    // Fetch final state to include board and move history
-    var state = componentClient
-        .forEventSourcedEntity(event.gameId())
-        .method(DotGameEntity::getState)
-        .invoke();
+        var prompt = new DotGameAgent.MakeMovePrompt(
+            event.gameId(),
+            event.status(),
+            agentPlayer.player().id(),
+            agentPlayer.player().name());
 
-    var player1 = event.player1Status();
-    var player2 = event.player2Status();
-    var current = player1.isWinner() ? player1 : (player2.isWinner() ? player2 : player1);
-    var opponentPlayer = current.player().id().equals(player1.player().id()) ? player2 : player1;
+        componentClient
+            .forAgent()
+            .inSession(sessionId)
+            .method(DotGameAgent::makeMove)
+            .invoke(prompt);
+      }
 
-    var prompt = new DotGameAgent.MakeMovePrompt(
-        event.gameId(),
-        state.board(),
-        event.status(),
-        current,
-        opponentPlayer,
-        state.moveHistory());
+      if (event.player2Status().player().isAgent()) {
+        var agentPlayer = event.player2Status();
+        var sessionId = event.gameId() + "-" + agentPlayer.player().id();
 
-    componentClient
-        .forAgent()
-        .inSession(event.gameId())
-        .method(DotGameAgent::makeMove)
-        .invoke(prompt);
+        var prompt = new DotGameAgent.MakeMovePrompt(
+            event.gameId(),
+            event.status(),
+            agentPlayer.player().id(),
+            agentPlayer.player().name());
+
+        componentClient
+            .forAgent()
+            .inSession(sessionId)
+            .method(DotGameAgent::makeMove)
+            .invoke(prompt);
+      }
+
+      return effects().done();
+    }
 
     return effects().done();
   }
