@@ -20,7 +20,7 @@ public class DotGameView extends View {
        WHERE gameId = :gameId
        LIMIT 1
       """)
-  public QueryStreamEffect<DotGameRow> getGameById(GetGameByIdRequest request) {
+  public QueryStreamEffect<DotGameRow> getMoveStreamByGameId(GetMoveStreamByGameIdRequest request) {
     return queryStreamResult();
   }
 
@@ -121,7 +121,7 @@ public class DotGameView extends View {
       String currentPlayerName,
       Optional<String> winnerId) {}
 
-  public record GetGameByIdRequest(String gameId) {}
+  public record GetMoveStreamByGameIdRequest(String gameId) {}
 
   public record GetGamesByPlayerPagedRequest(String playerId, int limit, int offset) {}
 

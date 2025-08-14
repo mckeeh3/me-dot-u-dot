@@ -4,20 +4,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.application.DotGameEntity;
+import com.example.application.DotGameView;
+import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
 import com.example.domain.DotGame.Player;
 
+import akka.http.javadsl.model.HttpResponse;
 import akka.javasdk.annotations.Acl;
+import akka.javasdk.annotations.http.Get;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
+import akka.javasdk.http.HttpResponses;
 
 /**
  * Game endpoint for the me-dot-u-dot game. Handles player moves and AI responses.
  */
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
-@HttpEndpoint
+@HttpEndpoint("/game")
 public class GameEndpoint {
   static final Logger log = LoggerFactory.getLogger(GameEndpoint.class);
 
@@ -33,7 +38,7 @@ public class GameEndpoint {
     this.componentClient = componentClient;
   }
 
-  @Post("/api/game/create-game")
+  @Post("/create-game")
   public GameResponse createGame(CreateGame request) {
     log.info("Create game: {}", request);
 
@@ -47,7 +52,7 @@ public class GameEndpoint {
     return new GameResponse(gameState);
   }
 
-  @Post("/api/game/make-move")
+  @Post("/make-move")
   public GameResponse makeMove(MakeMove request) {
     log.info("Make move: {}", request);
 
@@ -59,5 +64,17 @@ public class GameEndpoint {
         .invoke(command);
 
     return new GameResponse(gameState);
+  }
+
+  @Get("/get-move-stream-by-game-id")
+  public HttpResponse getMoveStreamByGameId(GetMoveStreamByGameIdRequest request) {
+    log.info("Get move stream by game id: {}", request);
+
+    var gameState = componentClient
+        .forView()
+        .stream(DotGameView::getMoveStreamByGameId)
+        .source(request);
+
+    return HttpResponses.serverSentEvents(gameState);
   }
 }
