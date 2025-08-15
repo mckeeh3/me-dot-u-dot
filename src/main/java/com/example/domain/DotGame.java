@@ -22,15 +22,15 @@ public interface DotGame {
   public record State(
       String gameId,
       Instant createdAt,
-      Board board,
       Status status,
+      Board board,
       PlayerStatus player1Status,
       PlayerStatus player2Status,
       Optional<PlayerStatus> currentPlayer,
       List<Move> moveHistory) {
 
     public static State empty() {
-      return new State("", Instant.now(), Board.empty(), Status.empty, PlayerStatus.empty(), PlayerStatus.empty(), Optional.empty(), List.of());
+      return new State("", Instant.now(), Status.empty, Board.empty(), PlayerStatus.empty(), PlayerStatus.empty(), Optional.empty(), List.of());
     }
 
     public boolean isEmpty() {
@@ -120,8 +120,8 @@ public interface DotGame {
       return new State(
           event.gameId,
           event.createdAt,
-          event.board,
           event.status,
+          event.board,
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,
@@ -132,8 +132,8 @@ public interface DotGame {
       return new State(
           gameId,
           createdAt,
-          event.board,
           event.status,
+          event.board,
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,

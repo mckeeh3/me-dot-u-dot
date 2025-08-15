@@ -33,7 +33,7 @@ public class PlaybookJournalEntity extends EventSourcedEntity<PlaybookJournal.St
         .thenReply(newState -> done());
   }
 
-  public Effect<PlaybookJournal.State> getState() {
+  public ReadOnlyEffect<PlaybookJournal.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
     return effects().reply(currentState());

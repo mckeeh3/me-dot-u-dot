@@ -144,21 +144,25 @@ async function onCellClick(dotId) {
 let evtSrc;
 function openMoveStream(gameId) {
   if (evtSrc) evtSrc.close();
-  const url = `/game/get-move-stream-by-game-id?gameId=${encodeURIComponent(gameId)}`;
+  const url = `/game/get-move-stream-by-game-id/${encodeURIComponent(gameId)}`;
   evtSrc = new EventSource(url);
   evtSrc.onmessage = (e) => {
     try {
-      const row = JSON.parse(e.data);
-      // Optionally, we could refresh from server; for now, we only update status/labels
-      if (row) {
-        $('p1-label').textContent = row.player1Name;
-        $('p2-label').textContent = row.player2Name;
-        $('p1-score').textContent = row.player1Score;
-        $('p2-score').textContent = row.player2Score;
-        $('turn').textContent = row.status === 'in_progress' ? `Turn: ${row.currentPlayerName}` : `Status: ${row.status}`;
-      }
+      const _ = JSON.parse(e.data); // we received an event; now fetch full state to render board
+      refreshGameState();
     } catch {}
   };
+}
+
+async function refreshGameState() {
+  if (!state.game?.gameId) return;
+  const res = await fetch(`/game/get-state/${encodeURIComponent(state.game.gameId)}`, {
+    headers: { Accept: 'application/json' },
+  });
+  const { gameState } = await res.json();
+  state.game = gameState;
+  renderGameInfo();
+  renderBoard();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

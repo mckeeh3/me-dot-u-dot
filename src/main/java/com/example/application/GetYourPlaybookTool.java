@@ -29,7 +29,7 @@ public class GetYourPlaybookTool {
       """)
   public Playbook.State getYourPlaybook(
       @Description("The ID of your agent") String agentId) {
-    log.debug("Get playbook for agent: {}", agentId);
+    log.debug("Player: {}, Get playbook", agentId);
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::getState)

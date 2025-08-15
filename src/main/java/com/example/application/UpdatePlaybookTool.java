@@ -30,7 +30,7 @@ public class UpdatePlaybookTool {
   public Done updatePlaybook(
       @Description("The ID of your agent") String agentId,
       @Description("The instructions you want to update your playbook with") String instructions) {
-    log.debug("Update playbook for agent: {}", agentId);
+    log.debug("Player: {}, Update playbook", agentId);
 
     var command = new Playbook.Command.UpdatePlaybook(agentId, instructions);
 

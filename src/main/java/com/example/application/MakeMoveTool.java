@@ -33,7 +33,7 @@ public class MakeMoveTool {
           The board coordinate to claim (e.g., "C3"). Coordinates start
           at A1 in the top-left and extend to the board size determined by level
           """) String dotId) {
-    log.debug("Make move: {} in game: {}", dotId, gameId);
+    log.debug("Player: {}, Make move: {} in game: {}", agentId, dotId, gameId);
 
     var command = new DotGame.Command.MakeMove(gameId, agentId, dotId);
 

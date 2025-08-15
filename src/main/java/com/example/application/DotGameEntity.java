@@ -39,7 +39,7 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
         .thenReply(newState -> newState);
   }
 
-  public Effect<DotGame.State> getState() {
+  public ReadOnlyEffect<DotGame.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
     if (currentState().isEmpty()) {

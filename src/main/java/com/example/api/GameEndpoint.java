@@ -78,4 +78,16 @@ public class GameEndpoint {
 
     return HttpResponses.serverSentEvents(gameState);
   }
+
+  @Get("/get-state/{gameId}")
+  public GameResponse getState(String gameId) {
+    log.info("Get state for game: {}", gameId);
+
+    var gameState = componentClient
+        .forEventSourcedEntity(gameId)
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    return new GameResponse(gameState);
+  }
 }

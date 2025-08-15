@@ -14,12 +14,12 @@ import com.example.domain.DotGame;
 @ComponentId("dot-game-view")
 public class DotGameView extends View {
 
-  @Query("""
+  @Query(value = """
       SELECT *
         FROM dot_game_view
        WHERE gameId = :gameId
        LIMIT 1
-      """)
+      """, streamUpdates = true)
   public QueryStreamEffect<DotGameRow> getMoveStreamByGameId(GetMoveStreamByGameIdRequest request) {
     return queryStreamResult();
   }

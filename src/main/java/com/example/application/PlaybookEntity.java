@@ -9,6 +9,7 @@ import akka.Done;
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.eventsourcedentity.EventSourcedEntity;
 import akka.javasdk.eventsourcedentity.EventSourcedEntityContext;
+
 import com.example.domain.Playbook;
 
 @ComponentId("playbook-entity")
@@ -33,7 +34,7 @@ public class PlaybookEntity extends EventSourcedEntity<Playbook.State, Playbook.
         .thenReply(newState -> done());
   }
 
-  public Effect<Playbook.State> getState() {
+  public ReadOnlyEffect<Playbook.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
     return effects().reply(currentState());

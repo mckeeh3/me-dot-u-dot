@@ -42,7 +42,7 @@ public class PlayerEntity extends KeyValueEntity<Player.State> {
         .thenReply(done());
   }
 
-  public Effect<Player.State> getState() {
+  public ReadOnlyEffect<Player.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
     if (currentState().isEmpty()) {

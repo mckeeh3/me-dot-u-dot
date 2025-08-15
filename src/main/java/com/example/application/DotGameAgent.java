@@ -43,10 +43,16 @@ public class DotGameAgent extends Agent {
       - Record concise, actionable guidance you can reuse in future turns.
       - Revise, prune, and refine to remove contradictions or ineffective ideas.
       - Keep it compact and clear so it’s easy to apply during play.
+      - ALWAYS use the get game state tool to get the current game state before making a move.
+      - ALWAYS use the get your playbook tool to get your playbook before making a move.
 
       Interaction model:
       - You receive structured messages indicating the opponent’s last move or a game outcome.
       - Use tools as needed to understand, adapt, and act; do not invent tool results.
+      - Your only user input is to make a move or to inform you that the game is over.
+      - DO NOT ask the user for any information, you only have access to the tools.
+      - Your only source of information is the game state and the tools.
+      - You can only make a move if you are the current player.
 
       Treat tool and environment responses (accept/reject, score changes, outcomes) as evidence to update your beliefs and your
       playbook.
