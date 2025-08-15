@@ -85,7 +85,8 @@ function renderBoard() {
 async function createPlayer(which) {
   const id = $(which + '-id').value.trim();
   const name = $(which + '-name').value.trim();
-  const type = $(which + '-type').value;
+  const typeBtn = document.getElementById(`${which}-type-btn`);
+  const type = typeBtn ? typeBtn.textContent.trim() : 'human';
   if (!id || !name) {
     alert('Player id and name are required');
     return;
@@ -199,36 +200,49 @@ async function refreshGameState() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Prefill ids
-  setStatus('Click "Start New GAME" to begin');
+  setStatus('Click "Begin Game" to play');
   renderBoard();
 });
 
 async function startNewGameWizard() {
   const panel = document.getElementById('setupPanel');
   panel.style.display = 'block';
-  await populatePlayerSelect('p1-select');
+  await populatePlayerMenu('p1');
+  populateTypeMenu('p1');
+  populateTypeMenu('p2');
+  populateLevelMenu();
   document.getElementById('p1Setup').style.display = 'block';
 }
 
-async function populatePlayerSelect(selectId) {
-  const sel = document.getElementById(selectId);
-  sel.innerHTML = '';
+async function populatePlayerMenu(which) {
+  const menu = document.getElementById(`${which}-dd-menu`);
+  const btn = document.getElementById(`${which}-dd-btn`);
+  menu.innerHTML = '';
   const players = await fetchPlayers();
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = '— Select a player —';
-  sel.appendChild(placeholder);
+  if (!players.length) {
+    const empty = document.createElement('div');
+    empty.className = 'dd-item';
+    empty.textContent = 'No players yet';
+    menu.appendChild(empty);
+    btn.textContent = '— Select a player —';
+    return;
+  }
   players.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = `${p.name} (${p.type})`;
-    sel.appendChild(opt);
+    const item = document.createElement('div');
+    item.className = 'dd-item';
+    item.textContent = `${p.name} (${p.type})`;
+    item.onclick = () => {
+      btn.textContent = `${p.name} (${p.type})`;
+      btn.dataset.playerId = p.id;
+      ddClose(`${which}-dd`);
+    };
+    menu.appendChild(item);
   });
 }
 
 async function selectExistingPlayer(which) {
-  const sel = document.getElementById(which + '-select');
-  const id = sel.value;
+  const btn = document.getElementById(`${which}-dd-btn`);
+  const id = btn.dataset.playerId || '';
   if (!id) return;
   const res = await fetch(`/player/get-player/${encodeURIComponent(id)}`);
   const player = await res.json();
@@ -244,7 +258,7 @@ function applyPlayerSelection(which, player) {
     summary.textContent = `Player 1: ${player.name} (${player.type})`;
     // proceed to player 2
     document.getElementById('p2Setup').style.display = 'block';
-    populatePlayerSelect('p2-select');
+    populatePlayerMenu('p2');
   } else {
     // Prevent selecting the same player for Player 2
     if (state.p1 && player.id === state.p1.id) {
@@ -268,6 +282,49 @@ function applyPlayerSelection(which, player) {
   }
 }
 
+function ddToggle(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+function ddClose(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('open');
+}
+
+function populateTypeMenu(which) {
+  const menu = document.getElementById(`${which}-type-menu`);
+  const btn = document.getElementById(`${which}-type-btn`);
+  menu.innerHTML = '';
+  ['human', 'agent'].forEach((t) => {
+    const item = document.createElement('div');
+    item.className = 'dd-item';
+    item.textContent = t;
+    item.onclick = () => {
+      btn.textContent = t;
+      ddClose(`${which}-type-dd`);
+    };
+    menu.appendChild(item);
+  });
+}
+
+function populateLevelMenu() {
+  const menu = document.getElementById('level-menu');
+  const btn = document.getElementById('level-btn');
+  if (!menu) return;
+  menu.innerHTML = '';
+  const levels = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  levels.forEach((lvl) => {
+    const item = document.createElement('div');
+    item.className = 'dd-item';
+    item.textContent = lvl;
+    item.onclick = () => {
+      btn.textContent = lvl;
+      ddClose('level-dd');
+    };
+    menu.appendChild(item);
+  });
+}
+
 function updateBeginButtonState() {
   const begin = document.getElementById('beginBtn');
   begin.disabled = !(state.p1 && state.p2);
@@ -276,7 +333,8 @@ function updateBeginButtonState() {
 async function beginGame() {
   if (!(state.p1 && state.p2)) return;
   const gameId = 'game-' + Date.now();
-  const level = document.getElementById('level').value;
+  // const level = document.getElementById('level').value;
+  const level = document.getElementById('level-btn').textContent;
   const req = {
     gameId,
     player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },

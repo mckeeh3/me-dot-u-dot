@@ -24,12 +24,24 @@
         padding: 24px;
         background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
         color: var(--text);
+        font-size: 16.5px;
+        line-height: 1.5;
       }
 
       h1,
       h3,
       h4 {
         margin: 0 0 8px 0;
+      }
+
+      h1 {
+        font-size: 28px;
+        letter-spacing: 0.4px;
+        background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 14px rgba(0, 229, 255, 0.18), 0 0 10px rgba(255, 58, 242, 0.12);
       }
 
       .game-container {
@@ -144,6 +156,129 @@
       .btn-secondary:hover {
         box-shadow: 0 0 18px rgba(138, 43, 226, 0.35), inset 0 0 14px rgba(138, 43, 226, 0.2);
       }
+
+      /* Form controls */
+      label {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      input,
+      select {
+        appearance: none;
+        padding: 10px 12px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        background-color: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        outline: none;
+        transition: box-shadow 150ms ease, border-color 150ms ease;
+      }
+      input:hover,
+      select:hover {
+        border-color: rgba(0, 229, 255, 0.35);
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 18px rgba(0, 229, 255, 0.22), inset 0 0 10px rgba(0, 229, 255, 0.12);
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+      input::placeholder {
+        color: rgba(230, 233, 239, 0.5);
+      }
+      /* Dropdown list background (option menus) */
+      option,
+      select option {
+        background: rgba(255, 255, 255, 0.06);
+        background-color: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+      optgroup {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+
+      /* Custom dropdown */
+      .dd {
+        position: relative;
+        min-width: 240px;
+        display: inline-block;
+      }
+      .dd-toggle {
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        cursor: pointer;
+      }
+      .dd-toggle:hover {
+        border-color: rgba(0, 229, 255, 0.35);
+      }
+      .dd-toggle:after {
+        content: '▾';
+        float: right;
+        opacity: 0.7;
+      }
+      .dd-menu {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: rgba(15, 21, 38, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+        max-height: 240px;
+        overflow: auto;
+        display: none;
+      }
+      .dd.open .dd-menu {
+        display: block;
+      }
+      .dd-item {
+        padding: 10px 12px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .dd-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      /* Setup layout helpers */
+      .setup-row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+      .setup-choose {
+        flex: 0 0 320px;
+      }
+      .setup-sep {
+        flex: 0 0 auto;
+      }
+      .setup-create {
+        flex: 1 1 0;
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        min-width: 480px;
+      }
+      .type-narrow {
+        min-width: 140px;
+      }
+      @media (max-width: 1080px) {
+        .setup-choose {
+          flex-basis: 100%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -158,25 +293,28 @@
         <div id="setupPanel" style="display: none">
           <div id="p1Setup" style="margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
             <h4>Player 1</h4>
-            <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap">
-              <div>
-                <label
-                  >Choose existing
-                  <select id="p1-select" style="min-width: 240px"></select>
-                </label>
-                <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
+            <div class="setup-row">
+              <div class="setup-choose">
+                <div>
+                  <label>Choose existing</label>
+                  <div class="dd" id="p1-dd">
+                    <button type="button" class="dd-toggle" onclick="ddToggle('p1-dd')" id="p1-dd-btn">— Select a player —</button>
+                    <div class="dd-menu" id="p1-dd-menu"></div>
+                  </div>
+                  <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
+                </div>
               </div>
-              <div style="opacity: 0.6">or</div>
-              <div>
+              <div class="setup-sep" style="opacity: 0.6">or</div>
+              <div class="setup-create">
                 <label>New Id <input id="p1-id" placeholder="player-1" /></label>
                 <label style="margin-left: 8px">Name <input id="p1-name" placeholder="Alice" /></label>
-                <label style="margin-left: 8px"
-                  >Type
-                  <select id="p1-type">
-                    <option value="human" selected>human</option>
-                    <option value="agent">agent</option>
-                  </select>
-                </label>
+                <div style="margin-left: 8px">
+                  <label>Type</label>
+                  <div class="dd type-narrow" id="p1-type-dd">
+                    <button type="button" class="dd-toggle" onclick="ddToggle('p1-type-dd')" id="p1-type-btn">human</button>
+                    <div class="dd-menu" id="p1-type-menu"></div>
+                  </div>
+                </div>
                 <button class="btn-primary" onclick="createPlayer('p1')" style="margin-left: 8px">Create & Select</button>
               </div>
             </div>
@@ -186,25 +324,28 @@
 
           <div id="p2Setup" style="display: none; margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
             <h4>Player 2</h4>
-            <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap">
-              <div>
-                <label
-                  >Choose existing
-                  <select id="p2-select" style="min-width: 240px"></select>
-                </label>
-                <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
+            <div class="setup-row">
+              <div class="setup-choose">
+                <div>
+                  <label>Choose existing</label>
+                  <div class="dd" id="p2-dd">
+                    <button type="button" class="dd-toggle" onclick="ddToggle('p2-dd')" id="p2-dd-btn">— Select a player —</button>
+                    <div class="dd-menu" id="p2-dd-menu"></div>
+                  </div>
+                  <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
+                </div>
               </div>
-              <div style="opacity: 0.6">or</div>
-              <div>
+              <div class="setup-sep" style="opacity: 0.6">or</div>
+              <div class="setup-create">
                 <label>New Id <input id="p2-id" placeholder="player-2" /></label>
                 <label style="margin-left: 8px">Name <input id="p2-name" placeholder="Bob" /></label>
-                <label style="margin-left: 8px"
-                  >Type
-                  <select id="p2-type">
-                    <option value="human" selected>human</option>
-                    <option value="agent">agent</option>
-                  </select>
-                </label>
+                <div style="margin-left: 8px">
+                  <label>Type</label>
+                  <div class="dd type-narrow" id="p2-type-dd">
+                    <button type="button" class="dd-toggle" onclick="ddToggle('p2-type-dd')" id="p2-type-btn">human</button>
+                    <div class="dd-menu" id="p2-type-menu"></div>
+                  </div>
+                </div>
                 <button class="btn-primary" onclick="createPlayer('p2')" style="margin-left: 8px">Create & Select</button>
               </div>
             </div>
@@ -215,17 +356,10 @@
           <div id="levelSetup" style="display: none; margin-top: 12px">
             <label style="margin-right: 8px"
               >Level
-              <select id="level">
-                <option value="one" selected>Level 1 (5x5)</option>
-                <option value="two">Level 2 (7x7)</option>
-                <option value="three">Level 3 (9x9)</option>
-                <option value="four">Level 4 (11x11)</option>
-                <option value="five">Level 5 (13x13)</option>
-                <option value="six">Level 6 (15x15)</option>
-                <option value="seven">Level 7 (17x17)</option>
-                <option value="eight">Level 8 (19x19)</option>
-                <option value="nine">Level 9 (21x21)</option>
-              </select>
+              <div class="dd" id="level-dd">
+                <button type="button" class="dd-toggle" onclick="ddToggle('level-dd')" id="level-btn">one</button>
+                <div class="dd-menu" id="level-menu"></div>
+              </div>
             </label>
           </div>
 
