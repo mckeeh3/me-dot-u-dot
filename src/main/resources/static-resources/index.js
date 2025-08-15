@@ -113,6 +113,18 @@ async function loadPlayer(which) {
   renderGameInfo();
 }
 
+// Fetch all players (id, name, type) from the backend
+async function fetchPlayers() {
+  const res = await fetch('/player/get-players', {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch players: ${res.status} ${res.statusText}`);
+  }
+  const { players } = await res.json();
+  return Array.isArray(players) ? players : [];
+}
+
 async function createGame() {
   const gameId = $('game-id').value.trim() || 'game-' + Date.now();
   const level = $('level').value;
