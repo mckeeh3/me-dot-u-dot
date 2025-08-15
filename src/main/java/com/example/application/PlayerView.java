@@ -13,24 +13,22 @@ import com.example.domain.Player;
 public class PlayerView extends View {
 
   @Query("""
-      SELECT name AS names
+      SELECT * AS players
         FROM player_view
        ORDER BY name ASC
       """)
-  public QueryEffect<Names> getAllNames() {
+  public QueryEffect<Players> getAllNames() {
     return queryResult();
   }
 
   @Consume.FromKeyValueEntity(PlayerEntity.class)
   public static class ById extends TableUpdater<PlayerRow> {
     public Effect<PlayerRow> onChange(Player.State state) {
-      if (state.isEmpty())
-        return effects().deleteRow(entityId());
-      return effects().updateRow(new PlayerRow(state.id(), state.name()));
+      return effects().updateRow(new PlayerRow(state.id(), state.name(), state.type().name()));
     }
   }
 
-  public record PlayerRow(String id, String name) {}
+  public record PlayerRow(String id, String name, String type) {}
 
-  public record Names(List<String> names) {}
+  public record Players(List<PlayerRow> players) {}
 }

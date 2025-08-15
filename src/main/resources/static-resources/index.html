@@ -150,63 +150,88 @@
     <div class="game-container">
       <h1>🎮 Me-Dot-U-Dot</h1>
 
-      <section style="margin-bottom: 16px">
-        <h3>Players</h3>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap">
-          <div style="flex: 1; min-width: 260px">
-            <h4>Player 1</h4>
-            <label>Id <input id="p1-id" placeholder="player-1" /></label><br />
-            <label>Name <input id="p1-name" placeholder="Alice" /></label><br />
-            <label
-              >Type
-              <select id="p1-type">
-                <option value="human" selected>human</option>
-                <option value="agent">agent</option>
-              </select>
-            </label>
-            <div style="margin-top: 8px">
-              <button class="btn-primary" onclick="createPlayer('p1')">Create Player 1</button>
-              <button class="btn-secondary" onclick="loadPlayer('p1')">Load</button>
-            </div>
-          </div>
-          <div style="flex: 1; min-width: 260px">
-            <h4>Player 2</h4>
-            <label>Id <input id="p2-id" placeholder="player-2" /></label><br />
-            <label>Name <input id="p2-name" placeholder="Bob" /></label><br />
-            <label
-              >Type
-              <select id="p2-type">
-                <option value="human" selected>human</option>
-                <option value="agent">agent</option>
-              </select>
-            </label>
-            <div style="margin-top: 8px">
-              <button class="btn-primary" onclick="createPlayer('p2')">Create Player 2</button>
-              <button class="btn-secondary" onclick="loadPlayer('p2')">Load</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="controls" id="topControls" style="margin-top: 8px; margin-bottom: 12px">
+        <button class="btn-primary" onclick="startNewGameWizard()" id="startNewBtn">Start New GAME</button>
+      </div>
 
       <section style="margin-bottom: 16px">
-        <h3>Game Setup</h3>
-        <label>Game Id <input id="game-id" /></label>
-        <label style="margin-left: 16px"
-          >Level
-          <select id="level">
-            <option value="one" selected>Level 1 (5x5)</option>
-            <option value="two">Level 2 (7x7)</option>
-            <option value="three">Level 3 (9x9)</option>
-            <option value="four">Level 4 (11x11)</option>
-            <option value="five">Level 5 (13x13)</option>
-            <option value="six">Level 6 (15x15)</option>
-            <option value="seven">Level 7 (17x17)</option>
-            <option value="eight">Level 8 (19x19)</option>
-            <option value="nine">Level 9 (21x21)</option>
-          </select>
-        </label>
-        <div style="margin-top: 8px">
-          <button class="btn-primary" onclick="createGame()">Create Game</button>
+        <div id="setupPanel" style="display: none">
+          <div id="p1Setup" style="margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
+            <h4>Player 1</h4>
+            <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap">
+              <div>
+                <label
+                  >Choose existing
+                  <select id="p1-select" style="min-width: 240px"></select>
+                </label>
+                <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
+              </div>
+              <div style="opacity: 0.6">or</div>
+              <div>
+                <label>New Id <input id="p1-id" placeholder="player-1" /></label>
+                <label style="margin-left: 8px">Name <input id="p1-name" placeholder="Alice" /></label>
+                <label style="margin-left: 8px"
+                  >Type
+                  <select id="p1-type">
+                    <option value="human" selected>human</option>
+                    <option value="agent">agent</option>
+                  </select>
+                </label>
+                <button class="btn-primary" onclick="createPlayer('p1')" style="margin-left: 8px">Create & Select</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="p1Summary" style="display: none; margin: 8px 0; padding: 10px; border-left: 3px solid var(--neon-cyan)"></div>
+
+          <div id="p2Setup" style="display: none; margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
+            <h4>Player 2</h4>
+            <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap">
+              <div>
+                <label
+                  >Choose existing
+                  <select id="p2-select" style="min-width: 240px"></select>
+                </label>
+                <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
+              </div>
+              <div style="opacity: 0.6">or</div>
+              <div>
+                <label>New Id <input id="p2-id" placeholder="player-2" /></label>
+                <label style="margin-left: 8px">Name <input id="p2-name" placeholder="Bob" /></label>
+                <label style="margin-left: 8px"
+                  >Type
+                  <select id="p2-type">
+                    <option value="human" selected>human</option>
+                    <option value="agent">agent</option>
+                  </select>
+                </label>
+                <button class="btn-primary" onclick="createPlayer('p2')" style="margin-left: 8px">Create & Select</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="p2Summary" style="display: none; margin: 8px 0; padding: 10px; border-left: 3px solid var(--neon-purple)"></div>
+
+          <div id="levelSetup" style="display: none; margin-top: 12px">
+            <label style="margin-right: 8px"
+              >Level
+              <select id="level">
+                <option value="one" selected>Level 1 (5x5)</option>
+                <option value="two">Level 2 (7x7)</option>
+                <option value="three">Level 3 (9x9)</option>
+                <option value="four">Level 4 (11x11)</option>
+                <option value="five">Level 5 (13x13)</option>
+                <option value="six">Level 6 (15x15)</option>
+                <option value="seven">Level 7 (17x17)</option>
+                <option value="eight">Level 8 (19x19)</option>
+                <option value="nine">Level 9 (21x21)</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="controls" id="beginControls" style="display: none; margin-top: 10px">
+            <button class="btn-primary" id="beginBtn" onclick="beginGame()" disabled>Begin Game</button>
+          </div>
         </div>
       </section>
 

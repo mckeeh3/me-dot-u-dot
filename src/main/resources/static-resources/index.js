@@ -97,7 +97,8 @@ async function createPlayer(which) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(cmd),
   });
-  await loadPlayer(which);
+  const player = await loadPlayer(which);
+  applyPlayerSelection(which, player);
 }
 
 async function loadPlayer(which) {
@@ -111,6 +112,7 @@ async function loadPlayer(which) {
   if (which === 'p1') state.p1 = player;
   else state.p2 = player;
   renderGameInfo();
+  return player;
 }
 
 // Fetch all players (id, name, type) from the backend
@@ -197,9 +199,105 @@ async function refreshGameState() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Prefill ids
-  $('p1-id').value = 'player-1';
-  $('p2-id').value = 'player-2';
-  $('game-id').value = 'game-' + Date.now();
-  setStatus('Create players and a game to begin');
+  setStatus('Click "Start New GAME" to begin');
   renderBoard();
 });
+
+async function startNewGameWizard() {
+  const panel = document.getElementById('setupPanel');
+  panel.style.display = 'block';
+  await populatePlayerSelect('p1-select');
+  document.getElementById('p1Setup').style.display = 'block';
+}
+
+async function populatePlayerSelect(selectId) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '';
+  const players = await fetchPlayers();
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '— Select a player —';
+  sel.appendChild(placeholder);
+  players.forEach((p) => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name} (${p.type})`;
+    sel.appendChild(opt);
+  });
+}
+
+async function selectExistingPlayer(which) {
+  const sel = document.getElementById(which + '-select');
+  const id = sel.value;
+  if (!id) return;
+  const res = await fetch(`/player/get-player/${encodeURIComponent(id)}`);
+  const player = await res.json();
+  applyPlayerSelection(which, player);
+}
+
+function applyPlayerSelection(which, player) {
+  if (which === 'p1') {
+    state.p1 = player;
+    document.getElementById('p1Setup').style.display = 'none';
+    const summary = document.getElementById('p1Summary');
+    summary.style.display = 'block';
+    summary.textContent = `Player 1: ${player.name} (${player.type})`;
+    // proceed to player 2
+    document.getElementById('p2Setup').style.display = 'block';
+    populatePlayerSelect('p2-select');
+  } else {
+    // Prevent selecting the same player for Player 2
+    if (state.p1 && player.id === state.p1.id) {
+      state.p2 = null;
+      // keep Player 2 selection visible and show an error
+      document.getElementById('p2Setup').style.display = 'block';
+      const p2Summary = document.getElementById('p2Summary');
+      if (p2Summary) p2Summary.style.display = 'none';
+      alert('Player 2 must be different from Player 1. Please choose another player.');
+      return;
+    }
+    state.p2 = player;
+    document.getElementById('p2Setup').style.display = 'none';
+    const summary = document.getElementById('p2Summary');
+    summary.style.display = 'block';
+    summary.textContent = `Player 2: ${player.name} (${player.type})`;
+    // enable level select and show Begin control as a next step in wizard
+    document.getElementById('levelSetup').style.display = 'block';
+    document.getElementById('beginControls').style.display = 'block';
+    updateBeginButtonState();
+  }
+}
+
+function updateBeginButtonState() {
+  const begin = document.getElementById('beginBtn');
+  begin.disabled = !(state.p1 && state.p2);
+}
+
+async function beginGame() {
+  if (!(state.p1 && state.p2)) return;
+  const gameId = 'game-' + Date.now();
+  const level = document.getElementById('level').value;
+  const req = {
+    gameId,
+    player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },
+    player2: { id: state.p2.id, type: state.p2.type, name: state.p2.name },
+    level,
+  };
+  const res = await fetch('/game/create-game', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  const { gameState } = await res.json();
+  state.game = gameState;
+  setStatus('Game created');
+  renderGameInfo();
+  renderBoard();
+  openMoveStream(state.game.gameId);
+
+  // If player 1 is an agent, trigger move
+  const p1IsAgent = state.game.currentPlayer?.player?.id === state.p1.id && state.p1.type === 'agent';
+  if (p1IsAgent) {
+    // Let the backend and agent pipeline produce the move; frontend will refresh via SSE
+  }
+}
