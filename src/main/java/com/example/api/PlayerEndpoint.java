@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.application.PlayerEntity;
+import com.example.application.PlayerView;
+import com.example.application.PlayerView.Players;
 import com.example.domain.Player;
 
 import akka.Done;
@@ -48,6 +50,15 @@ public class PlayerEndpoint {
 
     return componentClient.forKeyValueEntity(id)
         .method(PlayerEntity::getState)
+        .invoke();
+  }
+
+  @Get("/get-players")
+  public Players getPlayers() {
+    log.info("Get players");
+
+    return componentClient.forView()
+        .method(PlayerView::getAllNames)
         .invoke();
   }
 }
