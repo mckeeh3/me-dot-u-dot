@@ -25,6 +25,7 @@ public class DotGameToAgentConsumer extends Consumer {
     return switch (event) {
       case DotGame.Event.GameCreated e -> onEvent(e);
       case DotGame.Event.MoveMade e -> onEvent(e);
+      case DotGame.Event.GameCanceled e -> effects().done();
     };
   }
 
@@ -114,6 +115,48 @@ public class DotGameToAgentConsumer extends Consumer {
       }
 
       return effects().done();
+    }
+
+    return effects().done();
+  }
+
+  Effect onEvent(DotGame.Event.GameCanceled event) {
+    if (event.player1Status().player().isAgent()) {
+      var agentPlayer = event.player1Status();
+      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+
+      var prompt = new DotGameAgent.MakeMovePrompt(
+          event.gameId(),
+          event.status(),
+          agentPlayer.player().id(),
+          agentPlayer.player().name());
+
+      var result = componentClient
+          .forAgent()
+          .inSession(sessionId)
+          .method(DotGameAgent::makeMove)
+          .invoke(prompt);
+
+      log.debug("Make move (5 game canceled, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
+    }
+
+    if (event.player2Status().player().isAgent()) {
+      var agentPlayer = event.player2Status();
+      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+
+      var prompt = new DotGameAgent.MakeMovePrompt(
+          event.gameId(),
+          event.status(),
+          agentPlayer.player().id(),
+          agentPlayer.player().name());
+
+      var result = componentClient
+          .forAgent()
+          .inSession(sessionId)
+          .method(DotGameAgent::makeMove)
+          .invoke(prompt);
+
+      log.debug("Make move (6 game canceled, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
     }
 
     return effects().done();

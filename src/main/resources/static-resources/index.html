@@ -5,110 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Me-Dot-U-Dot Game</title>
     <style>
+      :root {
+        --bg: #0b0f1a;
+        --panel: #0f1526;
+        --text: #e6e9ef;
+        --muted: #9aa3b2;
+        --neon-cyan: #00e5ff;
+        --neon-magenta: #ff3af2;
+        --neon-purple: #8a2be2;
+        --neon-green: #39ff14;
+        --board-width: 720px;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 20px;
-        background-color: #f5f5f5;
+        padding: 24px;
+        background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
+        color: var(--text);
+      }
+
+      h1,
+      h3,
+      h4 {
+        margin: 0 0 8px 0;
       }
 
       .game-container {
-        background: white;
+        background: linear-gradient(180deg, rgba(22, 28, 50, 0.9), rgba(12, 16, 30, 0.95));
         padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 14px;
+        box-shadow: 0 0 40px rgba(0, 229, 255, 0.08), inset 0 0 40px rgba(255, 58, 242, 0.05);
+        border: 1px solid rgba(0, 229, 255, 0.12);
       }
 
       .game-board {
         display: grid;
+        gap: 8px;
+        margin: 20px auto;
+        width: var(--board-width);
+        max-width: var(--board-width);
         grid-template-columns: repeat(5, 1fr);
-        gap: 5px;
-        margin: 20px 0;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
+        user-select: none;
       }
 
       .cell {
-        width: 60px;
-        height: 60px;
-        border: 2px solid #333;
+        aspect-ratio: 1 / 1;
+        border: 1px solid rgba(0, 229, 255, 0.25);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: var(--dot-size, 28px);
+        color: var(--text);
+        background: linear-gradient(180deg, rgba(20, 26, 46, 0.65), rgba(13, 17, 31, 0.65));
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.08);
+        transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
         cursor: pointer;
-        background: #fff;
-        transition: background-color 0.2s;
       }
 
       .cell:hover {
-        background: #e0e0e0;
+        transform: translateY(-1px);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
       }
 
       .cell.player {
-        background: #4caf50;
-        color: white;
+        color: var(--neon-green);
+        text-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
+      }
+      .cell.ai {
+        color: var(--neon-magenta);
+        text-shadow: 0 0 12px rgba(255, 58, 242, 0.5);
+      }
+      .cell.last-move {
+        outline: 2px solid var(--neon-cyan);
+        box-shadow: 0 0 24px rgba(0, 229, 255, 0.35);
+      }
+      .cell.last-move {
+        animation: neonPulse 1.2s ease-out 1;
       }
 
-      .cell.ai {
-        background: #f44336;
-        color: white;
+      @keyframes neonPulse {
+        0% {
+          box-shadow: 0 0 0 rgba(0, 229, 255, 0);
+          transform: scale(1);
+        }
+        40% {
+          box-shadow: 0 0 28px rgba(0, 229, 255, 0.45);
+          transform: scale(1.04);
+        }
+        100% {
+          box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+          transform: scale(1);
+        }
       }
 
       .game-info {
         text-align: center;
-        margin: 20px 0;
+        margin: 16px 0;
       }
-
       .status {
-        font-size: 18px;
-        margin: 10px 0;
+        font-size: 16px;
+        margin: 8px 0;
         padding: 10px;
-        border-radius: 5px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(138, 43, 226, 0.25);
       }
-
-      .status.player-turn {
-        background: #e8f5e8;
-        color: #2e7d32;
-      }
-
-      .status.ai-turn {
-        background: #ffebee;
-        color: #c62828;
-      }
-
       .controls {
         text-align: center;
-        margin: 20px 0;
+        margin: 16px 0;
       }
 
       button {
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px;
+        padding: 10px 18px;
+        font-size: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
         cursor: pointer;
-        margin: 0 10px;
+        margin: 0 8px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+        transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
       }
-
       .btn-primary {
-        background: #2196f3;
-        color: white;
+        border-color: rgba(0, 229, 255, 0.35);
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.12) inset;
       }
-
       .btn-secondary {
-        background: #757575;
-        color: white;
+        border-color: rgba(138, 43, 226, 0.35);
+        box-shadow: 0 0 10px rgba(138, 43, 226, 0.12) inset;
       }
-
       .btn-primary:hover {
-        background: #1976d2;
+        box-shadow: 0 0 18px rgba(0, 229, 255, 0.35), inset 0 0 14px rgba(0, 229, 255, 0.2);
       }
-
       .btn-secondary:hover {
-        background: #616161;
+        box-shadow: 0 0 18px rgba(138, 43, 226, 0.35), inset 0 0 14px rgba(138, 43, 226, 0.2);
       }
     </style>
   </head>
@@ -178,12 +212,24 @@
 
       <div class="game-info">
         <div id="status" class="status">No game yet. Create one above.</div>
-        <div id="score">Scores — <span id="p1-label">P1</span>: <span id="p1-score">0</span> | <span id="p2-label">P2</span>: <span id="p2-score">0</span></div>
+        <div id="score">
+          Scores —
+          <span id="p1-label">P1</span>:
+          <span id="p1-score">0</span>
+          (<span id="p1-moves">0</span> moves) | <span id="p2-label">P2</span>:
+          <span id="p2-score">0</span>
+          (<span id="p2-moves">0</span> moves)
+        </div>
         <div id="turn"></div>
       </div>
 
       <div class="game-board" id="gameBoard" style="--size: 5; grid-template-columns: repeat(var(--size), 1fr)">
         <!-- Grid cells will be generated by JavaScript -->
+      </div>
+
+      <div class="controls" style="margin-top: 12px">
+        <button class="btn-secondary" onclick="cancelGame()" id="cancelBtn" style="display: none">Cancel Game</button>
+        <button class="btn-primary" onclick="newGameUI()" id="newGameBtn" style="display: none">New Game</button>
       </div>
     </div>
 

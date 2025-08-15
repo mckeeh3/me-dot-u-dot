@@ -19,7 +19,7 @@ public class UpdatePlaybookTool {
   }
 
   @FunctionTool(description = """
-      Replaces your (the agent’s) current playbook—a persistent, free-form text document keyed by agentId—
+      Replaces your (the agent’s) current playbook—a persistent, free-form text instructions keyed by agentId—
       with a new version of its instructions. The playbook is the your self-authored knowledge base: it
       captures discoveries, decision principles, tactics, and corrections distilled from experience.
       Updating it is how you (the agent/model) learn, turning raw outcomes into reusable guidance and gradually

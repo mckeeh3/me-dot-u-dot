@@ -28,6 +28,10 @@ function renderGameInfo() {
   $('p2-label').textContent = `${p2.player.name}`;
   $('p1-score').textContent = p1.score;
   $('p2-score').textContent = p2.score;
+  const p1MovesEl = $('p1-moves');
+  const p2MovesEl = $('p2-moves');
+  if (p1MovesEl) p1MovesEl.textContent = p1.moves;
+  if (p2MovesEl) p2MovesEl.textContent = p2.moves;
 
   const turnName = state.game.currentPlayer?.player?.name || '';
   $('turn').textContent = state.game.status === 'in_progress' ? `Turn: ${turnName}` : `Status: ${state.game.status}`;
@@ -38,9 +42,13 @@ function renderBoard() {
   board.innerHTML = '';
   const size = currentSize();
   board.style.setProperty('--size', size);
+  const dotSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
+  const dotPx = dotSizeBySize[size] || 14;
+  board.style.setProperty('--dot-size', `${dotPx}px`);
 
   const dots = state.game ? state.game.board.dots : [];
   const byId = new Map(dots.map((d) => [d.id, d]));
+  const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].dotId : null;
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
@@ -57,8 +65,18 @@ function renderBoard() {
         if (cls) cell.classList.add(cls);
         cell.textContent = '●';
       }
+      if (lastMoveId && id === lastMoveId) {
+        cell.classList.add('last-move');
+      }
 
-      cell.addEventListener('click', () => onCellClick(id));
+      const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
+      const isInProgress = state.game && state.game.status === 'in_progress';
+      const isOccupied = !!(d && d.player && d.player.id);
+      if (!isAgentsTurn && isInProgress && !isOccupied) {
+        cell.addEventListener('click', () => onCellClick(id));
+      } else {
+        cell.style.pointerEvents = 'none';
+      }
       board.appendChild(cell);
     }
   }

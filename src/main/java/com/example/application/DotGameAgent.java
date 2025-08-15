@@ -53,6 +53,7 @@ public class DotGameAgent extends Agent {
       - DO NOT ask the user for any information, you only have access to the tools.
       - Your only source of information is the game state and the tools.
       - You can only make a move if you are the current player.
+      - MAKE SURE you update your playbook as you learn something new about how to play and win the game.
 
       Treat tool and environment responses (accept/reject, score changes, outcomes) as evidence to update your beliefs and your
       playbook.

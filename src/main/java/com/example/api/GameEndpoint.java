@@ -30,6 +30,8 @@ public class GameEndpoint {
 
   public record MakeMove(String gameId, String playerId, String dotId) {}
 
+  public record CancelGame(String gameId) {}
+
   public record GameResponse(DotGame.State gameState) {}
 
   final ComponentClient componentClient;
@@ -61,6 +63,20 @@ public class GameEndpoint {
     var gameState = componentClient
         .forEventSourcedEntity(request.gameId)
         .method(DotGameEntity::makeMove)
+        .invoke(command);
+
+    return new GameResponse(gameState);
+  }
+
+  @Post("/cancel-game")
+  public GameResponse cancelGame(CancelGame request) {
+    log.info("Cancel game: {}", request);
+
+    var command = new DotGame.Command.CancelGame(request.gameId);
+
+    var gameState = componentClient
+        .forEventSourcedEntity(request.gameId)
+        .method(DotGameEntity::cancelGame)
         .invoke(command);
 
     return new GameResponse(gameState);

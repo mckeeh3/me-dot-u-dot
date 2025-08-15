@@ -16,7 +16,8 @@ public interface DotGame {
     empty,
     in_progress,
     won_by_player,
-    draw
+    draw,
+    canceled
   }
 
   public record State(
@@ -114,6 +115,22 @@ public interface DotGame {
     }
 
     // ============================================================
+    // Command CancelGame
+    // ============================================================
+    public Optional<Event> onCommand(Command.CancelGame command) {
+      if (!status.equals(Status.in_progress)) {
+        return Optional.empty();
+      }
+
+      return Optional.of(new Event.GameCanceled(
+          gameId,
+          Status.canceled,
+          player1Status,
+          player2Status,
+          Instant.now()));
+    }
+
+    // ============================================================
     // Event handlers
     // ============================================================
     public State onEvent(Event.GameCreated event) {
@@ -140,8 +157,20 @@ public interface DotGame {
           event.moveHistory);
     }
 
-    boolean isGameOver() {
-      return status == Status.won_by_player || status == Status.draw;
+    public State onEvent(Event.GameCanceled event) {
+      return new State(
+          gameId,
+          createdAt,
+          event.status,
+          board,
+          player1Status,
+          player2Status,
+          Optional.empty(),
+          moveHistory);
+    }
+
+    public boolean isGameOver() {
+      return status == Status.won_by_player || status == Status.draw || status == Status.canceled;
     }
 
     static Status gameStatus(Board board, PlayerStatus player1Status, PlayerStatus player2Status) {
@@ -220,6 +249,10 @@ public interface DotGame {
     public record CompleteGame(
         String gameId,
         String winner) implements Command {}
+
+    public record GameCanceled(String gameId) implements Command {}
+
+    public record CancelGame(String gameId) implements Command {}
   }
 
   // ============================================================
@@ -248,6 +281,14 @@ public interface DotGame {
         PlayerStatus player2Status,
         Optional<PlayerStatus> currentPlayerStatus,
         List<Move> moveHistory,
+        Instant timestamp) implements Event {}
+
+    @TypeName("game-canceled")
+    public record GameCanceled(
+        String gameId,
+        Status status,
+        PlayerStatus player1Status,
+        PlayerStatus player2Status,
         Instant timestamp) implements Event {}
   }
 
