@@ -250,7 +250,8 @@ async function populatePlayerMenu(which) {
     const item = document.createElement('div');
     item.className = 'dd-item';
     item.textContent = `${p.name} (${p.type})`;
-    item.onclick = () => {
+    item.onclick = (e) => {
+      e.stopPropagation();
       btn.textContent = `${p.name} (${p.type})`;
       btn.dataset.playerId = p.id;
       ddClose(`${which}-dd`);
@@ -320,7 +321,8 @@ function populateTypeMenu(which) {
     const item = document.createElement('div');
     item.className = 'dd-item';
     item.textContent = t;
-    item.onclick = () => {
+    item.onclick = (e) => {
+      e.stopPropagation();
       btn.textContent = t;
       ddClose(`${which}-type-dd`);
     };
@@ -338,7 +340,8 @@ function populateLevelMenu() {
     const item = document.createElement('div');
     item.className = 'dd-item';
     item.textContent = lvl;
-    item.onclick = () => {
+    item.onclick = (e) => {
+      e.stopPropagation();
       btn.textContent = lvl;
       ddClose('level-dd');
     };
