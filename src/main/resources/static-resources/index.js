@@ -33,8 +33,26 @@ function renderGameInfo() {
   if (p1MovesEl) p1MovesEl.textContent = p1.moves;
   if (p2MovesEl) p2MovesEl.textContent = p2.moves;
 
+  // Update status with turn and game state info
   const turnName = state.game.currentPlayer?.player?.name || '';
-  $('turn').textContent = state.game.status === 'in_progress' ? `Turn: ${turnName}` : `Status: ${state.game.status}`;
+  const p1Type = p1.player.type === 'agent' ? '🤖' : '👤';
+  const p2Type = p2.player.type === 'agent' ? '🤖' : '👤';
+
+  if (state.game.status === 'in_progress') {
+    const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
+    setStatus(`${currentType} ${turnName}'s turn • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+  } else if (state.game.status === 'won_by_player') {
+    const winner = p1.isWinner ? p1 : p2;
+    const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
+    setStatus(`🎉 ${winnerType} ${winner.player.name} wins! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+  } else if (state.game.status === 'draw') {
+    setStatus(`🤝 It's a draw! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+  } else if (state.game.status === 'canceled') {
+    setStatus(`❌ Game canceled • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+  }
+
+  const turnName2 = state.game.currentPlayer?.player?.name || '';
+  $('turn').textContent = state.game.status === 'in_progress' ? `Turn: ${turnName2}` : `Status: ${state.game.status}`;
 }
 
 function renderBoard() {
@@ -200,13 +218,14 @@ async function refreshGameState() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Prefill ids
-  setStatus('Click "Begin Game" to play');
+  setStatus("🎮 Let's play a game!");
   renderBoard();
 });
 
 async function startNewGameWizard() {
   const panel = document.getElementById('setupPanel');
   panel.style.display = 'block';
+  setStatus('👤 Select or create Player 1');
   await populatePlayerMenu('p1');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
@@ -256,6 +275,7 @@ function applyPlayerSelection(which, player) {
     const summary = document.getElementById('p1Summary');
     summary.style.display = 'block';
     summary.textContent = `Player 1: ${player.name} (${player.type})`;
+    setStatus('👥 Select or create Player 2');
     // proceed to player 2
     document.getElementById('p2Setup').style.display = 'block';
     populatePlayerMenu('p2');
@@ -275,6 +295,7 @@ function applyPlayerSelection(which, player) {
     const summary = document.getElementById('p2Summary');
     summary.style.display = 'block';
     summary.textContent = `Player 2: ${player.name} (${player.type})`;
+    setStatus('🎯 Pick your game level');
     // enable level select and show Begin control as a next step in wizard
     document.getElementById('levelSetup').style.display = 'block';
     document.getElementById('beginControls').style.display = 'block';
@@ -348,7 +369,7 @@ async function beginGame() {
   });
   const { gameState } = await res.json();
   state.game = gameState;
-  setStatus('Game created');
+  setStatus(`🎮 Game started! ${state.game.currentPlayer?.player?.name || 'Player 1'}'s turn`);
   renderGameInfo();
   renderBoard();
   openMoveStream(state.game.gameId);
