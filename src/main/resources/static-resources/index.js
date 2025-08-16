@@ -24,14 +24,6 @@ function renderGameInfo() {
   if (!state.game) return;
   const p1 = state.game.player1Status;
   const p2 = state.game.player2Status;
-  $('p1-label').textContent = `${p1.player.name}`;
-  $('p2-label').textContent = `${p2.player.name}`;
-  $('p1-score').textContent = p1.score;
-  $('p2-score').textContent = p2.score;
-  const p1MovesEl = $('p1-moves');
-  const p2MovesEl = $('p2-moves');
-  if (p1MovesEl) p1MovesEl.textContent = p1.moves;
-  if (p2MovesEl) p2MovesEl.textContent = p2.moves;
 
   // Update status with turn and game state info
   const turnName = state.game.currentPlayer?.player?.name || '';
@@ -40,7 +32,7 @@ function renderGameInfo() {
 
   if (state.game.status === 'in_progress') {
     const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
-    setStatus(`${currentType} ${turnName}'s turn • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+    setStatus(`${currentType} ${turnName}'s turn • ${p1Type}${p1.player.name}: Score ${p1.score} • ${p2Type}${p2.player.name}: Score ${p2.score}`);
   } else if (state.game.status === 'won_by_player') {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
@@ -50,9 +42,6 @@ function renderGameInfo() {
   } else if (state.game.status === 'canceled') {
     setStatus(`❌ Game canceled • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   }
-
-  const turnName2 = state.game.currentPlayer?.player?.name || '';
-  $('turn').textContent = state.game.status === 'in_progress' ? `Turn: ${turnName2}` : `Status: ${state.game.status}`;
 }
 
 function renderBoard() {
@@ -103,7 +92,7 @@ function renderBoard() {
 async function createPlayer(which) {
   const id = $(which + '-id').value.trim();
   const name = $(which + '-name').value.trim();
-  const typeBtn = document.getElementById(`${which}-type-btn`);
+  const typeBtn = $(`${which}-type-btn`);
   const type = typeBtn ? typeBtn.textContent.trim() : 'human';
   if (!id || !name) {
     alert('Player id and name are required');
@@ -223,19 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function startNewGameWizard() {
-  const panel = document.getElementById('setupPanel');
+  const panel = $('setupPanel');
   panel.style.display = 'block';
   setStatus('👤 Select or create Player 1');
   await populatePlayerMenu('p1');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
   populateLevelMenu();
-  document.getElementById('p1Setup').style.display = 'block';
+  $('p1Setup').style.display = 'block';
 }
 
 async function populatePlayerMenu(which) {
-  const menu = document.getElementById(`${which}-dd-menu`);
-  const btn = document.getElementById(`${which}-dd-btn`);
+  const menu = $(`${which}-dd-menu`);
+  const btn = $(`${which}-dd-btn`);
   menu.innerHTML = '';
   const players = await fetchPlayers();
   if (!players.length) {
@@ -261,7 +250,7 @@ async function populatePlayerMenu(which) {
 }
 
 async function selectExistingPlayer(which) {
-  const btn = document.getElementById(`${which}-dd-btn`);
+  const btn = $(`${which}-dd-btn`);
   const id = btn.dataset.playerId || '';
   if (!id) return;
   const res = await fetch(`/player/get-player/${encodeURIComponent(id)}`);
@@ -272,50 +261,50 @@ async function selectExistingPlayer(which) {
 function applyPlayerSelection(which, player) {
   if (which === 'p1') {
     state.p1 = player;
-    document.getElementById('p1Setup').style.display = 'none';
-    const summary = document.getElementById('p1Summary');
+    $('p1Setup').style.display = 'none';
+    const summary = $('p1Summary');
     summary.style.display = 'block';
     summary.textContent = `Player 1: ${player.name} (${player.type})`;
     setStatus('👥 Select or create Player 2');
     // proceed to player 2
-    document.getElementById('p2Setup').style.display = 'block';
+    $('p2Setup').style.display = 'block';
     populatePlayerMenu('p2');
   } else {
     // Prevent selecting the same player for Player 2
     if (state.p1 && player.id === state.p1.id) {
       state.p2 = null;
       // keep Player 2 selection visible and show an error
-      document.getElementById('p2Setup').style.display = 'block';
-      const p2Summary = document.getElementById('p2Summary');
+      $('p2Setup').style.display = 'block';
+      const p2Summary = $('p2Summary');
       if (p2Summary) p2Summary.style.display = 'none';
       alert('Player 2 must be different from Player 1. Please choose another player.');
       return;
     }
     state.p2 = player;
-    document.getElementById('p2Setup').style.display = 'none';
-    const summary = document.getElementById('p2Summary');
+    $('p2Setup').style.display = 'none';
+    const summary = $('p2Summary');
     summary.style.display = 'block';
     summary.textContent = `Player 2: ${player.name} (${player.type})`;
     setStatus('🎯 Pick your game level');
     // enable level select and show Begin control as a next step in wizard
-    document.getElementById('levelSetup').style.display = 'block';
-    document.getElementById('beginControls').style.display = 'block';
+    $('levelSetup').style.display = 'block';
+    $('beginControls').style.display = 'block';
     updateBeginButtonState();
   }
 }
 
 function ddToggle(id) {
-  const el = document.getElementById(id);
+  const el = $(id);
   el.classList.toggle('open');
 }
 function ddClose(id) {
-  const el = document.getElementById(id);
+  const el = $(id);
   el.classList.remove('open');
 }
 
 function populateTypeMenu(which) {
-  const menu = document.getElementById(`${which}-type-menu`);
-  const btn = document.getElementById(`${which}-type-btn`);
+  const menu = $(`${which}-type-menu`);
+  const btn = $(`${which}-type-btn`);
   menu.innerHTML = '';
   ['human', 'agent'].forEach((t) => {
     const item = document.createElement('div');
@@ -331,8 +320,8 @@ function populateTypeMenu(which) {
 }
 
 function populateLevelMenu() {
-  const menu = document.getElementById('level-menu');
-  const btn = document.getElementById('level-btn');
+  const menu = $('level-menu');
+  const btn = $('level-btn');
   if (!menu) return;
   menu.innerHTML = '';
   const levels = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
@@ -350,15 +339,14 @@ function populateLevelMenu() {
 }
 
 function updateBeginButtonState() {
-  const begin = document.getElementById('beginBtn');
+  const begin = $('beginBtn');
   begin.disabled = !(state.p1 && state.p2);
 }
 
 async function beginGame() {
   if (!(state.p1 && state.p2)) return;
   const gameId = 'game-' + Date.now();
-  // const level = document.getElementById('level').value;
-  const level = document.getElementById('level-btn').textContent;
+  const level = $('level-btn').textContent;
   const req = {
     gameId,
     player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },
