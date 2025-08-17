@@ -47,6 +47,13 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
         .thenReply(newState -> newState);
   }
 
+  public Effect<DotGame.State> forfeitMove(DotGame.Command.ForfeitMove command) {
+
+    return effects()
+        .persistAll(currentState().onCommand(command).stream().toList())
+        .thenReply(newState -> newState);
+  }
+
   public ReadOnlyEffect<DotGame.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 

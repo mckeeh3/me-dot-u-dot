@@ -73,6 +73,7 @@ public class DotGameAgent extends Agent {
     log.debug("MakeMovePrompt: {}", prompt);
 
     return effects()
+        // .memory(MemoryProvider.limitedWindow().readLast(2))
         // .model(ModelProvider.fromConfig("open-ai-gpt-5-mini"))
         .model(ModelProvider
             .openAi()
@@ -81,7 +82,21 @@ public class DotGameAgent extends Agent {
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(prompt.toPrompt())
+        .onFailure(e -> {
+          forfeitMoveDueToError(prompt, e);
+          return "Forfeited move due to agent error: %s".formatted(e.getMessage());
+        })
         .thenReply();
+  }
+
+  void forfeitMoveDueToError(MakeMovePrompt prompt, Throwable e) {
+    log.error("Forfeiting move due to agent error: %s".formatted(e.getMessage()));
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agentId);
+
+    componentClient
+        .forEventSourcedEntity(prompt.gameId)
+        .method(DotGameEntity::forfeitMove)
+        .invoke(command);
   }
 
   public record MakeMovePrompt(

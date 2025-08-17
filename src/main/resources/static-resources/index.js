@@ -15,6 +15,11 @@ function currentSize() {
   return map[level] || 5;
 }
 
+function setStartGameButton(msg) {
+  const el = $('start-game-btn');
+  el.textContent = msg;
+}
+
 function setStatus(msg) {
   const el = $('status');
   el.textContent = msg;
@@ -32,14 +37,18 @@ function renderGameInfo() {
 
   if (state.game.status === 'in_progress') {
     const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
+    setStartGameButton('Reset Game');
     setStatus(`${currentType} ${turnName}'s turn • ${p1Type}${p1.player.name}: Score ${p1.score} • ${p2Type}${p2.player.name}: Score ${p2.score}`);
   } else if (state.game.status === 'won_by_player') {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
+    setStartGameButton('Start New Game');
     setStatus(`🎉 ${winnerType} ${winner.player.name} wins! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   } else if (state.game.status === 'draw') {
+    setStartGameButton('Start New Game');
     setStatus(`🤝 It's a draw! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   } else if (state.game.status === 'canceled') {
+    setStartGameButton('Start New Game');
     setStatus(`❌ Game canceled • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   }
 }
@@ -157,6 +166,7 @@ async function createGame() {
   const { gameState } = await res.json();
   state.game = gameState;
   $('game-id').value = state.game.gameId;
+  setStartGameButton('Reset Game');
   setStatus('Game created');
   renderGameInfo();
   renderBoard();
@@ -214,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function startNewGameWizard() {
   const panel = $('setupPanel');
   panel.style.display = 'block';
+  setStartGameButton('Reset Game');
   setStatus('👤 Select or create Player 1');
   await populatePlayerMenu('p1');
   populateTypeMenu('p1');
@@ -369,5 +380,6 @@ async function beginGame() {
   const p1IsAgent = state.game.currentPlayer?.player?.id === state.p1.id && state.p1.type === 'agent';
   if (p1IsAgent) {
     // Let the backend and agent pipeline produce the move; frontend will refresh via SSE
+    // TODO: add fetch to endpoint to trigger agent's first move
   }
 }

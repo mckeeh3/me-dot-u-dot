@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.example.domain.DotGame.Event.MoveMade;
-
 import akka.javasdk.annotations.TypeName;
 
 public interface DotGame {
@@ -62,19 +60,19 @@ public interface DotGame {
     // ============================================================
     // Command MakeMove
     // ============================================================
-    public Optional<MoveMade> onCommand(Command.MakeMove command) {
+    public Optional<Event> onCommand(Command.MakeMove command) {
       if (!status.equals(Status.in_progress)) {
         return Optional.empty();
       }
 
       var dotOptional = board.dotAt(command.dotId);
       if (dotOptional.isEmpty()) {
-        return Optional.empty();
+        return forfeitMove();
       }
 
       var dot = dotOptional.get();
       if (isEmpty() || isGameOver() || dot.isOccupied()) {
-        return Optional.empty();
+        return forfeitMove();
       }
 
       // Check if it's the player's turn
@@ -111,6 +109,43 @@ public interface DotGame {
           newPlayer2Status,
           newCurrentPlayer,
           newMoveHistory,
+          Instant.now()));
+    }
+
+    Optional<Event> forfeitMove() {
+      var newCurrentPlayer = Optional.of(getNextPlayer());
+
+      return Optional.of(new Event.MoveMade(
+          gameId,
+          board,
+          status,
+          player1Status,
+          player2Status,
+          newCurrentPlayer,
+          moveHistory,
+          Instant.now()));
+    }
+
+    public Optional<Event> onCommand(Command.ForfeitMove command) {
+      if (!status.equals(Status.in_progress)) {
+        return Optional.empty();
+      }
+
+      // Check if it's the player's turn
+      if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
+        return Optional.empty();
+      }
+
+      var newCurrentPlayer = Optional.of(getNextPlayer());
+
+      return Optional.of(new Event.MoveMade(
+          gameId,
+          board,
+          status,
+          player1Status,
+          player2Status,
+          newCurrentPlayer,
+          moveHistory,
           Instant.now()));
     }
 
@@ -245,6 +280,10 @@ public interface DotGame {
         String gameId,
         String playerId,
         String dotId) implements Command {}
+
+    public record ForfeitMove(
+        String gameId,
+        String playerId) implements Command {}
 
     public record CompleteGame(
         String gameId,
