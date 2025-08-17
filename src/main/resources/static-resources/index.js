@@ -383,6 +383,9 @@ async function beginGame() {
   $('levelDisplay').style.display = 'block';
   $('level-value').textContent = level;
 
+  // Hide the Begin Game button once game starts
+  $('beginControls').style.display = 'none';
+
   renderGameInfo();
   renderBoard();
   openMoveStream(state.game.gameId);
