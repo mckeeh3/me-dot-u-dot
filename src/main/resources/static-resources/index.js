@@ -226,6 +226,11 @@ async function startNewGameWizard() {
   panel.style.display = 'block';
   setStartGameButton('Reset Game');
   setStatus('👤 Select or create Player 1');
+
+  // Reset level display back to dropdown
+  $('levelDisplay').style.display = 'none';
+  $('levelSetup').style.display = 'none'; // Will be shown after both players selected
+
   await populatePlayerMenu('p1');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
@@ -372,6 +377,12 @@ async function beginGame() {
   const { gameState } = await res.json();
   state.game = gameState;
   setStatus(`🎮 Game started! ${state.game.currentPlayer?.player?.name || 'Player 1'}'s turn`);
+
+  // Switch from level dropdown to read-only level display
+  $('levelSetup').style.display = 'none';
+  $('levelDisplay').style.display = 'block';
+  $('level-value').textContent = level;
+
   renderGameInfo();
   renderBoard();
   openMoveStream(state.game.gameId);
