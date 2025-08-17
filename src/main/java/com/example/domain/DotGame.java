@@ -126,6 +126,9 @@ public interface DotGame {
           Instant.now()));
     }
 
+    // ============================================================
+    // Command ForfeitMove
+    // ============================================================
     public Optional<Event> onCommand(Command.ForfeitMove command) {
       if (!status.equals(Status.in_progress)) {
         return Optional.empty();
