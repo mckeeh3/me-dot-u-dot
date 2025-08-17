@@ -98,6 +98,54 @@ function renderBoard() {
   }
 }
 
+async function playMoveSound(oldState, newState) {
+  // If no old state, don't play sounds (initial game creation)
+  if (!oldState) return;
+
+  // Check if game was won
+  if (newState.status === 'won_by_player') {
+    await playSound('game-win.wav');
+    return;
+  }
+
+  // Check if game ended in draw
+  if (newState.status === 'draw') {
+    await playSound('game-lose.wav');
+    return;
+  }
+
+  if (newState.status === 'in_progress') {
+    // Check if either player scored
+    const oldP1Score = oldState.player1Status?.score || 0;
+    const oldP2Score = oldState.player2Status?.score || 0;
+    const newP1Score = newState.player1Status?.score || 0;
+    const newP2Score = newState.player2Status?.score || 0;
+
+    if (newP1Score > oldP1Score || newP2Score > oldP2Score) {
+      await playSound('game-score.wav');
+      return;
+    }
+
+    // Check if either player's move count increased
+    const oldP1Moves = oldState.player1Status?.moves || 0;
+    const oldP2Moves = oldState.player2Status?.moves || 0;
+    const newP1Moves = newState.player1Status?.moves || 0;
+    const newP2Moves = newState.player2Status?.moves || 0;
+
+    if (newP1Moves > oldP1Moves || newP2Moves > oldP2Moves) {
+      await playSound('game-move.wav');
+      return;
+    }
+  }
+
+  await playSound('game-alarm.ogg');
+}
+
+async function playSound(sound) {
+  const audio = new Audio(`/sounds/${sound}`);
+  audio.play();
+}
+
 async function createPlayer(which) {
   const id = $(which + '-id').value.trim();
   const name = $(which + '-name').value.trim();
@@ -186,6 +234,7 @@ async function onCellClick(dotId) {
     body: JSON.stringify(req),
   });
   const { gameState } = await res.json();
+  await playMoveSound(state.game, gameState);
   state.game = gameState;
   renderGameInfo();
   renderBoard();
@@ -210,6 +259,7 @@ async function refreshGameState() {
     headers: { Accept: 'application/json' },
   });
   const { gameState } = await res.json();
+  await playMoveSound(state.game, gameState);
   state.game = gameState;
   renderGameInfo();
   renderBoard();

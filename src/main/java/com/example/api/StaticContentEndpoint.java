@@ -1,5 +1,6 @@
 package com.example.api;
 
+import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.Get;
@@ -31,5 +32,10 @@ public class StaticContentEndpoint {
   @Get("/index.js")
   public HttpResponse serveIndexJs() {
     return HttpResponses.staticResource("index.js");
+  }
+
+  @Get("/sounds/**")
+  public HttpResponse serveSounds(HttpRequest request) {
+    return HttpResponses.staticResource(request, "/sounds/");
   }
 }
