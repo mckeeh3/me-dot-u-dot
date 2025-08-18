@@ -170,6 +170,14 @@ function updatePlayerStats(playerNum, playerStatus) {
   $(`${playerNum}Type`).textContent = playerStatus.player.type.toUpperCase();
   $(`${playerNum}Score`).textContent = playerStatus.score;
   $(`${playerNum}Moves`).textContent = playerStatus.moves;
+
+  // Show journal button only for agent players
+  const journalBtn = $(`${playerNum}JournalBtn`);
+  if (playerStatus.player.type === 'agent') {
+    journalBtn.style.display = 'block';
+  } else {
+    journalBtn.style.display = 'none';
+  }
 }
 
 function renderBoard() {
@@ -532,6 +540,112 @@ async function beginGame() {
     // Let the backend and agent pipeline produce the move; frontend will refresh via SSE
     // TODO: add fetch to endpoint to trigger agent's first move
   }
+}
+
+// Journal viewer state
+const journalState = {
+  currentAgentId: null,
+  currentSequenceId: null,
+  isViewing: false,
+};
+
+async function openJournalViewer(playerNum) {
+  const player = playerNum === 'p1' ? state.p1 : state.p2;
+  if (!player || player.type !== 'agent') return;
+
+  journalState.currentAgentId = player.id;
+  journalState.currentSequenceId = Number.MAX_SAFE_INTEGER; // Start with max value
+  journalState.isViewing = true;
+
+  // Hide game board and show journal viewer
+  $('gameBoard').style.display = 'none';
+  $('journalViewer').style.display = 'flex';
+
+  // Load initial journal entry
+  await loadJournalEntry();
+}
+
+function exitJournalViewer() {
+  journalState.isViewing = false;
+  journalState.currentAgentId = null;
+  journalState.currentSequenceId = null;
+
+  // Show game board and hide journal viewer
+  $('gameBoard').style.display = 'grid';
+  $('journalViewer').style.display = 'none';
+}
+
+async function navigateJournal(direction) {
+  if (!journalState.currentAgentId) return;
+
+  const endpoint = direction === 'up' ? '/game/get-journal-by-agent-id-up' : '/game/get-journal-by-agent-id-down';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: journalState.currentAgentId,
+        sequenceId: journalState.currentSequenceId,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.rows && data.rows.length > 0) {
+        const entry = data.rows[0];
+        journalState.currentSequenceId = entry.sequenceId;
+        displayJournalEntry(entry);
+      } else {
+        // No more entries in this direction
+        const instructions = direction === 'up' ? 'No more recent journal entries.' : 'No more previous journal entries.';
+        $('journalInstructions').textContent = instructions;
+      }
+    }
+  } catch (error) {
+    console.error('Error navigating journal:', error);
+    $('journalInstructions').textContent = 'Error loading journal entry.';
+  }
+}
+
+async function loadJournalEntry() {
+  if (!journalState.currentAgentId) return;
+
+  try {
+    const res = await fetch('/game/get-journal-by-agent-id-down', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: journalState.currentAgentId,
+        sequenceId: journalState.currentSequenceId,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.rows && data.rows.length > 0) {
+        const entry = data.rows[0];
+        journalState.currentSequenceId = entry.sequenceId;
+        displayJournalEntry(entry);
+      } else {
+        // No journal entries found
+        $('journalAgentId').textContent = journalState.currentAgentId;
+        $('journalSequenceId').textContent = '-';
+        $('journalInstructions').textContent = 'No journal entries found for this agent.';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading journal entry:', error);
+    $('journalAgentId').textContent = journalState.currentAgentId;
+    $('journalSequenceId').textContent = '-';
+    $('journalInstructions').textContent = 'Error loading journal entries.';
+  }
+}
+
+function displayJournalEntry(entry) {
+  $('journalAgentId').textContent = entry.agentId;
+  $('journalSequenceId').textContent = entry.sequenceId;
+  $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
 }
 
 // Initialize the UI when the page loads
