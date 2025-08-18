@@ -217,6 +217,29 @@ function renderBoard() {
   }
 }
 
+function renderPreviewBoard(level) {
+  const board = $('gameBoard');
+  board.innerHTML = '';
+  const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
+  const size = levelSizeMap[level] || 5;
+  board.style.setProperty('--size', size);
+  const dotSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
+  const dotPx = dotSizeBySize[size] || 14;
+  board.style.setProperty('--dot-size', `${dotPx}px`);
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
+      const id = rowChar + (c + 1);
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.dotId = id;
+      cell.style.pointerEvents = 'none'; // Preview board is not interactive
+      board.appendChild(cell);
+    }
+  }
+}
+
 async function playMoveSound(oldState, newState) {
   // If no old state, don't play sounds (initial game creation)
   if (!oldState) return;
@@ -421,6 +444,8 @@ function applyPlayerSelection(which, player) {
     $('controlMessage').style.display = 'none';
     $('levelSelection').style.display = 'flex';
     updateBeginButtonState();
+    // Show default preview board (level one)
+    renderPreviewBoard('one');
   }
 }
 
@@ -464,6 +489,8 @@ function populateLevelMenu() {
       e.stopPropagation();
       btn.textContent = lvl;
       ddClose('level-dd');
+      // Show preview board for selected level
+      renderPreviewBoard(lvl);
     };
     menu.appendChild(item);
   });
