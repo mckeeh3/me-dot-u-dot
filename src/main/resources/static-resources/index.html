@@ -79,7 +79,7 @@
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        font-size: 20px;
+        font-size: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -93,6 +93,17 @@
         transform: scale(1.1);
         border-color: var(--neon-cyan);
         box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+      }
+
+      .icon-img {
+        width: 48px;
+        height: 48px;
+        /* filter: brightness(0) invert(1);
+        transition: filter 0.3s ease; */
+      }
+
+      .icon-btn:hover .icon-img {
+        filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
       }
 
       .level-selection {
@@ -630,7 +641,12 @@
         .icon-btn {
           width: 40px;
           height: 40px;
-          font-size: 16px;
+          font-size: 22px;
+        }
+
+        .icon-img {
+          width: 20px;
+          height: 20px;
         }
 
         .game-area {
@@ -652,7 +668,9 @@
     <!-- Top Control Bar -->
     <div class="control-bar">
       <div class="control-left">
-        <button id="resetBtn" class="icon-btn" onclick="resetGame()" style="display: none" title="Reset Game">🔄</button>
+        <button id="resetBtn" class="icon-btn" onclick="resetGame()" style="display: none" title="Reset Game">
+          <img src="/images/refresh.png" alt="Reset" class="icon-img" />
+        </button>
       </div>
       <div class="control-center">
         <div id="controlMessage">🎮 Me-Dot-U-Dot</div>

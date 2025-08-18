@@ -38,4 +38,9 @@ public class StaticContentEndpoint {
   public HttpResponse serveSounds(HttpRequest request) {
     return HttpResponses.staticResource(request, "/sounds/");
   }
+
+  @Get("/images/**")
+  public HttpResponse serveImages(HttpRequest request) {
+    return HttpResponses.staticResource(request, "/images/");
+  }
 }
