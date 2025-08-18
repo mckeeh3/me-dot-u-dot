@@ -129,6 +129,30 @@
         background: rgba(0, 0, 0, 0.25);
         border: 1px solid rgba(138, 43, 226, 0.25);
       }
+      .game-status-layout {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(138, 43, 226, 0.25);
+        font-size: 16px;
+      }
+      .player-info-left {
+        flex: 1;
+        text-align: left;
+      }
+      .turn-info-center {
+        flex: 1;
+        text-align: center;
+        font-weight: bold;
+      }
+      .player-info-right {
+        flex: 1;
+        text-align: right;
+      }
       .controls {
         text-align: center;
         margin: 16px 0;
@@ -379,6 +403,11 @@
 
       <div class="game-info">
         <div id="status" class="status">No game yet. Create one above.</div>
+        <div id="game-status-layout" class="game-status-layout" style="display: none">
+          <div id="player1-info" class="player-info-left"></div>
+          <div id="turn-info" class="turn-info-center"></div>
+          <div id="player2-info" class="player-info-right"></div>
+        </div>
       </div>
 
       <div class="game-board" id="gameBoard" style="--size: 5; grid-template-columns: repeat(var(--size), 1fr)">

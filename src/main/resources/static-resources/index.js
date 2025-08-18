@@ -38,17 +38,37 @@ function renderGameInfo() {
   if (state.game.status === 'in_progress') {
     const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
     setStartGameButton('Reset Game');
-    setStatus(`${currentType} ${turnName}'s turn • ${p1Type}${p1.player.name}: Score ${p1.score} • ${p2Type}${p2.player.name}: Score ${p2.score}`);
+
+    // Hide single status and show three-column layout
+    $('status').style.display = 'none';
+    $('game-status-layout').style.display = 'flex';
+
+    // Update player info sections
+    $('player1-info').textContent = `${p1Type} ${p1.player.name}: ${p1.score}`;
+    $('turn-info').textContent = `${currentType} ${turnName}'s turn`;
+    $('player2-info').textContent = `${p2Type} ${p2.player.name}: ${p2.score}`;
   } else if (state.game.status === 'won_by_player') {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
     setStartGameButton('Start New Game');
+
+    // Show single status and hide three-column layout
+    $('status').style.display = 'block';
+    $('game-status-layout').style.display = 'none';
     setStatus(`🎉 ${winnerType} ${winner.player.name} wins! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   } else if (state.game.status === 'draw') {
     setStartGameButton('Start New Game');
+
+    // Show single status and hide three-column layout
+    $('status').style.display = 'block';
+    $('game-status-layout').style.display = 'none';
     setStatus(`🤝 It's a draw! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   } else if (state.game.status === 'canceled') {
     setStartGameButton('Start New Game');
+
+    // Show single status and hide three-column layout
+    $('status').style.display = 'block';
+    $('game-status-layout').style.display = 'none';
     setStatus(`❌ Game canceled • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
   }
 }
