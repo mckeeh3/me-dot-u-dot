@@ -156,6 +156,7 @@
         align-items: center;
         justify-content: center;
         padding: 16px;
+        min-height: 400px;
       }
 
       .player-header {
@@ -304,9 +305,8 @@
       /* Game Board */
       .game-board {
         display: grid;
-        gap: 8px;
-        width: 100%;
-        max-width: 500px;
+        gap: min(1.5vw, 12px);
+        width: min(80vh, 90%);
         aspect-ratio: 1;
         grid-template-columns: repeat(var(--size, 5), 1fr);
         user-select: none;
@@ -569,6 +569,7 @@
 
         .board-area {
           min-width: 450px;
+          min-height: 350px;
           padding: 12px;
         }
       }
@@ -583,6 +584,7 @@
         .board-area {
           flex: 2 1 400px;
           min-width: 400px;
+          min-height: 300px;
         }
       }
 
