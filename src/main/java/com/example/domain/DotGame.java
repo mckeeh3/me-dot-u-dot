@@ -115,14 +115,9 @@ public interface DotGame {
     Optional<Event> forfeitMove() {
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
-      return Optional.of(new Event.MoveMade(
+      return Optional.of(new Event.MoveForfeited(
           gameId,
-          board,
-          status,
-          player1Status,
-          player2Status,
           newCurrentPlayer,
-          moveHistory,
           Instant.now()));
     }
 
@@ -141,14 +136,9 @@ public interface DotGame {
 
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
-      return Optional.of(new Event.MoveMade(
+      return Optional.of(new Event.MoveForfeited(
           gameId,
-          board,
-          status,
-          player1Status,
-          player2Status,
           newCurrentPlayer,
-          moveHistory,
           Instant.now()));
     }
 
@@ -204,6 +194,19 @@ public interface DotGame {
           player1Status,
           player2Status,
           Optional.empty(),
+          moveHistory);
+
+    }
+
+    public State onEvent(Event.MoveForfeited event) {
+      return new State(
+          gameId,
+          createdAt,
+          status,
+          board,
+          player1Status,
+          player2Status,
+          event.currentPlayer,
           moveHistory);
     }
 
@@ -331,6 +334,12 @@ public interface DotGame {
         Status status,
         PlayerStatus player1Status,
         PlayerStatus player2Status,
+        Instant timestamp) implements Event {}
+
+    @TypeName("move-forfeited")
+    public record MoveForfeited(
+        String gameId,
+        Optional<PlayerStatus> currentPlayer,
         Instant timestamp) implements Event {}
   }
 
@@ -469,8 +478,7 @@ public interface DotGame {
       }
 
       var player = dot.get().player().get();
-      var level = getLevel();
-      var requiredLength = (level / 2) + 1;
+      var requiredLength = Math.min(5, getLevel() + 2);
 
       int totalScore = 0;
 
@@ -488,11 +496,12 @@ public interface DotGame {
         }
       }
 
-      return totalScore;
+      var adjacentDots = adjacentPlayerDots(dot.get());
+      return totalScore + ((adjacentDots.size() >= 5 ? 1 : 0) + (adjacentDots.size() >= 8 ? 1 : 0));
     }
 
     boolean hasValidLine(String startId, Player player, Direction direction, int requiredLength) {
-      var coords = parseCoordinates(startId);
+      var coords = Coordinates.at(startId);
       if (coords == null) {
         return false;
       }
@@ -527,17 +536,45 @@ public interface DotGame {
     }
 
     boolean isValidCoordinates(Coordinates coords) {
-      return coords.row >= 0 && coords.row < getLevel() &&
-          coords.col >= 0 && coords.col < getLevel();
+      return coords.row >= 0 && coords.row < level.getSize() &&
+          coords.col >= 0 && coords.col < level.getSize();
     }
 
     int getLevel() {
-      return level.getSize();
+      return level.getSize() / 2 - 1;
     }
 
-    Coordinates parseCoordinates(String id) {
-      if (id.length() < 2)
-        return null;
+    List<Dot> adjacentPlayerDots(Dot playerDot) {
+      var player = playerDot.player().get();
+      var coordinates = Coordinates.at(playerDot.id());
+      var adjacentCoordinates = List.of(
+          coordinates.left().up(),
+          coordinates.left(),
+          coordinates.left().down(),
+          coordinates.right().up(),
+          coordinates.right(),
+          coordinates.right().down(),
+          coordinates.up(),
+          coordinates.down())
+          .stream()
+          .filter(c -> c != null)
+          .toList();
+
+      return adjacentCoordinates.stream()
+          .map(c -> dotAt(c.id()))
+          .filter(Optional::isPresent)
+          .filter(dot -> dot.get().player().isPresent())
+          .filter(dot -> dot.get().player().get().id().equals(player.id()))
+          .map(Optional::get)
+          .toList();
+    }
+  }
+
+  record Coordinates(int row, int col) {
+    static Coordinates at(String id) {
+      if (id.length() < 2) {
+        return new Coordinates(-1, -1);
+      }
 
       char rowChar = id.charAt(0);
       try {
@@ -545,43 +582,61 @@ public interface DotGame {
         int row = rowChar - 'A';
         return new Coordinates(row, col - 1); // Convert to 0-based
       } catch (NumberFormatException e) {
-        return null;
+        return new Coordinates(-1, -1);
       }
     }
 
-    record Coordinates(int row, int col) {
-      Coordinates move(Direction direction) {
-        // For the dot game, rowDelta affects the letter (A-E), colDelta affects the number (1-5)
-        return new Coordinates(row + direction.rowDelta, col + direction.colDelta);
-      }
-
-      @Override
-      public String toString() {
-        char rowChar = (char) ('A' + row);
-        return rowChar + String.valueOf(col + 1);
-      }
+    String id() {
+      return toString();
     }
 
-    record Direction(int rowDelta, int colDelta) {
-      static Direction horizontal() {
-        return new Direction(1, 0);
-      }
+    @Override
+    public String toString() {
+      char rowChar = (char) ('A' + row);
+      return rowChar + String.valueOf(col + 1);
+    }
 
-      static Direction vertical() {
-        return new Direction(0, 1);
-      }
+    Coordinates move(Direction direction) {
+      // For the dot game, rowDelta affects the letter (A-E...), colDelta affects the number (1-5...)
+      return new Coordinates(row + direction.rowDelta, col + direction.colDelta);
+    }
 
-      static Direction diagonalPositive() { // positive means positive row and positive column
-        return new Direction(1, 1);
-      }
+    Coordinates left() {
+      return move(Direction.horizontal().negate());
+    }
 
-      static Direction diagonalNegative() {
-        return new Direction(-1, 1);
-      }
+    Coordinates right() {
+      return move(Direction.horizontal());
+    }
 
-      Direction negate() {
-        return new Direction(-rowDelta, -colDelta);
-      }
+    Coordinates up() {
+      return move(Direction.vertical().negate());
+    }
+
+    Coordinates down() {
+      return move(Direction.vertical());
+    }
+  }
+
+  record Direction(int rowDelta, int colDelta) {
+    static Direction horizontal() {
+      return new Direction(1, 0);
+    }
+
+    static Direction vertical() {
+      return new Direction(0, 1);
+    }
+
+    static Direction diagonalPositive() { // positive means positive row and positive column
+      return new Direction(1, 1);
+    }
+
+    static Direction diagonalNegative() {
+      return new Direction(-1, 1);
+    }
+
+    Direction negate() {
+      return new Direction(-rowDelta, -colDelta);
     }
   }
 

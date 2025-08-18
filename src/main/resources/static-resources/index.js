@@ -136,9 +136,12 @@ async function playMoveSound(oldState, newState) {
       await playSound('game-move.wav');
       return;
     }
+
+    console.log(new Date().toISOString(), `oldState: ${oldState} `);
+    console.log(new Date().toISOString(), `newState: ${newState} `);
   }
 
-  await playSound('game-alarm.ogg');
+  // await playSound('game-alarm.wav');
 }
 
 async function playSound(sound) {

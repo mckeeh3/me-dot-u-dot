@@ -148,7 +148,11 @@ public class DotGameEntityTest {
     assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the dot is already occupied
-    assertEquals(0, result.getAllEvents().size());
+    assertEquals(1, result.getAllEvents().size());
+    var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
+    assertEquals(gameId, event.gameId());
+    assertTrue(event.currentPlayer().isPresent());
+    assertEquals(player1, event.currentPlayer().get().player());
   }
 
   @Test
@@ -169,7 +173,11 @@ public class DotGameEntityTest {
     assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the coordinates are invalid
-    assertEquals(0, result.getAllEvents().size());
+    assertEquals(1, result.getAllEvents().size());
+    var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
+    assertEquals(gameId, event.gameId());
+    assertTrue(event.currentPlayer().isPresent());
+    assertEquals(player2, event.currentPlayer().get().player());
   }
 
   @Test

@@ -43,10 +43,11 @@ public class DotGameView extends View {
         case DotGame.Event.GameCreated e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveMade e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameCanceled e -> effects().updateRow(onEvent(e));
+        case DotGame.Event.MoveForfeited e -> effects().updateRow(onEvent(e));
       };
     }
 
-    private DotGameRow onEvent(DotGame.Event.GameCreated event) {
+    DotGameRow onEvent(DotGame.Event.GameCreated event) {
       var player1 = event.player1Status();
       var player2 = event.player2Status();
       var currentPlayerId = event.currentPlayerStatus().map(ps -> ps.player().id()).orElse("");
@@ -73,7 +74,7 @@ public class DotGameView extends View {
           Optional.empty());
     }
 
-    private DotGameRow onEvent(DotGame.Event.MoveMade event) {
+    DotGameRow onEvent(DotGame.Event.MoveMade event) {
       var player1 = event.player1Status();
       var player2 = event.player2Status();
       var currentPlayerId = event.currentPlayerStatus().map(ps -> ps.player().id()).orElse("");
@@ -101,7 +102,7 @@ public class DotGameView extends View {
           winnerId);
     }
 
-    private DotGameRow onEvent(DotGame.Event.GameCanceled event) {
+    DotGameRow onEvent(DotGame.Event.GameCanceled event) {
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
@@ -120,6 +121,31 @@ public class DotGameView extends View {
           rowState().player2Winner(),
           rowState().currentPlayerId(),
           rowState().currentPlayerName(),
+          Optional.empty());
+    }
+
+    DotGameRow onEvent(DotGame.Event.MoveForfeited event) {
+      var currentPlayerId = event.currentPlayer().map(ps -> ps.player().id()).orElse("");
+      var currentPlayerName = event.currentPlayer().map(ps -> ps.player().name()).orElse("");
+
+      return new DotGameRow(
+          event.gameId(),
+          rowState().createdAt(),
+          event.timestamp(),
+          rowState().status(),
+          rowState().level(),
+          rowState().player1Id(),
+          rowState().player1Name(),
+          rowState().player1Moves(),
+          rowState().player1Score(),
+          rowState().player1Winner(),
+          rowState().player2Id(),
+          rowState().player2Name(),
+          rowState().player2Moves(),
+          rowState().player2Score(),
+          rowState().player2Winner(),
+          currentPlayerId,
+          currentPlayerName,
           Optional.empty());
     }
   }

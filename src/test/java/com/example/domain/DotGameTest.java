@@ -230,7 +230,8 @@ public class DotGameTest {
         .withDot("C3", player1);
 
     // C3 is in the middle of all 8 lines, so it should score 4 points for 4 new lines
-    assertEquals(4, board.scoreDotAt("C3"));
+    // plus 2 for 8 adjacent dots
+    assertEquals(6, board.scoreDotAt("C3"));
 
     // Test that the end dots score correctly based on the actual board setup
     assertEquals(3, board.scoreDotAt("A3")); // End of horizontal, diagonal down-right, diagonal down-left
