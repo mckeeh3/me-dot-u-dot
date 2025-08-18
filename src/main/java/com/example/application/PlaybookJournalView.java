@@ -13,14 +13,38 @@ import com.example.domain.PlaybookJournal;
 @ComponentId("playbook-journal-view")
 public class PlaybookJournalView extends View {
 
-  @Query("""
+  @Query(value = """
       SELECT * AS journals
         FROM playbook_journal_view
        WHERE agentId = :agentId
        ORDER BY sequenceId DESC
        LIMIT :limit OFFSET :offset
+      """, streamUpdates = true)
+  public QueryStreamEffect<JournalsPage> getByAgentId(GetByAgentIdRequest request) {
+    return queryStreamResult();
+  }
+
+  @Query("""
+      SELECT * AS journals
+        FROM playbook_journal_view
+       WHERE agentId = :agentId
+       AND sequenceId < :sequenceId
+       ORDER BY sequenceId DESC
+       LIMIT 1
       """)
-  public QueryEffect<JournalsPage> getByAgentId(GetByAgentIdRequest request) {
+  public QueryEffect<JournalRow> getByAgentIdDown(GetByAgentIdDownRequest request) {
+    return queryResult();
+  }
+
+  @Query("""
+      SELECT * AS journals
+        FROM playbook_journal_view
+       WHERE agentId = :agentId
+       AND sequenceId > :sequenceId
+       ORDER BY sequenceId DESC
+       LIMIT 1
+      """)
+  public QueryEffect<JournalRow> getByAgentIdUp(GetByAgentIdUpRequest request) {
     return queryResult();
   }
 
@@ -51,6 +75,10 @@ public class PlaybookJournalView extends View {
       Instant updatedAt) {}
 
   public record GetByAgentIdRequest(String agentId, int limit, int offset) {}
+
+  public record GetByAgentIdDownRequest(String agentId, long sequenceId) {}
+
+  public record GetByAgentIdUpRequest(String agentId, long sequenceId) {}
 
   public record JournalsPage(List<JournalRow> journals) {}
 }

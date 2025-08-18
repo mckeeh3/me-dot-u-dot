@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
+import com.example.application.PlaybookJournalView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
@@ -33,6 +34,8 @@ public class GameEndpoint {
   public record CancelGame(String gameId) {}
 
   public record GameResponse(DotGame.State gameState) {}
+
+  public record JournalRequest(String agentId, long sequenceId) {}
 
   final ComponentClient componentClient;
 
@@ -105,5 +108,29 @@ public class GameEndpoint {
         .invoke();
 
     return new GameResponse(gameState);
+  }
+
+  @Get("/get-journal-by-agent-id-down/{agentId}")
+  public PlaybookJournalView.JournalRow getJournalByAgentIdDown(JournalRequest request) {
+    log.info("Get journal by agent id: {}", request);
+
+    var queryRequest = new PlaybookJournalView.GetByAgentIdDownRequest(request.agentId(), request.sequenceId());
+
+    return componentClient
+        .forView()
+        .method(PlaybookJournalView::getByAgentIdDown)
+        .invoke(queryRequest);
+  }
+
+  @Get("/get-journal-by-agent-id-up/{agentId}")
+  public PlaybookJournalView.JournalRow getJournalByAgentIdUp(JournalRequest request) {
+    log.info("Get journal by agent id: {}", request);
+
+    var queryRequest = new PlaybookJournalView.GetByAgentIdUpRequest(request.agentId(), request.sequenceId());
+
+    return componentClient
+        .forView()
+        .method(PlaybookJournalView::getByAgentIdUp)
+        .invoke(queryRequest);
   }
 }
