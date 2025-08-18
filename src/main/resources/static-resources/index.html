@@ -22,46 +22,293 @@
 
       body {
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 24px;
+        margin: 0;
+        padding: 0;
         background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
         color: var(--text);
-        font-size: 16.5px;
+        font-size: 18px;
         line-height: 1.5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
-      h1,
-      h3,
-      h4 {
-        margin: 0 0 8px 0;
+      /* Control Bar */
+      .control-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: linear-gradient(180deg, rgba(22, 28, 50, 0.95), rgba(12, 16, 30, 0.95));
+        border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        min-height: 60px;
       }
 
-      h1 {
-        font-size: 28px;
-        letter-spacing: 0.4px;
+      .control-left,
+      .control-right {
+        flex: 0 0 120px;
+        display: flex;
+        align-items: center;
+      }
+
+      .control-right {
+        justify-content: flex-end;
+      }
+
+      .control-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      #controlMessage {
+        font-size: 24px;
+        font-weight: bold;
         background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        text-shadow: 0 0 14px rgba(0, 229, 255, 0.18), 0 0 10px rgba(255, 58, 242, 0.12);
+        text-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
       }
 
-      .game-container {
-        background: linear-gradient(180deg, rgba(22, 28, 50, 0.9), rgba(12, 16, 30, 0.95));
-        padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 0 40px rgba(0, 229, 255, 0.08), inset 0 0 40px rgba(255, 58, 242, 0.05);
-        border: 1px solid rgba(0, 229, 255, 0.12);
+      .icon-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
       }
 
+      .icon-btn:hover {
+        transform: scale(1.1);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+      }
+
+      .level-selection {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .level-selection .level-label {
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .level-selection .dd {
+        min-width: 120px;
+      }
+
+      .level-selection .btn-primary {
+        margin: 0;
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+
+      /* Game Area Layout */
+      .game-area {
+        display: flex;
+        flex: 1;
+        padding: 16px;
+        gap: 16px;
+        min-height: 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .player-area {
+        flex: 1 1 250px;
+        min-width: 250px;
+        max-width: 350px;
+        background: linear-gradient(180deg, rgba(22, 28, 50, 0.8), rgba(12, 16, 30, 0.9));
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid rgba(138, 43, 226, 0.3);
+        box-shadow: 0 0 30px rgba(138, 43, 226, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .player-1-area {
+        border-color: rgba(57, 255, 20, 0.3);
+        box-shadow: 0 0 30px rgba(57, 255, 20, 0.1);
+      }
+
+      .board-area {
+        flex: 2 1 500px;
+        min-width: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .player-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .player-header h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+        color: var(--neon-cyan);
+        text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+      }
+
+      .player-1-area .player-header h2 {
+        color: var(--neon-green);
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+      }
+
+      .player-2-area .player-header h2 {
+        color: var(--neon-magenta);
+        text-shadow: 0 0 10px rgba(255, 58, 242, 0.3);
+      }
+
+      /* Player Setup Forms */
+      .player-setup {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .player-select-section,
+      .player-create-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .or-divider {
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        margin: 8px 0;
+        position: relative;
+      }
+
+      .or-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 1;
+      }
+
+      .or-divider::after {
+        content: 'OR';
+        background: var(--panel);
+        padding: 0 12px;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Player Stats */
+      .player-stats {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .player-avatar {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .avatar {
+        font-size: 64px;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.3));
+      }
+
+      .player-1-area .avatar {
+        filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.3));
+      }
+
+      .player-2-area .avatar {
+        filter: drop-shadow(0 0 10px rgba(255, 58, 242, 0.3));
+      }
+
+      .player-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+
+      .player-type {
+        font-size: 14px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        max-width: 140px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--neon-cyan);
+        text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+      }
+
+      .player-1-area .stat-value {
+        color: var(--neon-green);
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+      }
+
+      .player-2-area .stat-value {
+        color: var(--neon-magenta);
+        text-shadow: 0 0 10px rgba(255, 58, 242, 0.3);
+      }
+
+      /* Game Board */
       .game-board {
         display: grid;
         gap: 8px;
-        margin: 20px auto;
-        width: var(--board-width);
-        max-width: var(--board-width);
-        grid-template-columns: repeat(5, 1fr);
+        width: 100%;
+        max-width: 500px;
+        aspect-ratio: 1;
+        grid-template-columns: repeat(var(--size, 5), 1fr);
         user-select: none;
       }
 
@@ -159,264 +406,373 @@
       }
 
       button {
-        padding: 10px 18px;
-        font-size: 15px;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 600;
         border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 10px;
+        border-radius: 12px;
         cursor: pointer;
-        margin: 0 8px;
+        margin: 4px 0;
         color: var(--text);
         background: rgba(255, 255, 255, 0.06);
-        transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
+
       .btn-primary {
-        border-color: rgba(0, 229, 255, 0.35);
-        box-shadow: 0 0 10px rgba(0, 229, 255, 0.12) inset;
+        border-color: rgba(0, 229, 255, 0.5);
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.1));
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
       }
+
       .btn-secondary {
-        border-color: rgba(138, 43, 226, 0.35);
-        box-shadow: 0 0 10px rgba(138, 43, 226, 0.12) inset;
+        border-color: rgba(138, 43, 226, 0.5);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(138, 43, 226, 0.1));
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
       }
+
       .btn-primary:hover {
-        box-shadow: 0 0 18px rgba(0, 229, 255, 0.35), inset 0 0 14px rgba(0, 229, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+        border-color: var(--neon-cyan);
       }
+
       .btn-secondary:hover {
-        box-shadow: 0 0 18px rgba(138, 43, 226, 0.35), inset 0 0 14px rgba(138, 43, 226, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
+        border-color: var(--neon-purple);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
       }
 
       /* Form controls */
       label {
-        color: var(--muted);
-        font-size: 14px;
+        color: var(--neon-cyan);
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
-      input,
-      select {
+
+      input {
         appearance: none;
-        padding: 10px 12px;
-        margin-top: 6px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        background-color: rgba(255, 255, 255, 0.06);
+        padding: 12px 16px;
+        margin-top: 8px;
+        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
         color: var(--text);
         outline: none;
-        transition: box-shadow 150ms ease, border-color 150ms ease;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
       }
-      input:hover,
-      select:hover {
-        border-color: rgba(0, 229, 255, 0.35);
+
+      input:hover {
+        border-color: rgba(0, 229, 255, 0.5);
       }
-      input:focus,
-      select:focus {
+
+      input:focus {
         border-color: var(--neon-cyan);
-        box-shadow: 0 0 18px rgba(0, 229, 255, 0.22), inset 0 0 10px rgba(0, 229, 255, 0.12);
-        background-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+        background: rgba(255, 255, 255, 0.15);
       }
+
       input::placeholder {
-        color: rgba(230, 233, 239, 0.5);
-      }
-      /* Dropdown list background (option menus) */
-      option,
-      select option {
-        background: rgba(255, 255, 255, 0.06);
-        background-color: rgba(255, 255, 255, 0.06);
-        color: var(--text);
-      }
-      optgroup {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--text);
+        color: rgba(230, 233, 239, 0.6);
+        font-style: italic;
       }
 
       /* Custom dropdown */
       .dd {
         position: relative;
-        min-width: 240px;
-        display: inline-block;
+        display: block;
+        margin-top: 8px;
       }
+
       .dd-toggle {
         width: 100%;
         text-align: left;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
         color: var(--text);
         cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        position: relative;
       }
+
       .dd-toggle:hover {
-        border-color: rgba(0, 229, 255, 0.35);
+        border-color: rgba(0, 229, 255, 0.5);
       }
+
       .dd-toggle:after {
         content: '▾';
-        float: right;
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
         opacity: 0.7;
+        font-size: 14px;
       }
+
       .dd-menu {
         position: absolute;
         z-index: 20;
-        top: calc(100% + 6px);
+        top: calc(100% + 8px);
         left: 0;
         right: 0;
         background: rgba(15, 21, 38, 0.98);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 10px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+        border: 2px solid rgba(0, 229, 255, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         max-height: 240px;
         overflow: auto;
         display: none;
       }
+
       .dd.open .dd-menu {
         display: block;
       }
+
       .dd-item {
-        padding: 10px 12px;
-        font-size: 14px;
+        padding: 12px 16px;
+        font-size: 16px;
         cursor: pointer;
-      }
-      .dd-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        transition: background 0.2s ease;
       }
 
-      /* Setup layout helpers */
-      .setup-row {
-        display: flex;
-        gap: 12px;
-        align-items: flex-end;
-        flex-wrap: wrap;
+      .dd-item:hover {
+        background: rgba(0, 229, 255, 0.2);
       }
-      .setup-choose {
-        flex: 0 0 320px;
+
+      /* Responsive Design */
+      @media (max-width: 1300px) {
+        .game-area {
+          padding: 12px;
+          gap: 12px;
+        }
+
+        .player-area {
+          max-width: 300px;
+          padding: 12px;
+        }
+
+        .board-area {
+          min-width: 450px;
+          padding: 12px;
+        }
       }
-      .setup-sep {
-        flex: 0 0 auto;
+
+      @media (max-width: 1100px) {
+        .player-area {
+          flex: 1 1 220px;
+          min-width: 220px;
+          max-width: 280px;
+        }
+
+        .board-area {
+          flex: 2 1 400px;
+          min-width: 400px;
+        }
       }
-      .setup-create {
-        flex: 1 1 0;
-        display: flex;
-        gap: 8px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-        min-width: 480px;
+
+      @media (max-width: 900px) {
+        .game-area {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .player-area {
+          flex: none;
+          width: 100%;
+          max-width: 600px;
+          min-width: auto;
+        }
+
+        .board-area {
+          flex: none;
+          order: 2;
+          width: 100%;
+          max-width: 600px;
+          min-width: auto;
+        }
+
+        .player-1-area {
+          order: 1;
+        }
+
+        .player-2-area {
+          order: 3;
+        }
       }
-      .type-narrow {
-        min-width: 140px;
-      }
-      @media (max-width: 1080px) {
-        .setup-choose {
-          flex-basis: 100%;
+
+      @media (max-width: 768px) {
+        .control-bar {
+          padding: 12px 16px;
+        }
+
+        #controlMessage {
+          font-size: 18px;
+        }
+
+        .icon-btn {
+          width: 40px;
+          height: 40px;
+          font-size: 16px;
+        }
+
+        .game-area {
+          padding: 8px;
+          gap: 8px;
+        }
+
+        .player-area {
+          padding: 12px;
+        }
+
+        .game-board {
+          max-width: 400px;
         }
       }
     </style>
   </head>
   <body>
-    <div class="game-container">
-      <h1>🎮 Me-Dot-U-Dot</h1>
-
-      <div class="controls" id="topControls" style="margin-top: 8px; margin-bottom: 12px">
-        <button class="btn-primary" onclick="startNewGameWizard()" id="start-game-btn">Start New GAME</button>
+    <!-- Top Control Bar -->
+    <div class="control-bar">
+      <div class="control-left">
+        <button id="resetBtn" class="icon-btn" onclick="resetGame()" style="display: none" title="Reset Game">🔄</button>
       </div>
+      <div class="control-center">
+        <div id="controlMessage">🎮 Me-Dot-U-Dot</div>
+        <div id="levelSelection" class="level-selection" style="display: none">
+          <span class="level-label">Select the game level</span>
+          <div class="dd" id="level-dd">
+            <button type="button" class="dd-toggle" onclick="ddToggle('level-dd')" id="level-btn">one</button>
+            <div class="dd-menu" id="level-menu"></div>
+          </div>
+          <button class="btn-primary" id="beginBtn" onclick="beginGame()" disabled>Begin</button>
+        </div>
+      </div>
+      <div class="control-right">
+        <button id="cancelBtn" class="icon-btn" onclick="cancelGame()" style="display: none" title="Cancel Game">❌</button>
+      </div>
+    </div>
 
-      <section style="margin-bottom: 16px">
-        <div id="setupPanel" style="display: none">
-          <div id="p1Setup" style="margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
-            <h4>Player 1</h4>
-            <div class="setup-row">
-              <div class="setup-choose">
-                <div>
-                  <label>Choose existing</label>
-                  <div class="dd" id="p1-dd">
-                    <button type="button" class="dd-toggle" onclick="ddToggle('p1-dd')" id="p1-dd-btn">— Select a player —</button>
-                    <div class="dd-menu" id="p1-dd-menu"></div>
-                  </div>
-                  <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
-                </div>
-              </div>
-              <div class="setup-sep" style="opacity: 0.6">or</div>
-              <div class="setup-create">
-                <label>New Id <input id="p1-id" placeholder="player-1" /></label>
-                <label style="margin-left: 8px">Name <input id="p1-name" placeholder="Alice" /></label>
-                <div style="margin-left: 8px">
-                  <label>Type</label>
-                  <div class="dd type-narrow" id="p1-type-dd">
-                    <button type="button" class="dd-toggle" onclick="ddToggle('p1-type-dd')" id="p1-type-btn">human</button>
-                    <div class="dd-menu" id="p1-type-menu"></div>
-                  </div>
-                </div>
-                <button class="btn-primary" onclick="createPlayer('p1')" style="margin-left: 8px">Create & Select</button>
-              </div>
+    <!-- Main Game Area -->
+    <div class="game-area">
+      <!-- Player 1 Area (Left) -->
+      <div class="player-area player-1-area">
+        <div class="player-header">
+          <h2>Player 1</h2>
+        </div>
+
+        <!-- Player 1 Setup Form -->
+        <div id="p1Setup" class="player-setup">
+          <div class="player-select-section">
+            <label>Choose existing</label>
+            <div class="dd" id="p1-dd">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p1-dd')" id="p1-dd-btn">— Select a player —</button>
+              <div class="dd-menu" id="p1-dd-menu"></div>
             </div>
+            <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
           </div>
 
-          <div id="p1Summary" style="display: none; margin: 8px 0; padding: 10px; border-left: 3px solid var(--neon-green)"></div>
+          <div class="or-divider">OR</div>
 
-          <div id="p2Setup" style="display: none; margin: 12px 0; padding: 12px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 10px; background: rgba(0, 0, 0, 0.15)">
-            <h4>Player 2</h4>
-            <div class="setup-row">
-              <div class="setup-choose">
-                <div>
-                  <label>Choose existing</label>
-                  <div class="dd" id="p2-dd">
-                    <button type="button" class="dd-toggle" onclick="ddToggle('p2-dd')" id="p2-dd-btn">— Select a player —</button>
-                    <div class="dd-menu" id="p2-dd-menu"></div>
-                  </div>
-                  <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
-                </div>
-              </div>
-              <div class="setup-sep" style="opacity: 0.6">or</div>
-              <div class="setup-create">
-                <label>New Id <input id="p2-id" placeholder="player-2" /></label>
-                <label style="margin-left: 8px">Name <input id="p2-name" placeholder="Bob" /></label>
-                <div style="margin-left: 8px">
-                  <label>Type</label>
-                  <div class="dd type-narrow" id="p2-type-dd">
-                    <button type="button" class="dd-toggle" onclick="ddToggle('p2-type-dd')" id="p2-type-btn">human</button>
-                    <div class="dd-menu" id="p2-type-menu"></div>
-                  </div>
-                </div>
-                <button class="btn-primary" onclick="createPlayer('p2')" style="margin-left: 8px">Create & Select</button>
-              </div>
+          <div class="player-create-section">
+            <label>Create new</label>
+            <input type="text" id="p1-id" placeholder="player-id" />
+            <input type="text" id="p1-name" placeholder="player-name" />
+            <div class="dd" id="p1-type-dd">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p1-type-dd')" id="p1-type-btn">human</button>
+              <div class="dd-menu" id="p1-type-menu"></div>
             </div>
-          </div>
-
-          <div id="p2Summary" style="display: none; margin: 8px 0; padding: 10px; border-left: 3px solid var(--neon-purple)"></div>
-
-          <div id="levelSetup" style="display: none; margin-top: 12px">
-            <div style="margin-right: 8px">
-              <label>Level</label>
-              <div class="dd" id="level-dd">
-                <button type="button" class="dd-toggle" onclick="ddToggle('level-dd')" id="level-btn">one</button>
-                <div class="dd-menu" id="level-menu"></div>
-              </div>
-            </div>
-          </div>
-
-          <div id="levelDisplay" style="display: none; margin-top: 12px">
-            <span style="color: var(--muted); font-size: 14px; margin-right: 8px">Level:</span>
-            <span id="level-value" style="color: var(--text); font-weight: 500"></span>
-          </div>
-
-          <div class="controls" id="beginControls" style="display: none; margin-top: 10px">
-            <button class="btn-primary" id="beginBtn" onclick="beginGame()" disabled>Begin Game</button>
+            <button class="btn-primary" onclick="createPlayer('p1')">Create & Select</button>
           </div>
         </div>
-      </section>
 
-      <div class="game-info">
-        <div id="status" class="status">No game yet. Create one above.</div>
-        <div id="game-status-layout" class="game-status-layout" style="display: none">
-          <div id="player1-info" class="player-info-left"></div>
-          <div id="turn-info" class="turn-info-center"></div>
-          <div id="player2-info" class="player-info-right"></div>
+        <!-- Player 1 Game Stats -->
+        <div id="p1Stats" class="player-stats" style="display: none">
+          <div class="player-avatar">
+            <div id="p1Avatar" class="avatar">👤</div>
+            <div id="p1Name" class="player-name">Player 1</div>
+            <div id="p1Type" class="player-type">Human</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Score</div>
+            <div id="p1Score" class="stat-value">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Moves</div>
+            <div id="p1Moves" class="stat-value">0</div>
+          </div>
         </div>
       </div>
 
-      <div class="game-board" id="gameBoard" style="--size: 5; grid-template-columns: repeat(var(--size), 1fr)">
-        <!-- Grid cells will be generated by JavaScript -->
+      <!-- Game Board Area (Center) -->
+      <div class="board-area">
+        <div class="game-board" id="gameBoard" style="--size: 5">
+          <!-- Grid cells will be generated by JavaScript -->
+        </div>
       </div>
 
-      <div class="controls" style="margin-top: 12px">
-        <button class="btn-secondary" onclick="cancelGame()" id="cancelBtn" style="display: none">Cancel Game</button>
-        <button class="btn-primary" onclick="newGameUI()" id="newGameBtn" style="display: none">New Game</button>
+      <!-- Player 2 Area (Right) -->
+      <div class="player-area player-2-area">
+        <div class="player-header">
+          <h2>Player 2</h2>
+        </div>
+
+        <!-- Player 2 Setup Form -->
+        <div id="p2Setup" class="player-setup">
+          <div class="player-select-section">
+            <label>Choose existing</label>
+            <div class="dd" id="p2-dd">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p2-dd')" id="p2-dd-btn">— Select a player —</button>
+              <div class="dd-menu" id="p2-dd-menu"></div>
+            </div>
+            <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
+          </div>
+
+          <div class="or-divider">OR</div>
+
+          <div class="player-create-section">
+            <label>Create new</label>
+            <input type="text" id="p2-id" placeholder="player-id" />
+            <input type="text" id="p2-name" placeholder="player-name" />
+            <div class="dd" id="p2-type-dd">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p2-type-dd')" id="p2-type-btn">human</button>
+              <div class="dd-menu" id="p2-type-menu"></div>
+            </div>
+            <button class="btn-primary" onclick="createPlayer('p2')">Create & Select</button>
+          </div>
+        </div>
+
+        <!-- Player 2 Game Stats -->
+        <div id="p2Stats" class="player-stats" style="display: none">
+          <div class="player-avatar">
+            <div id="p2Avatar" class="avatar">👤</div>
+            <div id="p2Name" class="player-name">Player 2</div>
+            <div id="p2Type" class="player-type">Human</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Score</div>
+            <div id="p2Score" class="stat-value">0</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Moves</div>
+            <div id="p2Moves" class="stat-value">0</div>
+          </div>
+        </div>
       </div>
     </div>
 

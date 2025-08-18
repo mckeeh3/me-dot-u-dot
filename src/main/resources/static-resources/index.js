@@ -16,13 +16,83 @@ function currentSize() {
 }
 
 function setStartGameButton(msg) {
-  const el = $('start-game-btn');
-  el.textContent = msg;
+  // This function is no longer used with the new UI
 }
 
 function setStatus(msg) {
-  const el = $('status');
-  el.textContent = msg;
+  // This function is no longer used with the new UI
+}
+
+function setControlMessage(msg) {
+  $('controlMessage').textContent = msg;
+}
+
+function startNewGameWizard() {
+  // Reset state
+  state.p1 = null;
+  state.p2 = null;
+  state.game = null;
+
+  // Show player setup forms
+  $('p1Setup').style.display = 'block';
+  $('p1Stats').style.display = 'none';
+  $('p2Setup').style.display = 'none';
+  $('p2Stats').style.display = 'none';
+
+  // Hide level selection and show control message
+  $('levelSelection').style.display = 'none';
+  $('controlMessage').style.display = 'block';
+
+  // Hide control buttons
+  $('resetBtn').style.display = 'none';
+  $('cancelBtn').style.display = 'none';
+
+  // Set initial message
+  setControlMessage('Select your players');
+
+  // Populate player dropdowns
+  populatePlayerMenu('p1');
+  populatePlayerMenu('p2');
+  populateTypeMenu('p1');
+  populateTypeMenu('p2');
+}
+
+function resetGame() {
+  if (state.game) {
+    // Reset to setup mode
+    startNewGameWizard();
+  }
+}
+
+async function cancelGame() {
+  if (!state.game || state.game.status !== 'in_progress') return;
+
+  try {
+    const res = await fetch('/game/cancel-game', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameId: state.game.gameId }),
+    });
+
+    if (res.ok) {
+      const { gameState } = await res.json();
+      state.game = gameState;
+      renderGameInfo();
+    }
+  } catch (error) {
+    console.error('Error canceling game:', error);
+  }
+}
+
+// Initialize the UI on page load
+function initializeUI() {
+  setControlMessage('🎮 Me-Dot-U-Dot');
+  populateTypeMenu('p1');
+  populateTypeMenu('p2');
+  populateLevelMenu();
+
+  // Start with the wizard
+  startNewGameWizard();
 }
 
 function renderGameInfo() {
@@ -37,40 +107,69 @@ function renderGameInfo() {
 
   if (state.game.status === 'in_progress') {
     const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
-    setStartGameButton('Reset Game');
 
-    // Hide single status and show three-column layout
-    $('status').style.display = 'none';
-    $('game-status-layout').style.display = 'flex';
+    // Show reset and cancel buttons
+    $('resetBtn').style.display = 'flex';
+    $('cancelBtn').style.display = 'flex';
 
-    // Update player info sections
-    $('player1-info').textContent = `${p1Type} ${p1.player.name}: ${p1.score}`;
-    $('turn-info').textContent = `${currentType} ${turnName}'s turn`;
-    $('player2-info').textContent = `${p2Type} ${p2.player.name}: ${p2.score}`;
+    // Update control center with turn info
+    $('controlMessage').textContent = `${currentType} ${turnName}'s turn`;
+
+    // Show player stats and hide setup forms
+    $('p1Setup').style.display = 'none';
+    $('p1Stats').style.display = 'flex';
+    $('p2Setup').style.display = 'none';
+    $('p2Stats').style.display = 'flex';
+
+    // Update player stats
+    updatePlayerStats('p1', p1);
+    updatePlayerStats('p2', p2);
+
+    // Hide level setup
+    $('levelSelection').style.display = 'none';
   } else if (state.game.status === 'won_by_player') {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
-    setStartGameButton('Start New Game');
 
-    // Show single status and hide three-column layout
-    $('status').style.display = 'block';
-    $('game-status-layout').style.display = 'none';
-    setStatus(`🎉 ${winnerType} ${winner.player.name} wins! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+    // Show reset button, hide cancel button
+    $('resetBtn').style.display = 'flex';
+    $('cancelBtn').style.display = 'none';
+
+    // Update final player stats
+    updatePlayerStats('p1', p1);
+    updatePlayerStats('p2', p2);
+
+    $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins!`;
   } else if (state.game.status === 'draw') {
-    setStartGameButton('Start New Game');
+    // Show reset button, hide cancel button
+    $('resetBtn').style.display = 'flex';
+    $('cancelBtn').style.display = 'none';
 
-    // Show single status and hide three-column layout
-    $('status').style.display = 'block';
-    $('game-status-layout').style.display = 'none';
-    setStatus(`🤝 It's a draw! • Final: ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+    // Update final player stats
+    updatePlayerStats('p1', p1);
+    updatePlayerStats('p2', p2);
+
+    $('controlMessage').textContent = `🤝 It's a draw!`;
   } else if (state.game.status === 'canceled') {
-    setStartGameButton('Start New Game');
+    // Show reset button, hide cancel button
+    $('resetBtn').style.display = 'flex';
+    $('cancelBtn').style.display = 'none';
 
-    // Show single status and hide three-column layout
-    $('status').style.display = 'block';
-    $('game-status-layout').style.display = 'none';
-    setStatus(`❌ Game canceled • ${p1Type}${p1.player.name}: ${p1.score} • ${p2Type}${p2.player.name}: ${p2.score}`);
+    // Update final player stats
+    updatePlayerStats('p1', p1);
+    updatePlayerStats('p2', p2);
+
+    $('controlMessage').textContent = `❌ Game canceled`;
   }
+}
+
+function updatePlayerStats(playerNum, playerStatus) {
+  const avatar = playerStatus.player.type === 'agent' ? '🤖' : '👤';
+  $(`${playerNum}Avatar`).textContent = avatar;
+  $(`${playerNum}Name`).textContent = playerStatus.player.name;
+  $(`${playerNum}Type`).textContent = playerStatus.player.type.toUpperCase();
+  $(`${playerNum}Score`).textContent = playerStatus.score;
+  $(`${playerNum}Moves`).textContent = playerStatus.moves;
 }
 
 function renderBoard() {
@@ -215,36 +314,6 @@ async function fetchPlayers() {
   return Array.isArray(players) ? players : [];
 }
 
-async function createGame() {
-  const gameId = $('game-id').value.trim() || 'game-' + Date.now();
-  const level = $('level').value;
-  if (!state.p1 || !state.p2) {
-    alert('Load or create both players first');
-    return;
-  }
-
-  const req = {
-    gameId,
-    player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },
-    player2: { id: state.p2.id, type: state.p2.type, name: state.p2.name },
-    level,
-  };
-  const res = await fetch('/game/create-game', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req),
-  });
-  const { gameState } = await res.json();
-  state.game = gameState;
-  $('game-id').value = state.game.gameId;
-  setStartGameButton('Reset Game');
-  setStatus('Game created');
-  renderGameInfo();
-  renderBoard();
-
-  openMoveStream(state.game.gameId);
-}
-
 async function onCellClick(dotId) {
   if (!state.game || state.game.status !== 'in_progress') return;
   const current = state.game.currentPlayer?.player?.id;
@@ -294,23 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBoard();
 });
 
-async function startNewGameWizard() {
-  const panel = $('setupPanel');
-  panel.style.display = 'block';
-  setStartGameButton('Reset Game');
-  setStatus('👤 Select or create Player 1');
-
-  // Reset level display back to dropdown
-  $('levelDisplay').style.display = 'none';
-  $('levelSetup').style.display = 'none'; // Will be shown after both players selected
-
-  await populatePlayerMenu('p1');
-  populateTypeMenu('p1');
-  populateTypeMenu('p2');
-  populateLevelMenu();
-  $('p1Setup').style.display = 'block';
-}
-
 async function populatePlayerMenu(which) {
   const menu = $(`${which}-dd-menu`);
   const btn = $(`${which}-dd-btn`);
@@ -350,34 +402,24 @@ async function selectExistingPlayer(which) {
 function applyPlayerSelection(which, player) {
   if (which === 'p1') {
     state.p1 = player;
-    $('p1Setup').style.display = 'none';
-    const summary = $('p1Summary');
-    summary.style.display = 'block';
-    summary.textContent = `Player 1: ${player.name} (${player.type})`;
-    setStatus('👥 Select or create Player 2');
-    // proceed to player 2
+
+    // Update control message and show Player 2 setup
+    setControlMessage('Select or create Player 2');
     $('p2Setup').style.display = 'block';
     populatePlayerMenu('p2');
   } else {
     // Prevent selecting the same player for Player 2
     if (state.p1 && player.id === state.p1.id) {
       state.p2 = null;
-      // keep Player 2 selection visible and show an error
-      $('p2Setup').style.display = 'block';
-      const p2Summary = $('p2Summary');
-      if (p2Summary) p2Summary.style.display = 'none';
       alert('Player 2 must be different from Player 1. Please choose another player.');
       return;
     }
+
     state.p2 = player;
-    $('p2Setup').style.display = 'none';
-    const summary = $('p2Summary');
-    summary.style.display = 'block';
-    summary.textContent = `Player 2: ${player.name} (${player.type})`;
-    setStatus('🎯 Pick your game level');
-    // enable level select and show Begin control as a next step in wizard
-    $('levelSetup').style.display = 'block';
-    $('beginControls').style.display = 'block';
+
+    // Show level selection in control bar
+    $('controlMessage').style.display = 'none';
+    $('levelSelection').style.display = 'flex';
     updateBeginButtonState();
   }
 }
@@ -449,15 +491,9 @@ async function beginGame() {
   });
   const { gameState } = await res.json();
   state.game = gameState;
-  setStatus(`🎮 Game started! ${state.game.currentPlayer?.player?.name || 'Player 1'}'s turn`);
-
-  // Switch from level dropdown to read-only level display
-  $('levelSetup').style.display = 'none';
-  $('levelDisplay').style.display = 'block';
-  $('level-value').textContent = level;
-
-  // Hide the Begin Game button once game starts
-  $('beginControls').style.display = 'none';
+  // Hide level selection and show control message
+  $('levelSelection').style.display = 'none';
+  $('controlMessage').style.display = 'block';
 
   renderGameInfo();
   renderBoard();
@@ -470,3 +506,6 @@ async function beginGame() {
     // TODO: add fetch to endpoint to trigger agent's first move
   }
 }
+
+// Initialize the UI when the page loads
+window.addEventListener('DOMContentLoaded', initializeUI);
