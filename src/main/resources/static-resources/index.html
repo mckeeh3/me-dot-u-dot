@@ -265,6 +265,19 @@
         background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(138, 43, 226, 0.3));
       }
 
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn-primary:disabled:hover {
+        transform: none;
+        box-shadow: none;
+        background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(138, 43, 226, 0.2));
+      }
+
       .level-selection {
         display: flex;
         align-items: center;
@@ -876,7 +889,11 @@
               <button type="button" class="dd-toggle" onclick="ddToggle('p1-type-dd')" id="p1-type-btn">human</button>
               <div class="dd-menu" id="p1-type-menu"></div>
             </div>
-            <button class="btn-primary" onclick="createPlayer('p1')">Create & Select</button>
+            <div class="dd" id="p1-model-dd" style="display: none">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p1-model-dd')" id="p1-model-btn">Select Model</button>
+              <div class="dd-menu" id="p1-model-menu"></div>
+            </div>
+            <button class="btn-primary" onclick="createPlayer('p1')" id="p1-create-btn">Create & Select</button>
           </div>
         </div>
 
@@ -964,7 +981,11 @@
               <button type="button" class="dd-toggle" onclick="ddToggle('p2-type-dd')" id="p2-type-btn">human</button>
               <div class="dd-menu" id="p2-type-menu"></div>
             </div>
-            <button class="btn-primary" onclick="createPlayer('p2')">Create & Select</button>
+            <div class="dd" id="p2-model-dd" style="display: none">
+              <button type="button" class="dd-toggle" onclick="ddToggle('p2-model-dd')" id="p2-model-btn">Select Model</button>
+              <div class="dd-menu" id="p2-model-menu"></div>
+            </div>
+            <button class="btn-primary" onclick="createPlayer('p2')" id="p2-create-btn">Create & Select</button>
           </div>
         </div>
 

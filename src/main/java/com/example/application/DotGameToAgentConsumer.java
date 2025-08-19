@@ -40,7 +40,8 @@ public class DotGameToAgentConsumer extends Consumer {
           event.gameId(),
           event.status(),
           agentPlayer.player().id(),
-          agentPlayer.player().name());
+          agentPlayer.player().name(),
+          agentPlayer.player().model());
 
       var result = componentClient
           .forAgent()
@@ -65,7 +66,8 @@ public class DotGameToAgentConsumer extends Consumer {
           event.gameId(),
           event.status(),
           agentPlayer.player().id(),
-          agentPlayer.player().name());
+          agentPlayer.player().name(),
+          agentPlayer.player().model());
 
       var result = componentClient
           .forAgent()
@@ -85,7 +87,8 @@ public class DotGameToAgentConsumer extends Consumer {
             event.gameId(),
             event.status(),
             agentPlayer.player().id(),
-            agentPlayer.player().name());
+            agentPlayer.player().name(),
+            agentPlayer.player().model());
 
         var result = componentClient
             .forAgent()
@@ -104,7 +107,8 @@ public class DotGameToAgentConsumer extends Consumer {
             event.gameId(),
             event.status(),
             agentPlayer.player().id(),
-            agentPlayer.player().name());
+            agentPlayer.player().name(),
+            agentPlayer.player().model());
 
         var result = componentClient
             .forAgent()
@@ -130,7 +134,8 @@ public class DotGameToAgentConsumer extends Consumer {
           event.gameId(),
           event.status(),
           agentPlayer.player().id(),
-          agentPlayer.player().name());
+          agentPlayer.player().name(),
+          agentPlayer.player().model());
 
       var result = componentClient
           .forAgent()
@@ -149,7 +154,8 @@ public class DotGameToAgentConsumer extends Consumer {
           event.gameId(),
           event.status(),
           agentPlayer.player().id(),
-          agentPlayer.player().name());
+          agentPlayer.player().name(),
+          agentPlayer.player().model());
 
       var result = componentClient
           .forAgent()

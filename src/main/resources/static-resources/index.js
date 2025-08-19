@@ -55,6 +55,18 @@ function startNewGameWizard() {
   populatePlayerMenu('p2');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
+
+  // Hide model dropdowns initially (they show when agent is selected)
+  $('p1-model-dd').style.display = 'none';
+  $('p2-model-dd').style.display = 'none';
+
+  // Reset model button text
+  $('p1-model-btn').textContent = 'Select Model';
+  $('p2-model-btn').textContent = 'Select Model';
+
+  // Set initial create button states (enabled for human, disabled for agent until model selected)
+  updateCreateButtonState('p1');
+  updateCreateButtonState('p2');
 }
 
 function resetGame() {
@@ -302,12 +314,24 @@ async function createPlayer(which) {
   const name = $(which + '-name').value.trim();
   const typeBtn = $(`${which}-type-btn`);
   const type = typeBtn ? typeBtn.textContent.trim() : 'human';
+
   if (!id || !name) {
     alert('Player id and name are required');
     return;
   }
 
-  const cmd = { id, type, name };
+  // Get model for agent players
+  let model = '';
+  if (type === 'agent') {
+    const modelBtn = $(`${which}-model-btn`);
+    model = modelBtn ? modelBtn.textContent.trim() : '';
+    if (!model || model === 'Select Model') {
+      alert('Model selection is required for agent players');
+      return;
+    }
+  }
+
+  const cmd = { id, type, name, model };
   await fetch('/player/create-player', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -341,6 +365,22 @@ async function fetchPlayers() {
   }
   const { players } = await res.json();
   return Array.isArray(players) ? players : [];
+}
+
+async function fetchAiModels() {
+  try {
+    const res = await fetch('/game/get-all-ai-agent-models', {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch AI models: ${res.status} ${res.statusText}`);
+    }
+    const models = await res.json();
+    return Array.isArray(models) ? models : [];
+  } catch (error) {
+    console.error('Error fetching AI models:', error);
+    return [];
+  }
 }
 
 async function onCellClick(dotId) {
@@ -472,13 +512,81 @@ function populateTypeMenu(which) {
     const item = document.createElement('div');
     item.className = 'dd-item';
     item.textContent = t;
-    item.onclick = (e) => {
+    item.onclick = async (e) => {
       e.stopPropagation();
       btn.textContent = t;
       ddClose(`${which}-type-dd`);
+
+      // Show/hide model dropdown based on type selection
+      const modelDropdown = $(`${which}-model-dd`);
+      if (t === 'agent') {
+        modelDropdown.style.display = 'block';
+        await populateModelMenu(which);
+      } else {
+        modelDropdown.style.display = 'none';
+        // Reset model selection for human players
+        $(`${which}-model-btn`).textContent = 'Select Model';
+      }
+
+      // Update create button state
+      updateCreateButtonState(which);
     };
     menu.appendChild(item);
   });
+}
+
+async function populateModelMenu(which) {
+  const menu = $(`${which}-model-menu`);
+  const btn = $(`${which}-model-btn`);
+  menu.innerHTML = '';
+
+  try {
+    const models = await fetchAiModels();
+    if (models.length === 0) {
+      const item = document.createElement('div');
+      item.className = 'dd-item';
+      item.textContent = 'No models available';
+      item.style.opacity = '0.5';
+      menu.appendChild(item);
+      return;
+    }
+
+    models.forEach((model, index) => {
+      const item = document.createElement('div');
+      item.className = 'dd-item';
+      item.textContent = model;
+      item.onclick = (e) => {
+        e.stopPropagation();
+        btn.textContent = model;
+        ddClose(`${which}-model-dd`);
+        updateCreateButtonState(which);
+      };
+      menu.appendChild(item);
+    });
+
+    // Set default selection to first model
+    if (models.length > 0) {
+      btn.textContent = models[0];
+    }
+  } catch (error) {
+    console.error('Error populating model menu:', error);
+    const item = document.createElement('div');
+    item.className = 'dd-item';
+    item.textContent = 'Error loading models';
+    item.style.opacity = '0.5';
+    menu.appendChild(item);
+  }
+}
+
+function updateCreateButtonState(which) {
+  const typeBtn = $(`${which}-type-btn`);
+  const modelBtn = $(`${which}-model-btn`);
+  const createBtn = $(`${which}-create-btn`);
+
+  const isAgent = typeBtn.textContent === 'agent';
+  const hasModel = isAgent ? modelBtn.textContent !== 'Select Model' : true;
+
+  createBtn.disabled = !hasModel;
 }
 
 function populateLevelMenu() {
@@ -513,8 +621,8 @@ async function beginGame() {
   const level = $('level-btn').textContent;
   const req = {
     gameId,
-    player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name },
-    player2: { id: state.p2.id, type: state.p2.type, name: state.p2.name },
+    player1: { id: state.p1.id, type: state.p1.type, name: state.p1.name, model: state.p1.model },
+    player2: { id: state.p2.id, type: state.p2.type, name: state.p2.name, model: state.p2.model },
     level,
   };
   const res = await fetch('/game/create-game', {

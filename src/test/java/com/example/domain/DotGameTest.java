@@ -15,8 +15,8 @@ public class DotGameTest {
   void setUp() {
     level1Board = DotGame.Board.of(DotGame.Board.Level.one); // 5x5
     level3Board = DotGame.Board.of(DotGame.Board.Level.three); // 9x9
-    player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
   }
 
   @Test
@@ -260,8 +260,8 @@ public class DotGameTest {
     // C | __ | a1 | p1 | a1 | p1 |
     // D | __ | __ | a1 | a1 | __ |
     // E | __ | __ | __ | __ | __ |
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var agent1 = new DotGame.Player("agent1", DotGame.PlayerType.agent, "Agent 1");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var agent1 = new DotGame.Player("agent1", DotGame.PlayerType.agent, "Agent 1", "model1");
     var board = level1Board
         .withDot("C3", player1) // player-1
         .withDot("B3", agent1) // agent-1

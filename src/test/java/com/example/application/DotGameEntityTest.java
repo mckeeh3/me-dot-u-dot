@@ -17,8 +17,8 @@ public class DotGameEntityTest {
   void testCreateGame() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-123";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
     var player1Status = new DotGame.PlayerStatus(player1, 0, 0, false);
     var player2Status = new DotGame.PlayerStatus(player2, 0, 0, false);
     var command = new DotGame.Command.CreateGame(gameId, player1, player2, DotGame.Board.Level.one);
@@ -53,8 +53,8 @@ public class DotGameEntityTest {
   void testMakeMove() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-456";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
     var player2Status = new DotGame.PlayerStatus(player2, 0, 0, false);
 
     // First create the game
@@ -110,8 +110,8 @@ public class DotGameEntityTest {
   void testMakeMoveOutOfTurn() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-101";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -131,8 +131,8 @@ public class DotGameEntityTest {
   void testMakeMoveOnOccupiedDot() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-202";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -159,8 +159,8 @@ public class DotGameEntityTest {
   void testMakeMoveOnInvalidCoordinates() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-303";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -184,8 +184,8 @@ public class DotGameEntityTest {
   void testMultipleMoves() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-404";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -222,8 +222,8 @@ public class DotGameEntityTest {
   void testGameStateAfterMoves() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-505";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -257,8 +257,8 @@ public class DotGameEntityTest {
   void testCreateGameWithSameId() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-606";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
     var player1Status = new DotGame.PlayerStatus(player1, 0, 0, false);
     var player2Status = new DotGame.PlayerStatus(player2, 0, 0, false);
 
@@ -285,8 +285,8 @@ public class DotGameEntityTest {
   void testPlayer2ScoresOnePointFromCenterVerticalUp() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-707";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     // First create the game
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
@@ -316,8 +316,8 @@ public class DotGameEntityTest {
   void testPlayer2ScoresOnePointWithDiagonalLineFromG3ToC7LevelTwo() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-808";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.two);
 
@@ -357,8 +357,8 @@ public class DotGameEntityTest {
   void testGameCompletedPlayer1Wins() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-909";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
@@ -397,8 +397,8 @@ public class DotGameEntityTest {
   void testGameCompletedPlayer2Wins() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-909";
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob");
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
 
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 

@@ -74,11 +74,11 @@ public class DotGameAgent extends Agent {
 
     return effects()
         // .memory(MemoryProvider.limitedWindow().readLast(2))
-        // .model(ModelProvider.fromConfig("open-ai-gpt-5-mini"))
-        .model(ModelProvider
-            .openAi()
-            .withApiKey(System.getenv("OPENAI_API_KEY"))
-            .withModelName("gpt-5-mini"))
+        .model(ModelProvider.fromConfig(prompt.agentModel))
+        // .model(ModelProvider
+        // .openAi()
+        // .withApiKey(System.getenv("OPENAI_API_KEY"))
+        // .withModelName("gpt-5-mini"))
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(prompt.toPrompt())
@@ -103,7 +103,8 @@ public class DotGameAgent extends Agent {
       String gameId,
       DotGame.Status status,
       String agentId,
-      String agentName) {
+      String agentName,
+      String agentModel) {
 
     public String toPrompt() {
       if (status == DotGame.Status.in_progress) {
