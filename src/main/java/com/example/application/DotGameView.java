@@ -47,6 +47,13 @@ public class DotGameView extends View {
       };
     }
 
+    public enum LastAction {
+      game_created,
+      move_made,
+      game_canceled,
+      move_forfeited
+    }
+
     DotGameRow onEvent(DotGame.Event.GameCreated event) {
       var player1 = event.player1Status();
       var player2 = event.player2Status();
@@ -71,7 +78,8 @@ public class DotGameView extends View {
           player2.isWinner(),
           currentPlayerId,
           currentPlayerName,
-          Optional.empty());
+          Optional.empty(),
+          LastAction.game_created.name());
     }
 
     DotGameRow onEvent(DotGame.Event.MoveMade event) {
@@ -99,7 +107,8 @@ public class DotGameView extends View {
           player2.isWinner(),
           currentPlayerId,
           currentPlayerName,
-          winnerId);
+          winnerId,
+          LastAction.move_made.name());
     }
 
     DotGameRow onEvent(DotGame.Event.GameCanceled event) {
@@ -121,7 +130,8 @@ public class DotGameView extends View {
           rowState().player2Winner(),
           rowState().currentPlayerId(),
           rowState().currentPlayerName(),
-          Optional.empty());
+          Optional.empty(),
+          LastAction.game_canceled.name());
     }
 
     DotGameRow onEvent(DotGame.Event.MoveForfeited event) {
@@ -146,7 +156,8 @@ public class DotGameView extends View {
           rowState().player2Winner(),
           currentPlayerId,
           currentPlayerName,
-          Optional.empty());
+          Optional.empty(),
+          LastAction.move_forfeited.name());
     }
   }
 
@@ -168,7 +179,8 @@ public class DotGameView extends View {
       boolean player2Winner,
       String currentPlayerId,
       String currentPlayerName,
-      Optional<String> winnerId) {}
+      Optional<String> winnerId,
+      String lastAction) {}
 
   public record GetMoveStreamByGameIdRequest(String gameId) {}
 

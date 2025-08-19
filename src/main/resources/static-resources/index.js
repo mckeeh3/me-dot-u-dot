@@ -299,9 +299,6 @@ async function playMoveSound(oldState, newState) {
       return;
     }
   }
-
-  // TODO figure out how to play this sound on agent failures
-  // await playSound('game-alarm.wav');
 }
 
 async function playSound(sound) {
@@ -408,7 +405,10 @@ function openMoveStream(gameId) {
   evtSrc = new EventSource(url);
   evtSrc.onmessage = (e) => {
     try {
-      const _ = JSON.parse(e.data); // we received an event; now fetch full state to render board
+      const event = JSON.parse(e.data); // we received an event; now fetch full state to render board
+      if (event.lastAction === 'move_forfeited') {
+        playSound('game-alarm.wav');
+      }
       refreshGameState();
     } catch {}
   };
