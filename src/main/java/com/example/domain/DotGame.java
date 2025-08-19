@@ -351,9 +351,9 @@ public interface DotGame {
     agent
   }
 
-  public record Player(String id, PlayerType type, String name) {
+  public record Player(String id, PlayerType type, String name, String model) {
     static Player empty() {
-      return new Player("", PlayerType.human, "");
+      return new Player("", PlayerType.human, "", "");
     }
 
     public boolean isAgent() {
