@@ -1,5 +1,7 @@
 package com.example.api;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +12,7 @@ import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
 import com.example.domain.DotGame.Player;
+import com.typesafe.config.Config;
 
 import akka.http.javadsl.model.HttpResponse;
 import akka.javasdk.annotations.Acl;
@@ -26,21 +29,12 @@ import akka.javasdk.http.HttpResponses;
 @HttpEndpoint("/game")
 public class GameEndpoint {
   static final Logger log = LoggerFactory.getLogger(GameEndpoint.class);
-
-  public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}
-
-  public record MakeMove(String gameId, String playerId, String dotId) {}
-
-  public record CancelGame(String gameId) {}
-
-  public record GameResponse(DotGame.State gameState) {}
-
-  public record JournalRequest(String agentId, long sequenceId) {}
-
+  final Config config;
   final ComponentClient componentClient;
 
-  public GameEndpoint(ComponentClient componentClient) {
+  public GameEndpoint(ComponentClient componentClient, Config config) {
     this.componentClient = componentClient;
+    this.config = config;
   }
 
   @Post("/create-game")
@@ -133,4 +127,23 @@ public class GameEndpoint {
         .method(PlaybookJournalView::getByAgentIdUp)
         .invoke(queryRequest);
   }
+
+  @Get("/get-all-ai-agent-models")
+  public List<String> getAllAiAgentModels() {
+    return config.root()
+        .entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith("ai-agent-model-"))
+        .map(entry -> entry.getKey())
+        .toList();
+  }
+
+  public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}
+
+  public record MakeMove(String gameId, String playerId, String dotId) {}
+
+  public record CancelGame(String gameId) {}
+
+  public record GameResponse(DotGame.State gameState) {}
+
+  public record JournalRequest(String agentId, long sequenceId) {}
 }

@@ -24,9 +24,32 @@ public class Bootstrap implements ServiceSetup {
       log.info("Model provider: {}: {}", key, value);
     });
 
-    log.info("open-ai-gpt-5-mini");
-    config.getObject("open-ai-gpt-5-mini").unwrapped().forEach((key, value) -> {
-      log.info("Model provider: {}: {}", key, value);
-    });
+    // log.info("open-ai-gpt-5-mini");
+    // config.getObject("open-ai-gpt-5-mini").unwrapped().forEach((key, value) -> {
+    // log.info("Model provider: {}: {}", key, value);
+    // });
+
+    var entries = config.root().entrySet();
+    // log.info("Entries: {}", entries);
+    // entries.stream().forEach(entry -> {
+    // log.info("Entry: {}", entry.getKey());
+    // });
+
+    config.root().entrySet().stream().filter(entry -> entry.getKey().startsWith("ai-agent-model-"))
+        .forEach(entry -> {
+          log.info("================================================================================");
+          log.info("Entry: {}", entry.getKey());
+          log.info("--------------------------------------------------------------------------------");
+          var modelConfigName = entry.getKey().substring("ai.agent.model.".length());
+          log.info("Model config name: {}", modelConfigName);
+          var modelConfig = config.getConfig(entry.getKey());
+          modelConfig.entrySet().forEach(modelEntry -> {
+            if (!"api-key".equals(modelEntry.getKey())) {
+              log.info("Model entry: {}: {}", modelEntry.getKey(), modelEntry.getValue().unwrapped().toString());
+            } else {
+              log.info("Model entry: {}: {}", modelEntry.getKey(), "********");
+            }
+          });
+        });
   }
 }
