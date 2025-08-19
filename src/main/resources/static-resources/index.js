@@ -551,6 +551,12 @@ async function openJournalViewer(playerNum) {
   const player = playerNum === 'p1' ? state.p1 : state.p2;
   if (!player || player.type !== 'agent') return;
 
+  // Toggle: if journal is already viewing this agent, close it
+  if (journalState.isViewing && journalState.currentAgentId === player.id) {
+    exitJournalViewer();
+    return;
+  }
+
   journalState.currentAgentId = player.id;
   journalState.currentSequenceId = Number.MAX_SAFE_INTEGER; // Start with max value
   journalState.isViewing = true;

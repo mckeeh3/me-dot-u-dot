@@ -243,4 +243,40 @@ public class DotGameTest {
     assertEquals(1, board.scoreDotAt("E1")); // End of diagonal down-left only (E1-D2-C3)
     assertEquals(1, board.scoreDotAt("A5")); // End of diagonal up-right only (A5-B4-C3)
   }
+
+  @Test
+  void testScoreDotAt_Level3_AllEightDirections() {
+    /**
+     * "moveHistory": [ { "dotId": "C3", "playerId": "player-1" }, { "dotId": "B3", "playerId": "agent-1" }, { "dotId":
+     * "C5", "playerId": "player-1" }, { "dotId": "C4", "playerId": "agent-1" }, { "dotId": "A5", "playerId": "player-1" },
+     * { "dotId": "C2", "playerId": "agent-1" }, { "dotId": "B5", "playerId": "player-1" }, { "dotId": "D3", "playerId":
+     * "agent-1" }, { "dotId": "B4", "playerId": "player-1" }, { "dotId": "D4", "playerId": "agent-1" }, { "dotId": "A1",
+     * "playerId": "player-1" }, { "dotId": "B2", "playerId": "agent-1" }, { "dotId": "A3", "playerId": "player-1" } ],
+     */
+
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p1 | __ | p1 | __ | p1 |
+    // B | __ | a1 | a1 | p1 | p1 |
+    // C | __ | a1 | p1 | a1 | p1 |
+    // D | __ | __ | a1 | a1 | __ |
+    // E | __ | __ | __ | __ | __ |
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice");
+    var agent1 = new DotGame.Player("agent1", DotGame.PlayerType.agent, "Agent 1");
+    var board = level1Board
+        .withDot("C3", player1) // player-1
+        .withDot("B3", agent1) // agent-1
+        .withDot("C5", player1) // player-1
+        .withDot("C4", agent1) // agent-1
+        .withDot("A5", player1) // player-1
+        .withDot("C2", agent1) // agent-1
+        .withDot("B5", player1) // player-1
+        .withDot("D3", agent1) // agent-1
+        .withDot("B4", player1) // player-1
+        .withDot("D4", agent1) // agent-1
+        .withDot("A1", player1) // player-1
+        .withDot("B2", agent1) // agent-1
+        .withDot("A3", player1); // player-1
+
+    assertEquals(1, board.scoreDotAt("A3")); // winning move
+  }
 }
