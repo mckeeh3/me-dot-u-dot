@@ -30,7 +30,7 @@ public class PlaybookJournalView extends View {
         FROM playbook_journal_view
        WHERE agentId = :agentId
        AND sequenceId > :sequenceId
-       ORDER BY sequenceId DESC
+       ORDER BY sequenceId ASC
        LIMIT 1
       """)
   public QueryEffect<Journals> getByAgentIdUp(GetByAgentIdUpRequest request) {

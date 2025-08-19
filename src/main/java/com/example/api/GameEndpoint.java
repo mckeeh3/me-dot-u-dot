@@ -110,9 +110,9 @@ public class GameEndpoint {
     return new GameResponse(gameState);
   }
 
-  @Get("/get-journal-by-agent-id-down")
+  @Post("/get-journal-by-agent-id-down")
   public PlaybookJournalView.Journals getJournalByAgentIdDown(JournalRequest request) {
-    log.info("Get journal by agent id: {}", request);
+    log.info("Get journal down by agent id: {}", request);
 
     var queryRequest = new PlaybookJournalView.GetByAgentIdDownRequest(request.agentId(), request.sequenceId());
 
@@ -122,9 +122,9 @@ public class GameEndpoint {
         .invoke(queryRequest);
   }
 
-  @Get("/get-journal-by-agent-id-up")
+  @Post("/get-journal-by-agent-id-up")
   public PlaybookJournalView.Journals getJournalByAgentIdUp(JournalRequest request) {
-    log.info("Get journal by agent id: {}", request);
+    log.info("Get journal up by agent id: {}", request);
 
     var queryRequest = new PlaybookJournalView.GetByAgentIdUpRequest(request.agentId(), request.sequenceId());
 

@@ -286,11 +286,9 @@ async function playMoveSound(oldState, newState) {
       await playSound('game-move.wav');
       return;
     }
-
-    console.log(new Date().toISOString(), `oldState: ${oldState} `);
-    console.log(new Date().toISOString(), `newState: ${newState} `);
   }
 
+  // TODO figure out how to play this sound on agent failures
   // await playSound('game-alarm.wav');
 }
 
@@ -592,8 +590,8 @@ async function navigateJournal(direction) {
 
     if (res.ok) {
       const data = await res.json();
-      if (data.rows && data.rows.length > 0) {
-        const entry = data.rows[0];
+      if (data.journals && data.journals.length > 0) {
+        const entry = data.journals[0];
         journalState.currentSequenceId = entry.sequenceId;
         displayJournalEntry(entry);
       } else {
@@ -623,8 +621,8 @@ async function loadJournalEntry() {
 
     if (res.ok) {
       const data = await res.json();
-      if (data.rows && data.rows.length > 0) {
-        const entry = data.rows[0];
+      if (data.journals && data.journals.length > 0) {
+        const entry = data.journals[0];
         journalState.currentSequenceId = entry.sequenceId;
         displayJournalEntry(entry);
       } else {
