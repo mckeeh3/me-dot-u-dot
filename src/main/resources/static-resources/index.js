@@ -70,6 +70,9 @@ function startNewGameWizard() {
 
   // Reset timers
   resetTimers();
+
+  // Add real-time player ID validation
+  setupPlayerIdValidation();
 }
 
 function resetGame() {
@@ -339,6 +342,22 @@ async function createPlayer(which) {
     return;
   }
 
+  // Check for duplicate player ID
+  const otherWhich = which === 'p1' ? 'p2' : 'p1';
+  const otherPlayer = which === 'p1' ? state.p2 : state.p1;
+  const otherIdField = $(`${otherWhich}-id`);
+
+  if (otherPlayer && otherPlayer.id === id) {
+    alert(`Player ID "${id}" is already used by ${otherWhich.toUpperCase()}. Please choose a different ID.`);
+    return;
+  }
+
+  const otherCurrentId = otherIdField.value.trim();
+  if (otherCurrentId && otherCurrentId === id) {
+    alert(`Player ID "${id}" is already entered for ${otherWhich.toUpperCase()}. Please choose a different ID.`);
+    return;
+  }
+
   // Get model for agent players
   let model = '';
   if (type === 'agent') {
@@ -459,11 +478,16 @@ async function populatePlayerMenu(which) {
   const menu = $(`${which}-dd-menu`);
   const btn = $(`${which}-dd-btn`);
   menu.innerHTML = '';
-  const players = await fetchPlayers();
+  const allPlayers = await fetchPlayers();
+
+  // Filter out the other player to prevent duplicates
+  const otherPlayer = which === 'p1' ? state.p2 : state.p1;
+  const players = allPlayers.filter((p) => !otherPlayer || p.id !== otherPlayer.id);
+
   if (!players.length) {
     const empty = document.createElement('div');
     empty.className = 'dd-item';
-    empty.textContent = 'No players yet';
+    empty.textContent = allPlayers.length > 0 ? 'No available players' : 'No players yet';
     menu.appendChild(empty);
     btn.textContent = '— Select a player —';
     return;
@@ -477,9 +501,43 @@ async function populatePlayerMenu(which) {
       btn.textContent = `${p.name} (${p.type})`;
       btn.dataset.playerId = p.id;
       ddClose(`${which}-dd`);
+
+      // Populate create form fields with selected player data
+      populateCreateForm(which, p);
     };
     menu.appendChild(item);
   });
+}
+
+async function populateCreateForm(which, player) {
+  // Populate form fields with selected player data
+  $(`${which}-id`).value = player.id;
+  $(`${which}-name`).value = player.name;
+
+  // Set player type dropdown
+  const typeBtn = $(`${which}-type-btn`);
+  typeBtn.textContent = player.type;
+
+  // Show/hide model dropdown based on type
+  const modelDropdown = $(`${which}-model-dd`);
+  if (player.type === 'agent') {
+    modelDropdown.style.display = 'block';
+
+    // Set model if available
+    if (player.model) {
+      const modelBtn = $(`${which}-model-btn`);
+      modelBtn.textContent = player.model;
+    } else {
+      // If no model, populate the model menu and set to first available
+      await populateModelMenu(which);
+    }
+  } else {
+    modelDropdown.style.display = 'none';
+    $(`${which}-model-btn`).textContent = 'Select Model';
+  }
+
+  // Update create button state
+  updateCreateButtonState(which);
 }
 
 async function selectExistingPlayer(which) {
@@ -498,6 +556,7 @@ function applyPlayerSelection(which, player) {
     // Update control message and show Player 2 setup
     setControlMessage('Select or create Player 2');
     $('p2Setup').style.display = 'block';
+    // Refresh P2 menu to exclude the selected P1 player
     populatePlayerMenu('p2');
   } else {
     // Prevent selecting the same player for Player 2
@@ -508,6 +567,9 @@ function applyPlayerSelection(which, player) {
     }
 
     state.p2 = player;
+
+    // Refresh P1 menu to exclude the selected P2 player
+    populatePlayerMenu('p1');
 
     // Show level selection in control bar
     $('controlMessage').style.display = 'none';
@@ -610,6 +672,34 @@ function updateCreateButtonState(which) {
   const hasModel = isAgent ? modelBtn.textContent !== 'Select Model' : true;
 
   createBtn.disabled = !hasModel;
+}
+
+function setupPlayerIdValidation() {
+  // Add input event listeners for real-time validation
+  $('p1-id').addEventListener('input', () => validatePlayerIdInput('p1'));
+  $('p2-id').addEventListener('input', () => validatePlayerIdInput('p2'));
+}
+
+function validatePlayerIdInput(which) {
+  const currentId = $(`${which}-id`).value.trim();
+  if (!currentId) return; // Don't validate empty fields
+
+  const otherWhich = which === 'p1' ? 'p2' : 'p1';
+  const otherPlayer = which === 'p1' ? state.p2 : state.p1;
+  const otherIdField = $(`${otherWhich}-id`);
+
+  // Check against the other player's selected player (if any)
+  if (otherPlayer && otherPlayer.id === currentId) {
+    alert(`Player ID "${currentId}" is already used by ${otherWhich.toUpperCase()}. Please choose a different ID.`);
+    return;
+  }
+
+  // Check against the other player's form field (if filled)
+  const otherCurrentId = otherIdField.value.trim();
+  if (otherCurrentId && otherCurrentId === currentId) {
+    alert(`Player ID "${currentId}" is already entered for ${otherWhich.toUpperCase()}. Please choose a different ID.`);
+    return;
+  }
 }
 
 function populateLevelMenu() {
