@@ -67,6 +67,9 @@ function startNewGameWizard() {
   // Set initial create button states (enabled for human, disabled for agent until model selected)
   updateCreateButtonState('p1');
   updateCreateButtonState('p2');
+
+  // Reset timers
+  resetTimers();
 }
 
 function resetGame() {
@@ -139,9 +142,20 @@ function renderGameInfo() {
 
     // Hide level setup
     $('levelSelection').style.display = 'none';
+
+    // Start timer for current player
+    const currentPlayerId = state.game.currentPlayer?.player?.id;
+    if (currentPlayerId === state.p1?.id) {
+      startTimer('p1');
+    } else if (currentPlayerId === state.p2?.id) {
+      startTimer('p2');
+    }
   } else if (state.game.status === 'won_by_player') {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
+
+    // Stop timer when game ends
+    stopTimer();
 
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
@@ -153,6 +167,9 @@ function renderGameInfo() {
 
     $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins!`;
   } else if (state.game.status === 'draw') {
+    // Stop timer when game ends
+    stopTimer();
+
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
     $('cancelBtn').style.display = 'none';
@@ -163,6 +180,9 @@ function renderGameInfo() {
 
     $('controlMessage').textContent = `🤝 It's a draw!`;
   } else if (state.game.status === 'canceled') {
+    // Stop timer when game ends
+    stopTimer();
+
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
     $('cancelBtn').style.display = 'none';
@@ -761,6 +781,70 @@ function displayJournalEntry(entry) {
   $('journalAgentId').textContent = entry.agentId;
   $('journalSequenceId').textContent = entry.sequenceId;
   $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
+}
+
+// Timer functionality
+const timerState = {
+  p1Seconds: 0,
+  p2Seconds: 0,
+  activePlayer: null,
+  intervalId: null,
+};
+
+function formatTime(seconds) {
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m${remainingSeconds}s`;
+}
+
+function updateTimerDisplay() {
+  $('p1Timer').textContent = formatTime(timerState.p1Seconds);
+  $('p2Timer').textContent = formatTime(timerState.p2Seconds);
+}
+
+function startTimer(playerNum) {
+  // Stop any existing timer
+  stopTimer();
+
+  // Reset the active player's timer
+  if (playerNum === 'p1') {
+    timerState.p1Seconds = 0;
+    timerState.activePlayer = 'p1';
+  } else {
+    timerState.p2Seconds = 0;
+    timerState.activePlayer = 'p2';
+  }
+
+  // Update display immediately
+  updateTimerDisplay();
+
+  // Start the interval timer
+  timerState.intervalId = setInterval(() => {
+    if (timerState.activePlayer === 'p1') {
+      timerState.p1Seconds++;
+    } else if (timerState.activePlayer === 'p2') {
+      timerState.p2Seconds++;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerState.intervalId) {
+    clearInterval(timerState.intervalId);
+    timerState.intervalId = null;
+  }
+  timerState.activePlayer = null;
+}
+
+function resetTimers() {
+  stopTimer();
+  timerState.p1Seconds = 0;
+  timerState.p2Seconds = 0;
+  updateTimerDisplay();
 }
 
 // Initialize the UI when the page loads
