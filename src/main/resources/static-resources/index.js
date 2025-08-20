@@ -178,7 +178,7 @@ function renderGameInfo() {
 function updatePlayerStats(playerNum, playerStatus) {
   const avatar = playerStatus.player.type === 'agent' ? '🤖' : '👤';
   const type = playerStatus.player.type.toUpperCase();
-  const model = playerStatus.player.model; // TODO: strip "ai-agent-model-" prefix
+  const model = playerStatus.player.model?.replace('ai-agent-model-', '') || '';
   $(`${playerNum}Avatar`).textContent = avatar;
   $(`${playerNum}Name`).textContent = playerStatus.player.name;
   $(`${playerNum}Type`).textContent = type === 'AGENT' ? model : 'HUMAN';
