@@ -410,6 +410,7 @@ function openMoveStream(gameId) {
       const event = JSON.parse(e.data); // we received an event; now fetch full state to render board
       if (event.lastAction === 'move_forfeited') {
         playSound('game-alarm.wav');
+        alert(event.message);
       }
       refreshGameState();
     } catch {}

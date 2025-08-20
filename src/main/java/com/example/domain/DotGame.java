@@ -67,12 +67,12 @@ public interface DotGame {
 
       var dotOptional = board.dotAt(command.dotId);
       if (dotOptional.isEmpty()) {
-        return forfeitMove();
+        return forfeitMove(command.playerId);
       }
 
       var dot = dotOptional.get();
       if (isEmpty() || isGameOver() || dot.isOccupied()) {
-        return forfeitMove();
+        return forfeitMove(command.playerId);
       }
 
       // Check if it's the player's turn
@@ -112,12 +112,14 @@ public interface DotGame {
           Instant.now()));
     }
 
-    Optional<Event> forfeitMove() {
+    Optional<Event> forfeitMove(String playerId) {
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
       return Optional.of(new Event.MoveForfeited(
           gameId,
+          status,
           newCurrentPlayer,
+          "Invalid move by playerId: %s".formatted(playerId),
           Instant.now()));
     }
 
@@ -138,7 +140,9 @@ public interface DotGame {
 
       return Optional.of(new Event.MoveForfeited(
           gameId,
+          status,
           newCurrentPlayer,
+          command.message,
           Instant.now()));
     }
 
@@ -289,7 +293,8 @@ public interface DotGame {
 
     public record ForfeitMove(
         String gameId,
-        String playerId) implements Command {}
+        String playerId,
+        String message) implements Command {}
 
     public record CompleteGame(
         String gameId,
@@ -339,7 +344,9 @@ public interface DotGame {
     @TypeName("move-forfeited")
     public record MoveForfeited(
         String gameId,
+        Status status,
         Optional<PlayerStatus> currentPlayer,
+        String message,
         Instant timestamp) implements Event {}
   }
 

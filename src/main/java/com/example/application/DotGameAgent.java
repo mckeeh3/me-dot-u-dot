@@ -75,6 +75,7 @@ public class DotGameAgent extends Agent {
     // TODO: remove this once this is fixed: https://github.com/akka/akka-javasdk/issues/880
     if (prompt.agentModel.contains("gpt-5")) {
       var model = prompt.agentModel.contains("mini") ? "gpt-5-mini" : "gpt-5";
+
       return effects()
           .model(ModelProvider
               .openAi()
@@ -105,7 +106,9 @@ public class DotGameAgent extends Agent {
 
   void forfeitMoveDueToError(MakeMovePrompt prompt, Throwable e) {
     log.error("Forfeiting move due to agent error: %s".formatted(e.getMessage()), e);
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agentId);
+
+    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agentName, e.getMessage());
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agentId, message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId)

@@ -79,7 +79,8 @@ public class DotGameView extends View {
           currentPlayerId,
           currentPlayerName,
           Optional.empty(),
-          LastAction.game_created.name());
+          LastAction.game_created.name(),
+          "");
     }
 
     DotGameRow onEvent(DotGame.Event.MoveMade event) {
@@ -108,7 +109,8 @@ public class DotGameView extends View {
           currentPlayerId,
           currentPlayerName,
           winnerId,
-          LastAction.move_made.name());
+          LastAction.move_made.name(),
+          "");
     }
 
     DotGameRow onEvent(DotGame.Event.GameCanceled event) {
@@ -131,12 +133,13 @@ public class DotGameView extends View {
           rowState().currentPlayerId(),
           rowState().currentPlayerName(),
           Optional.empty(),
-          LastAction.game_canceled.name());
+          LastAction.game_canceled.name(),
+          "");
     }
 
     DotGameRow onEvent(DotGame.Event.MoveForfeited event) {
-      var currentPlayerId = event.currentPlayer().map(ps -> ps.player().id()).orElse("");
-      var currentPlayerName = event.currentPlayer().map(ps -> ps.player().name()).orElse("");
+      var newCurrentPlayerId = event.currentPlayer().map(ps -> ps.player().id()).orElse("");
+      var newCurrentPlayerName = event.currentPlayer().map(ps -> ps.player().name()).orElse("");
 
       return new DotGameRow(
           event.gameId(),
@@ -154,10 +157,11 @@ public class DotGameView extends View {
           rowState().player2Moves(),
           rowState().player2Score(),
           rowState().player2Winner(),
-          currentPlayerId,
-          currentPlayerName,
+          newCurrentPlayerId,
+          newCurrentPlayerName,
           Optional.empty(),
-          LastAction.move_forfeited.name());
+          LastAction.move_forfeited.name(),
+          event.message());
     }
   }
 
@@ -180,7 +184,8 @@ public class DotGameView extends View {
       String currentPlayerId,
       String currentPlayerName,
       Optional<String> winnerId,
-      String lastAction) {}
+      String lastAction,
+      String message) {}
 
   public record GetMoveStreamByGameIdRequest(String gameId) {}
 
