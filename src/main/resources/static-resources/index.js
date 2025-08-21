@@ -523,13 +523,13 @@ async function populateCreateForm(which, player) {
   if (player.type === 'agent') {
     modelDropdown.style.display = 'block';
 
-    // Set model if available
+    // Always populate the model menu first to ensure options are available
+    await populateModelMenu(which);
+
+    // Set model if available, otherwise keep the default from populateModelMenu
     if (player.model) {
       const modelBtn = $(`${which}-model-btn`);
       modelBtn.textContent = player.model;
-    } else {
-      // If no model, populate the model menu and set to first available
-      await populateModelMenu(which);
     }
   } else {
     modelDropdown.style.display = 'none';
