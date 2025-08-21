@@ -730,7 +730,7 @@ function updateBeginButtonState() {
 
 async function beginGame() {
   if (!(state.p1 && state.p2)) return;
-  const gameId = 'game-' + Date.now();
+  const gameId = 'game-' + new Date().toISOString();
   const level = $('level-btn').textContent;
   const req = {
     gameId,
@@ -752,13 +752,6 @@ async function beginGame() {
   renderGameInfo();
   renderBoard();
   openMoveStream(state.game.gameId);
-
-  // If player 1 is an agent, trigger move
-  const p1IsAgent = state.game.currentPlayer?.player?.id === state.p1.id && state.p1.type === 'agent';
-  if (p1IsAgent) {
-    // Let the backend and agent pipeline produce the move; frontend will refresh via SSE
-    // TODO: add fetch to endpoint to trigger agent's first move
-  }
 }
 
 // Journal viewer state

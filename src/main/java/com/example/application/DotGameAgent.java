@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
+import com.example.domain.Playbook;
 
+import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
 import akka.javasdk.agent.ModelProvider;
 import akka.javasdk.annotations.ComponentId;
@@ -22,9 +24,9 @@ public class DotGameAgent extends Agent {
     this.componentClient = componentClient;
     this.functionTools = List.of(
         new GetGameStateTool(componentClient),
+        new GetYourPlaybookTool(componentClient),
         new MakeMoveTool(componentClient),
-        new UpdatePlaybookTool(componentClient),
-        new GetYourPlaybookTool(componentClient));
+        new UpdatePlaybookTool(componentClient));
   }
 
   static final String systemPrompt = """
@@ -47,11 +49,11 @@ public class DotGameAgent extends Agent {
       - ALWAYS use the get your playbook tool to get your playbook before making a move.
 
       Interaction model:
-      - You receive structured messages indicating the opponent’s last move or a game outcome.
+      - You receive structured messages indicating your opponent’s last move or a game outcome.
       - Use tools as needed to understand, adapt, and act; do not invent tool results.
       - Your only user input is to make a move or to inform you that the game is over.
       - DO NOT ask the user for any information, you only have access to the tools.
-      - Your only source of information is the game state and the tools.
+      - Your only source of information is the game state and playbook.
       - You can only make a move if you are the current player.
       - MAKE SURE you update your playbook as you learn something new about how to play and win the game.
 
@@ -60,11 +62,12 @@ public class DotGameAgent extends Agent {
 
       Learning stance:
       - Be evidence-driven: prefer instructions that are supported by repeated observations.
-      - When uncertain, consider small, justifiable experiments that balance exploration with winning.
+      - When uncertain, consider small, justifiable experimental moves that balance exploration with winning.
       - Evolve the playbook over time; improve clarity, remove redundancy, and promote the most useful guidance.
 
       Output discipline:
-      - When you decide to act, call makeMove with a single coordinate (e.g., “C3”).
+      - ALWAYS make a move when you are the current player and the game is in progress.
+      - When you decide to act, call the makeMove tool with a single coordinate (e.g., “C3”).
       - Keep any natural-language rationale brief and concrete (reference exact coordinates).
       - Never assume hidden rules; rely only on the current message and tool outputs.
       """.stripIndent();
@@ -116,6 +119,32 @@ public class DotGameAgent extends Agent {
         .invoke(command);
   }
 
+  String gameStateAsJson(String gameId) {
+    var result = componentClient
+        .forEventSourcedEntity(gameId)
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    if (result instanceof DotGame.State) {
+      return JsonSupport.encodeToString(GetGameStateTool.CompactGameState.from((DotGame.State) result));
+    }
+
+    return "Error getting game state for gameId: %s".formatted(gameId);
+  }
+
+  String playbookAsJson(String agentId) {
+    var playbook = componentClient
+        .forEventSourcedEntity(agentId)
+        .method(PlaybookEntity::getState)
+        .invoke();
+
+    if (playbook instanceof Playbook.State) {
+      return JsonSupport.encodeToString(playbook);
+    }
+
+    return "Error getting playbook for agentId: %s".formatted(agentId);
+  }
+
   public record MakeMovePrompt(
       String gameId,
       DotGame.Status status,
@@ -130,7 +159,11 @@ public class DotGameAgent extends Agent {
             Your Id is %s.
             Your Name is %s.
             Here's the current game Id: %s.
-            Use the get game state tool to retrieve the current game state.
+
+            Use the get game state tool to get the current game state and use the get your playbook tool to get your playbook.
+            Use this information to decide how to make your next move.
+            Use the make move tool to make your move.
+            Optionally, you can use the update playbook tool to update your playbook.
             """.formatted(agentId, agentName, gameId).stripIndent();
       }
 
@@ -139,7 +172,10 @@ public class DotGameAgent extends Agent {
           Your Id is %s.
           Your Name is %s.
           Here's the current game Id: %s.
-          Use the get game state tool to retrieve the current game state to see if you won or lost.
+
+          Use the get game state tool to get the current game state and use the get your playbook tool to get your playbook.
+          Use this information to decide how to update your playbook.
+          Use the update playbook tool to update your playbook.
           """.formatted(agentId, agentName, gameId).stripIndent();
     }
   }
