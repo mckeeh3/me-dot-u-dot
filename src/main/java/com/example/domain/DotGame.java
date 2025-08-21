@@ -26,10 +26,11 @@ public interface DotGame {
       PlayerStatus player1Status,
       PlayerStatus player2Status,
       Optional<PlayerStatus> currentPlayer,
-      List<Move> moveHistory) {
+      List<Move> moveHistory,
+      Optional<Instant> finishedAt) {
 
     public static State empty() {
-      return new State("", Instant.now(), Status.empty, Board.empty(), PlayerStatus.empty(), PlayerStatus.empty(), Optional.empty(), List.of());
+      return new State("", Instant.now(), Status.empty, Board.empty(), PlayerStatus.empty(), PlayerStatus.empty(), Optional.empty(), List.of(), Optional.empty());
     }
 
     public boolean isEmpty() {
@@ -54,15 +55,16 @@ public interface DotGame {
               new PlayerStatus(command.player2, 0, 0, false),
               Optional.of(new PlayerStatus(command.player1, 0, 0, false)),
               command.level,
-              List.of()));
+              List.of(),
+              Optional.empty()));
     }
 
     // ============================================================
     // Command MakeMove
     // ============================================================
-    public Optional<Event> onCommand(Command.MakeMove command) {
+    public List<Event> onCommand(Command.MakeMove command) {
       if (!status.equals(Status.in_progress)) {
-        return Optional.empty();
+        return List.of();
       }
 
       var dotOptional = board.dotAt(command.dotId);
@@ -77,7 +79,7 @@ public interface DotGame {
 
       // Check if it's the player's turn
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
-        return Optional.empty();
+        return List.of();
       }
 
       var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
@@ -101,7 +103,7 @@ public interface DotGame {
 
       var newCurrentPlayer = newStatus == Status.in_progress ? Optional.of(getNextPlayer()) : Optional.<PlayerStatus>empty();
 
-      return Optional.of(new Event.MoveMade(
+      var madeMoveEvent = new Event.MoveMade(
           gameId,
           newBoard,
           newStatus,
@@ -109,13 +111,19 @@ public interface DotGame {
           newPlayer2Status,
           newCurrentPlayer,
           newMoveHistory,
-          Instant.now()));
+          Instant.now());
+
+      if (newStatus != Status.in_progress) {
+        return List.of(madeMoveEvent, new Event.GameFinished(gameId, Optional.of(Instant.now())));
+      }
+
+      return List.of(madeMoveEvent);
     }
 
-    Optional<Event> forfeitMove(String playerId) {
+    List<Event> forfeitMove(String playerId) {
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
-      return Optional.of(new Event.MoveForfeited(
+      return List.of(new Event.MoveForfeited(
           gameId,
           status,
           newCurrentPlayer,
@@ -174,7 +182,8 @@ public interface DotGame {
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,
-          event.moveHistory);
+          event.moveHistory,
+          event.finishedAt);
     }
 
     public State onEvent(Event.MoveMade event) {
@@ -186,7 +195,8 @@ public interface DotGame {
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,
-          event.moveHistory);
+          event.moveHistory,
+          finishedAt);
     }
 
     public State onEvent(Event.GameCanceled event) {
@@ -198,7 +208,8 @@ public interface DotGame {
           player1Status,
           player2Status,
           Optional.empty(),
-          moveHistory);
+          moveHistory,
+          finishedAt);
 
     }
 
@@ -211,7 +222,21 @@ public interface DotGame {
           player1Status,
           player2Status,
           event.currentPlayer,
-          moveHistory);
+          moveHistory,
+          finishedAt);
+    }
+
+    public State onEvent(Event.GameFinished event) {
+      return new State(
+          gameId,
+          createdAt,
+          status,
+          board,
+          player1Status,
+          player2Status,
+          Optional.empty(),
+          moveHistory,
+          event.finishedAt);
     }
 
     public boolean isGameOver() {
@@ -296,10 +321,6 @@ public interface DotGame {
         String playerId,
         String message) implements Command {}
 
-    public record CompleteGame(
-        String gameId,
-        String winner) implements Command {}
-
     public record GameCanceled(String gameId) implements Command {}
 
     public record CancelGame(String gameId) implements Command {}
@@ -320,7 +341,8 @@ public interface DotGame {
         PlayerStatus player2Status,
         Optional<PlayerStatus> currentPlayerStatus,
         Board.Level level,
-        List<Move> moveHistory) implements Event {}
+        List<Move> moveHistory,
+        Optional<Instant> finishedAt) implements Event {}
 
     @TypeName("move-made")
     public record MoveMade(
@@ -348,6 +370,11 @@ public interface DotGame {
         Optional<PlayerStatus> currentPlayer,
         String message,
         Instant timestamp) implements Event {}
+
+    @TypeName("game-finished")
+    public record GameFinished(
+        String gameId,
+        Optional<Instant> finishedAt) implements Event {}
   }
 
   // ============================================================

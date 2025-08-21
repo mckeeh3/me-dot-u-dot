@@ -27,6 +27,7 @@ public class DotGameToAgentConsumer extends Consumer {
       case DotGame.Event.MoveMade e -> onEvent(e);
       case DotGame.Event.GameCanceled e -> onEvent(e);
       case DotGame.Event.MoveForfeited e -> onEvent(e);
+      default -> effects().done();
     };
   }
 

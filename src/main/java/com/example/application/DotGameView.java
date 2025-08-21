@@ -44,6 +44,7 @@ public class DotGameView extends View {
         case DotGame.Event.MoveMade e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameCanceled e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveForfeited e -> effects().updateRow(onEvent(e));
+        case DotGame.Event.GameFinished e -> effects().updateRow(onEvent(e));
       };
     }
 
@@ -51,7 +52,8 @@ public class DotGameView extends View {
       game_created,
       move_made,
       game_canceled,
-      move_forfeited
+      move_forfeited,
+      game_finished
     }
 
     DotGameRow onEvent(DotGame.Event.GameCreated event) {
@@ -162,6 +164,30 @@ public class DotGameView extends View {
           Optional.empty(),
           LastAction.move_forfeited.name(),
           event.message());
+    }
+
+    DotGameRow onEvent(DotGame.Event.GameFinished event) {
+      return new DotGameRow(
+          event.gameId(),
+          rowState().createdAt(),
+          event.finishedAt().orElse(Instant.now()),
+          rowState().status(),
+          rowState().level(),
+          rowState().player1Id(),
+          rowState().player1Name(),
+          rowState().player1Moves(),
+          rowState().player1Score(),
+          rowState().player1Winner(),
+          rowState().player2Id(),
+          rowState().player2Name(),
+          rowState().player2Moves(),
+          rowState().player2Score(),
+          rowState().player2Winner(),
+          rowState().currentPlayerId(),
+          rowState().currentPlayerName(),
+          Optional.empty(),
+          LastAction.game_finished.name(),
+          "");
     }
   }
 
