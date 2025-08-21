@@ -18,13 +18,12 @@ public class MakeMoveTool {
   }
 
   @FunctionTool(description = """
-      Submit a move to the backend for the specified game.
+      Submit a move for the specified game.
 
-      This tool only performs the action of making a move. It does not provide
-      instructions or rules for how to play. As you (the agent) gain experience and
-      learn from prior game states and outcomes, that knowledge can guide
-      your future move choices. Use this tool when you have decided which dot
-      to claim next.
+      - Use ONLY when it is your turn and the game is in progress.
+      - Input: a single coordinate string (e.g., "C3").
+      - Do not include natural language or multiple coordinates.
+      - This tool does NOT explain rules or validate strategy — it only records the move.
       """)
   public DotGame.State makeMove(
       @Description("The ID of the game you are making a move in") String gameId,
@@ -33,7 +32,7 @@ public class MakeMoveTool {
           The board coordinate to claim (e.g., "C3"). Coordinates start
           at A1 in the top-left and extend to the board size determined by level
           """) String dotId) {
-    log.debug("Player: {}, Make move: {} in game: {}", agentId, dotId, gameId);
+    log.debug("AgentId: {}, Make move: {} in game: {}", agentId, dotId, gameId);
 
     var command = new DotGame.Command.MakeMove(gameId, agentId, dotId);
 

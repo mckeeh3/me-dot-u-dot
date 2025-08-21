@@ -10,22 +10,21 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class UpdatePlaybookTool {
-  static final Logger log = LoggerFactory.getLogger(UpdatePlaybookTool.class);
+public class UpdateYourPlaybookTool {
+  static final Logger log = LoggerFactory.getLogger(UpdateYourPlaybookTool.class);
   final ComponentClient componentClient;
 
-  public UpdatePlaybookTool(ComponentClient componentClient) {
+  public UpdateYourPlaybookTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
 
   @FunctionTool(description = """
-      Replaces your (the agent’s) current playbook—a persistent, free-form text instructions keyed by agentId—
-      with a new version of its instructions. The playbook is the your self-authored knowledge base: it
-      captures discoveries, decision principles, tactics, and corrections distilled from experience.
-      Updating it is how you (the agent/model) learn, turning raw outcomes into reusable guidance and gradually
-      maturing into an expert player. Typical updates refine language for clarity, promote effective
-      ideas, and remove stale or conflicting guidance so that future decisions are grounded in the best
-      available understanding.
+      Replace your current playbook with a new version.
+
+      - Input: the full updated playbook text (concise, self-authored instructions).
+      - Purpose: persist lessons, tactics, and corrections learned from experience.
+      - Typical updates: refine clarity, keep effective ideas, remove stale or conflicting guidance.
+      - This tool overwrites the previous playbook; always include the full revised version.
       """)
   public Done updatePlaybook(
       @Description("The ID of your agent") String agentId,

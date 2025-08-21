@@ -18,21 +18,18 @@ public class GetGameStateTool {
   }
 
   @FunctionTool(description = """
-      Retrieves the current state of a Dot Game in a compact, AI-optimized format.
+      Retrieve the current game state in a compact format.
 
-      Returns CompactGameState.State with these fields:
-      - gameId: unique game identifier
-      - created: ISO-8601 timestamp when game was created
-      - status: empty|in_progress|won_by_player|draw|canceled
-      - level: one|two|three|four|five|six|seven|eight|nine (board size: one=5x5, nine=21x21)
-      - board: occupied dots only as "A1:p1,B2:p2,C3:p1" (empty dots omitted for efficiency)
-      - p1: player 1 as "id|name|type|moves|score|winner" (type=human|agent, winner=true|false)
-      - p2: player 2 as "id|name|type|moves|score|winner"
-      - turn: current player's ID (null if not in_progress)
-      - moves: chronological moves as "A1:p1,B2:p2,C3:p1"
-
-      Board coordinates: A1=top-left, column A-U, row 1-21 (varies by level).
-      Use this as the authoritative source for game state, scores, and turn order.
+      - Returns CompactGameState.State with fields:
+        - gameId: unique game identifier
+        - status: empty | in_progress | won_by_player | draw | canceled
+        - level: one..nine (board size: one=5x5 .. nine=21x21)
+        - board: occupied cells only, e.g. "A1:p1,B2:p2"
+        - p1 / p2: "id|name|type|moves|score|winner"
+        - turn: current player ID (null if not in progress)
+        - moves: chronological moves, e.g. "A1:p1,B2:p2"
+      - Coordinates: A1 = top-left, columns A–U, rows 1–21 depending on level.
+      - This is the authoritative source for board state, scores, and whose turn it is.
       """)
   public CompactGameState getGameState(
       @Description("The ID of the game you are playing") String gameId) {

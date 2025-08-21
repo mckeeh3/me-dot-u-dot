@@ -20,12 +20,12 @@ public interface Player {
       if (isEmpty()) {
         return new State(command.id, command.type, command.name, command.model);
       }
-      return new State(id, type, command.name, command.model);
+      return new State(id, type, command.name, model);
     }
 
     public State onCommand(Command.UpdatePlayer command) {
       if (!isEmpty()) {
-        return new State(id, type, command.name, command.model);
+        return new State(id, type, command.name, model);
       }
       return this;
     }
@@ -45,7 +45,7 @@ public interface Player {
   public sealed interface Command {
     public record CreatePlayer(String id, PlayerType type, String name, String model) implements Command {}
 
-    public record UpdatePlayer(String id, String name, String model) implements Command {}
+    public record UpdatePlayer(String id, String name) implements Command {}
   }
 
 }
