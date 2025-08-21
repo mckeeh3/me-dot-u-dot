@@ -130,8 +130,9 @@ function renderGameInfo() {
     $('resetBtn').style.display = 'flex';
     $('cancelBtn').style.display = 'flex';
 
-    // Update control center with turn info
-    $('controlMessage').textContent = `${currentType} ${turnName}'s turn`;
+    // Update control center with turn info and game duration
+    const gameDuration = formatTime(timerState.gameDurationSeconds);
+    $('controlMessage').textContent = `${currentType} ${turnName}'s turn - Duration ${gameDuration}`;
 
     // Show player stats and hide setup forms
     $('p1Setup').style.display = 'none';
@@ -146,6 +147,9 @@ function renderGameInfo() {
     // Hide level setup
     $('levelSelection').style.display = 'none';
 
+    // Start game duration timer (only starts once)
+    startGameDurationTimer();
+
     // Start timer for current player
     const currentPlayerId = state.game.currentPlayer?.player?.id;
     if (currentPlayerId === state.p1?.id) {
@@ -157,8 +161,9 @@ function renderGameInfo() {
     const winner = p1.isWinner ? p1 : p2;
     const winnerType = winner.player.type === 'agent' ? '🤖' : '👤';
 
-    // Stop timer when game ends
+    // Stop timers when game ends
     stopTimer();
+    stopGameDurationTimer();
 
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
@@ -168,10 +173,12 @@ function renderGameInfo() {
     updatePlayerStats('p1', p1);
     updatePlayerStats('p2', p2);
 
-    $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins!`;
+    const gameDuration = formatTime(timerState.gameDurationSeconds);
+    $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins! - Duration ${gameDuration}`;
   } else if (state.game.status === 'draw') {
-    // Stop timer when game ends
+    // Stop timers when game ends
     stopTimer();
+    stopGameDurationTimer();
 
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
@@ -181,10 +188,12 @@ function renderGameInfo() {
     updatePlayerStats('p1', p1);
     updatePlayerStats('p2', p2);
 
-    $('controlMessage').textContent = `🤝 It's a draw!`;
+    const gameDuration = formatTime(timerState.gameDurationSeconds);
+    $('controlMessage').textContent = `🤝 It's a draw! - Duration ${gameDuration}`;
   } else if (state.game.status === 'canceled') {
-    // Stop timer when game ends
+    // Stop timers when game ends
     stopTimer();
+    stopGameDurationTimer();
 
     // Show reset button, hide cancel button
     $('resetBtn').style.display = 'flex';
@@ -194,7 +203,8 @@ function renderGameInfo() {
     updatePlayerStats('p1', p1);
     updatePlayerStats('p2', p2);
 
-    $('controlMessage').textContent = `❌ Game canceled`;
+    const gameDuration = formatTime(timerState.gameDurationSeconds);
+    $('controlMessage').textContent = `❌ Game canceled - Duration ${gameDuration}`;
   }
 }
 
@@ -872,6 +882,10 @@ const timerState = {
   p2Seconds: 0,
   activePlayer: null,
   intervalId: null,
+  // Game duration timer
+  gameDurationSeconds: 0,
+  gameDurationIntervalId: null,
+  gameDurationStarted: false,
 };
 
 function formatTime(seconds) {
@@ -925,9 +939,48 @@ function stopTimer() {
 
 function resetTimers() {
   stopTimer();
+  resetGameDurationTimer();
   timerState.p1Seconds = 0;
   timerState.p2Seconds = 0;
   updateTimerDisplay();
+}
+
+// Game duration timer functions
+function startGameDurationTimer() {
+  if (timerState.gameDurationStarted) return; // Already started
+
+  timerState.gameDurationStarted = true;
+  timerState.gameDurationSeconds = 0;
+
+  timerState.gameDurationIntervalId = setInterval(() => {
+    timerState.gameDurationSeconds++;
+    updateGameDurationDisplay();
+  }, 1000);
+}
+
+function stopGameDurationTimer() {
+  if (timerState.gameDurationIntervalId) {
+    clearInterval(timerState.gameDurationIntervalId);
+    timerState.gameDurationIntervalId = null;
+  }
+}
+
+function resetGameDurationTimer() {
+  stopGameDurationTimer();
+  timerState.gameDurationSeconds = 0;
+  timerState.gameDurationStarted = false;
+}
+
+function updateGameDurationDisplay() {
+  // Only update if we're in an active game
+  if (!state.game || state.game.status !== 'in_progress') return;
+
+  const currentPlayer = state.game.currentPlayer?.player;
+  if (!currentPlayer) return;
+
+  const currentType = currentPlayer.type === 'agent' ? '🤖' : '👤';
+  const gameDuration = formatTime(timerState.gameDurationSeconds);
+  $('controlMessage').textContent = `${currentType} ${currentPlayer.name}'s turn - Duration ${gameDuration}`;
 }
 
 // Initialize the UI when the page loads
