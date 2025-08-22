@@ -1,5 +1,7 @@
 package com.example.application;
 
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,13 +72,15 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().name(),
           agentPlayer.player().model());
 
-      var result = componentClient
-          .forAgent()
-          .inSession(sessionId)
-          .method(DotGameAgent::makeMove)
-          .invoke(prompt);
+      // var result = componentClient
+      // .forAgent()
+      // .inSession(sessionId)
+      // .method(DotGameAgent::makeMove)
+      // .invoke(prompt);
 
-      log.debug("Make move (2 game in progress) result: {}", result);
+      // log.debug("Make move (2 game in progress) result: {}", result);
+
+      makeMove(sessionId, prompt, "Make move (2 game in progress)");
 
       return effects().done();
     }
@@ -196,5 +200,32 @@ public class DotGameToAgentConsumer extends Consumer {
     }
 
     return effects().done();
+  }
+
+  void makeMove(String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
+    Stream.iterate(0, i -> i + 1)
+        .map(i -> {
+          log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.agentId());
+
+          var result = componentClient
+              .forAgent()
+              .inSession(sessionId)
+              .method(DotGameAgent::makeMove)
+              .invoke(prompt);
+
+          var gameState = componentClient
+              .forEventSourcedEntity(prompt.gameId())
+              .method(DotGameEntity::getState)
+              .invoke();
+
+          var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(prompt.agentId());
+
+          log.debug("{}, agent result: {}", logMessage, result);
+          log.debug("Game status: {}, game over or agent made move: {}", gameState.status(), agentMadeMove);
+
+          return agentMadeMove;
+        })
+        .filter(Boolean::booleanValue)
+        .findFirst(); // keep trying until the agent makes a move
   }
 }

@@ -134,6 +134,7 @@ public class GameEndpoint {
         .entrySet().stream()
         .filter(entry -> entry.getKey().startsWith("ai-agent-model-"))
         .map(entry -> entry.getKey())
+        .map(key -> key.replace("ai-agent-model-", ""))
         .sorted()
         .toList();
   }

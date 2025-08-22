@@ -42,7 +42,7 @@ public class DotGameAgent extends Agent {
       - ALWAYS call the getGameState tool before deciding on a move.
       - ALWAYS call the getYourPlaybook tool before deciding on a move.
       - Then, decide on your move based on these inputs.
-      - Finally, ALWAYS call the makeMove tool with the move you decided on.
+      - ALWAYS call the makeMove tool with the move you decided on.
       - You may not skip these steps, even if they seem redundant.
 
       Playbook (Core of Learning):
@@ -109,7 +109,7 @@ public class DotGameAgent extends Agent {
 
     return effects()
         // .memory(MemoryProvider.limitedWindow().readLast(2))
-        .model(ModelProvider.fromConfig(prompt.agentModel))
+        .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agentModel))
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(prompt.toPrompt())
