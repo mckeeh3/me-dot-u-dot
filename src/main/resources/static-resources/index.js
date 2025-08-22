@@ -68,6 +68,10 @@ function startNewGameWizard() {
   updateCreateButtonState('p1');
   updateCreateButtonState('p2');
 
+  // Reset create button text to default
+  updateCreateButtonText('p1', false);
+  updateCreateButtonText('p2', false);
+
   // Reset timers
   resetTimers();
 
@@ -551,8 +555,9 @@ async function populateCreateForm(which, player) {
     $(`${which}-model-btn`).textContent = 'Select Model';
   }
 
-  // Update create button state
+  // Update create button state and text
   updateCreateButtonState(which);
+  updateCreateButtonText(which, true); // Set to "UPDATE & SELECT" for existing player
 
   // Make type and model fields read-only for existing players
   setTimeout(() => {
@@ -649,8 +654,9 @@ function populateTypeMenu(which) {
         $(`${which}-model-btn`).textContent = 'Select Model';
       }
 
-      // Update create button state
+      // Update create button state and text
       updateCreateButtonState(which);
+      updateCreateButtonText(which, false); // Reset to "CREATE & SELECT"
     };
     menu.appendChild(item);
   });
@@ -708,6 +714,13 @@ function updateCreateButtonState(which) {
   const hasModel = isAgent ? modelBtn.textContent !== 'Select Model' : true;
 
   createBtn.disabled = !hasModel;
+}
+
+function updateCreateButtonText(which, isExistingPlayer) {
+  const createBtn = $(`${which}-create-btn`);
+  if (createBtn) {
+    createBtn.textContent = isExistingPlayer ? 'UPDATE & SELECT' : 'CREATE & SELECT';
+  }
 }
 
 // Define validation handlers as named functions to allow removal
@@ -782,9 +795,13 @@ async function checkExistingPlayer(which) {
       setTimeout(() => {
         setPlayerFormReadOnly(which, true, existingPlayer);
       }, 0);
+      // Update button text for existing player
+      updateCreateButtonText(which, true);
     } else {
       // Don't clear form fields, just make type/model editable for new players
       setPlayerFormReadOnly(which, false);
+      // Update button text for new player
+      updateCreateButtonText(which, false);
     }
   } catch (error) {
     console.error('Error checking existing player:', error);
@@ -856,6 +873,7 @@ function clearPlayerForm(which, clearId = true) {
   }
 
   updateCreateButtonState(which);
+  updateCreateButtonText(which, false); // Reset to "CREATE & SELECT"
 }
 
 function setPlayerFormReadOnly(which, readOnly, player = null) {
