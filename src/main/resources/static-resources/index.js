@@ -734,21 +734,36 @@ const p2ValidationHandler = async () => {
   await checkExistingPlayer('p2');
 };
 
+// Define focus handlers to check existing player when field gets focus
+const p1FocusHandler = async () => {
+  await checkExistingPlayer('p1');
+};
+
+const p2FocusHandler = async () => {
+  await checkExistingPlayer('p2');
+};
+
 function setupPlayerIdValidation() {
-  // Add input event listeners for real-time validation
+  // Add input and focus event listeners for real-time validation
   const p1IdField = $('p1-id');
   const p2IdField = $('p2-id');
 
   if (p1IdField) {
     // Remove any existing listeners first
     p1IdField.removeEventListener('input', p1ValidationHandler);
+    p1IdField.removeEventListener('focus', p1FocusHandler);
+    // Add input and focus listeners
     p1IdField.addEventListener('input', p1ValidationHandler);
+    p1IdField.addEventListener('focus', p1FocusHandler);
   }
 
   if (p2IdField) {
     // Remove any existing listeners first
     p2IdField.removeEventListener('input', p2ValidationHandler);
+    p2IdField.removeEventListener('focus', p2FocusHandler);
+    // Add input and focus listeners
     p2IdField.addEventListener('input', p2ValidationHandler);
+    p2IdField.addEventListener('focus', p2FocusHandler);
   }
 }
 
