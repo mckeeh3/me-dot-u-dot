@@ -1083,9 +1083,10 @@ async function loadJournalEntry() {
 }
 
 function displayJournalEntry(entry) {
+  const updatedAt = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : '-';
   $('journalAgentId').textContent = entry.agentId;
   $('journalSequenceId').textContent = entry.sequenceId;
-  $('journalUpdatedAt').textContent = entry.updatedAt || '-';
+  $('journalUpdatedAt').textContent = updatedAt;
   $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
 }
 
