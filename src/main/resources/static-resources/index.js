@@ -873,6 +873,7 @@ async function loadJournalEntry() {
 function displayJournalEntry(entry) {
   $('journalAgentId').textContent = entry.agentId;
   $('journalSequenceId').textContent = entry.sequenceId;
+  $('journalUpdatedAt').textContent = entry.updatedAt || '-';
   $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
 }
 

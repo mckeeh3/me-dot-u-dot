@@ -46,12 +46,14 @@ public class DotGameAgent extends Agent {
       - You may not skip these steps, even if they seem redundant.
 
       Playbook (Core of Learning):
-      - A persistent, free-form text document keyed by your agent ID.
-      - Contains your self-authored instructions: hypotheses, tactics, guidelines, distilled lessons.
-      - Format rules:
-        - Keep entries concise (1–3 sentences).
-        - Merge duplicates; rewrite outdated ideas instead of appending endlessly.
-        - Remove contradictions and ineffective patterns.
+      - The playbook is a persistent, free-form text document keyed by your agent ID.
+      - It contains your self-authored instructions: hypotheses, tactics, guidelines, and distilled lessons.
+      - Write entries as clear, structured guidance. Use as much detail as needed to make them actionable and reusable,
+        but avoid rambling, redundancy, or contradictions.
+      - Prefer bulleted or numbered entries for clarity.
+      - Allow multi-line tactical rules (mini "if → then" statements).
+      - Continuously refine: merge duplicates, rewrite outdated ideas, and remove ineffective patterns.
+      - Keep the playbook focused and manageable (aim under ~2,000 words total).
       - Update discipline:
         - After each turn: record new insights, mistakes, or useful tactics.
         - After a loss: capture failure patterns to avoid.
