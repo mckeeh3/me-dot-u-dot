@@ -111,6 +111,11 @@ function initializeUI() {
 
   // Start with the wizard
   startNewGameWizard();
+
+  // Ensure validation is set up after DOM is ready
+  setTimeout(() => {
+    setupPlayerIdValidation();
+  }, 100);
 }
 
 function renderGameInfo() {
@@ -548,6 +553,11 @@ async function populateCreateForm(which, player) {
 
   // Update create button state
   updateCreateButtonState(which);
+
+  // Make type and model fields read-only for existing players
+  setTimeout(() => {
+    setPlayerFormReadOnly(which, true, player);
+  }, 0);
 }
 
 async function selectExistingPlayer(which) {
@@ -563,6 +573,14 @@ function applyPlayerSelection(which, player) {
   if (which === 'p1') {
     state.p1 = player;
 
+    // Populate form with selected player data and make it read-only
+    populatePlayerForm('p1', player);
+
+    // Use setTimeout to ensure the form is fully rendered before applying read-only styles
+    setTimeout(() => {
+      setPlayerFormReadOnly('p1', true, player);
+    }, 0);
+
     // Update control message and show Player 2 setup
     setControlMessage('Select or create Player 2');
     $('p2Setup').style.display = 'block';
@@ -577,6 +595,14 @@ function applyPlayerSelection(which, player) {
     }
 
     state.p2 = player;
+
+    // Populate form with selected player data and make it read-only
+    populatePlayerForm('p2', player);
+
+    // Use setTimeout to ensure the form is fully rendered before applying read-only styles
+    setTimeout(() => {
+      setPlayerFormReadOnly('p2', true, player);
+    }, 0);
 
     // Refresh P1 menu to exclude the selected P2 player
     populatePlayerMenu('p1');
@@ -684,10 +710,33 @@ function updateCreateButtonState(which) {
   createBtn.disabled = !hasModel;
 }
 
+// Define validation handlers as named functions to allow removal
+const p1ValidationHandler = async () => {
+  validatePlayerIdInput('p1');
+  await checkExistingPlayer('p1');
+};
+
+const p2ValidationHandler = async () => {
+  validatePlayerIdInput('p2');
+  await checkExistingPlayer('p2');
+};
+
 function setupPlayerIdValidation() {
   // Add input event listeners for real-time validation
-  $('p1-id').addEventListener('input', () => validatePlayerIdInput('p1'));
-  $('p2-id').addEventListener('input', () => validatePlayerIdInput('p2'));
+  const p1IdField = $('p1-id');
+  const p2IdField = $('p2-id');
+
+  if (p1IdField) {
+    // Remove any existing listeners first
+    p1IdField.removeEventListener('input', p1ValidationHandler);
+    p1IdField.addEventListener('input', p1ValidationHandler);
+  }
+
+  if (p2IdField) {
+    // Remove any existing listeners first
+    p2IdField.removeEventListener('input', p2ValidationHandler);
+    p2IdField.addEventListener('input', p2ValidationHandler);
+  }
 }
 
 function validatePlayerIdInput(which) {
@@ -709,6 +758,136 @@ function validatePlayerIdInput(which) {
   if (otherCurrentId && otherCurrentId === currentId) {
     alert(`Player ID "${currentId}" is already entered for ${otherWhich.toUpperCase()}. Please choose a different ID.`);
     return;
+  }
+}
+
+async function checkExistingPlayer(which) {
+  const playerId = $(`${which}-id`).value.trim();
+  if (!playerId) {
+    // Clear form and make fields editable when ID is empty
+    clearPlayerForm(which);
+    setPlayerFormReadOnly(which, false);
+    return;
+  }
+
+  try {
+    // Fetch players directly to check if player exists
+    const allPlayers = await fetchPlayers();
+    const existingPlayer = allPlayers.find((p) => p.id === playerId);
+
+    if (existingPlayer) {
+      // Populate form with existing player data
+      populatePlayerForm(which, existingPlayer);
+      // Make type and model read-only (with timeout to ensure DOM is ready)
+      setTimeout(() => {
+        setPlayerFormReadOnly(which, true, existingPlayer);
+      }, 0);
+    } else {
+      // Don't clear form fields, just make type/model editable for new players
+      setPlayerFormReadOnly(which, false);
+    }
+  } catch (error) {
+    console.error('Error checking existing player:', error);
+    // On error, just make fields editable
+    setPlayerFormReadOnly(which, false);
+  }
+}
+
+function populatePlayerForm(which, player) {
+  const nameField = $(`${which}-name`);
+  if (nameField) {
+    nameField.value = player.name || '';
+  }
+
+  // Update type dropdown button text
+  const typeBtn = $(`${which}-type-btn`);
+  if (typeBtn) {
+    // Use the same values as the dropdown menu for consistency
+    typeBtn.textContent = player.type; // 'agent' or 'human'
+  }
+
+  // Update model dropdown if it's an agent
+  const modelGroup = $(`${which}-model-group`);
+  if (player.type === 'agent') {
+    const modelBtn = $(`${which}-model-btn`);
+    if (modelBtn) {
+      modelBtn.textContent = player.model || 'Select Model';
+    }
+    if (modelGroup) {
+      modelGroup.style.display = 'block';
+    }
+  } else {
+    if (modelGroup) {
+      modelGroup.style.display = 'none';
+    }
+  }
+
+  updateCreateButtonState(which);
+}
+
+function clearPlayerForm(which, clearId = true) {
+  if (clearId) {
+    const idField = $(`${which}-id`);
+    if (idField) {
+      idField.value = '';
+    }
+  }
+
+  const nameField = $(`${which}-name`);
+  if (nameField) {
+    nameField.value = '';
+  }
+
+  // Reset type dropdown
+  const typeBtn = $(`${which}-type-btn`);
+  if (typeBtn) {
+    typeBtn.textContent = 'Select Type';
+  }
+
+  // Reset model dropdown
+  const modelBtn = $(`${which}-model-btn`);
+  if (modelBtn) {
+    modelBtn.textContent = 'Select Model';
+  }
+
+  const modelGroup = $(`${which}-model-group`);
+  if (modelGroup) {
+    modelGroup.style.display = 'none';
+  }
+
+  updateCreateButtonState(which);
+}
+
+function setPlayerFormReadOnly(which, readOnly, player = null) {
+  const typeBtn = $(`${which}-type-btn`);
+  const modelBtn = $(`${which}-model-btn`);
+
+  if (readOnly) {
+    // Always make type dropdown non-interactive for existing players
+    if (typeBtn) {
+      typeBtn.style.pointerEvents = 'none';
+      typeBtn.style.opacity = '0.6';
+      typeBtn.style.cursor = 'not-allowed';
+    }
+
+    // Only make model dropdown non-interactive if player is an agent
+    if (modelBtn && player && player.type === 'agent') {
+      modelBtn.style.pointerEvents = 'none';
+      modelBtn.style.opacity = '0.6';
+      modelBtn.style.cursor = 'not-allowed';
+    }
+  } else {
+    // Make type and model dropdowns interactive
+    if (typeBtn) {
+      typeBtn.style.pointerEvents = 'auto';
+      typeBtn.style.opacity = '1';
+      typeBtn.style.cursor = 'pointer';
+    }
+    if (modelBtn) {
+      modelBtn.style.pointerEvents = 'auto';
+      modelBtn.style.opacity = '1';
+      modelBtn.style.cursor = 'pointer';
+    }
   }
 }
 
