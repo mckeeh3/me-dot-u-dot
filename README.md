@@ -1,90 +1,173 @@
 # me-dot-u-dot
 
-**me-dot-u-dot** is a visual, interactive game designed to demonstrate how AI agents learn over time through structured context, reasoning loops, tool use, and memory. The game mechanics are simple—but the real action happens inside the agent's evolving mind.
+**me-dot-u-dot** is a research platform for exploring self-learning AI agent techniques through interactive gameplay. Agents begin with zero knowledge of game rules and progressively learn strategy, tactics, and decision-making through experience and structured memory systems.
 
-## 🎯 Purpose
+## 🎯 Learning Objectives
 
-To showcase the internal workings of AI agents using:
+This project demonstrates key techniques for implementing self-learning AI agents:
 
-- The **ReAct loop** (Reasoning + Acting)
-- The **Learning loop** (Experience accumulation via memory)
-- **Structured context** as the agent's only window into the world
+- **Zero-knowledge bootstrapping** - Agents discover game rules through trial and error
+- **Experience-driven learning** - Each game builds upon previous knowledge
+- **Structured memory systems** - Playbook-based long-term memory evolution
+- **Multi-agent interactions** - Agents learn from human opponents and other agents
+- **Guided self-improvement** - System prompts that shape learning quality and direction
 
-This project is built to help developers *see* how agents think, learn, and evolve.
+## 🧠 Agent Architecture
 
----
+### Learning Progression
 
-## 🎮 Game Overview
+Agents evolve through distinct phases:
 
-- 5×5 grid
-- Two players: **You** and **the Agent**
-- Take turns placing colored dots
-- Score 1 point for each straight line of 3 of your own dots
-- You can **overwrite your own dots**, but not your opponent's
-- First to 3 points wins
+1. **Random exploration** - Initial moves are essentially random as agents discover valid actions
+2. **Pattern recognition** - Agents begin identifying successful and unsuccessful strategies
+3. **Strategic development** - Sophisticated gameplay emerges from accumulated experience
+4. **Adaptive optimization** - Agents refine tactics based on opponent behavior
 
----
+### Memory & Learning Systems
 
-## 🧠 How the Agent Works
+- **Playbook** - Core long-term memory containing learned strategies and insights
+- **Session memory** - Short-term context for current game decisions
+- **Experience accumulation** - Each move and outcome contributes to the agent's knowledge base
+- **Reflective learning** - Agents analyze their performance to improve future play
 
-On each turn, the agent:
+### System Prompt Engineering
 
-1. Receives a **structured context** (board state, past moves, system prompt, memory)
-2. **Reasons** using a language model
-3. Optionally **invokes tools** (e.g. check for win state, valid moves)
-4. Chooses a move
-5. Adds that experience to its **session memory**
-6. Optionally **reflects** or **summarizes** to improve future performance
+The agent's system prompt is critical for guiding learning quality:
 
-You can watch the context evolve in real-time.
+- Defines learning objectives and success metrics
+- Establishes reasoning patterns and decision-making frameworks  
+- Shapes how agents interpret and store experiences
+- Influences the quality and direction of self-improvement
 
----
+## 🏗️ Akka Integration
+
+The application leverages Akka SDK components for scalable, event-driven architecture:
+
+### Core Components
+
+**Event Sourced Entities:**
+
+- `DotGameEntity` - Manages game state, moves, and scoring through event sourcing
+- `PlaybookJournalEntity` - Tracks the evolution of agent playbooks over time
+- `PlayerEntity` - Handles player profiles and statistics
+
+**Akka Agents:**
+
+- `GameAgent` - The core AI agent that makes game decisions and learns from experience
+- Integrates with LLM providers
+- Uses structured tools for game analysis and move selection
+
+**Views:**
+
+- `DotGameView` - Queries for game states and history
+- `PlaybookJournalView` - Provides access to agent learning progression
+- `PlayerView` - Manages player data and statistics
+
+**Consumers:**
+
+- `DotGameToAgentConsumer` - Bridges game events to agent learning systems
+- `PlaybookToPlaybookJournalConsumer` - Archives agent learning evolution
+
+### Agent Learning Flow
+
+1. `DotGameEntity` processes moves and emits game events
+2. `DotGameToAgentConsumer` translates events into agent context
+3. `GameAgent` reasons about the game state using its playbook
+4. Agent updates its playbook with new insights and strategies
+5. `PlaybookJournalEntity` records the learning progression for analysis
+
+## 🔍 Observing Agent Learning
+
+### Playbook Journal System
+
+The playbook journal provides a unique window into agent cognition:
+
+- **Not used by agents** - Pure observational tool for researchers/developers
+- **Learning history** - Complete timeline of how each agent's strategy evolves
+- **Decision archaeology** - Trace how specific insights developed over time
+- **Comparative analysis** - Compare learning patterns between different agents
+
+Access agent learning progression through the web interface's "View Journal" feature for any AI player.
 
 ## 🛠️ Tech Stack
 
 **Backend:**
 
-- **Akka SDK** (Agents, Workflows, Event Sourced Entities)
-- **Java 21**
-- **Maven 3.9+**
+- **Akka SDK** - Event sourcing, agents, views, and consumers
+- **Java 21** - Modern language features and performance
+- **Maven 3.9+** - Dependency management and build automation
 
 **Frontend:**
 
-- **Vanilla HTML/JavaScript** - Simple, responsive web interface
-- **Separated JS** - Game logic in `index.js` for maintainability
-- **CSS Grid** - Clean 5×5 game board layout
-- **RESTful API** - Communication with Akka backend
+- **Vanilla HTML/JavaScript** - Responsive web interface with real-time updates
+- **CSS Grid & Flexbox** - Dynamic game board rendering
+- **Server-Sent Events** - Real-time game state updates
+- **RESTful API** - Clean communication with Akka backend
 
 **AI/ML:**
 
-- **LLM**: OpenAI GPT-4o by default (pluggable)
-- **Simple Agent** - Random cell selection (Phase 1)
+- **LLM Integration** - OpenAI GPT-4o (pluggable architecture for other providers)
+- **Structured Prompting** - Engineered system prompts for optimal learning
+- **Tool Integration** - Agents use tools for game analysis and decision support
 
----
-
-## 🚀 Getting Started
+## 🚀 Installation & Setup
 
 ### Prerequisites
 
-- Java 21
-- Maven 3.9+
-- Docker (for local Akka runtime)
-- OpenAI API key (or plug in another model provider)
+- **Java 21** - Required for Akka SDK
+- **Maven 3.9+** - Build and dependency management
+- **Docker** - For local Akka runtime environment
+- **API Keys for specific models as needed** - Or configure alternative LLM provider
 
-### Run Locally
+### Configuration
+
+1. Set your API keys in environment variables or application configuration
+2. Configure model parameters in `src/main/resources/application.conf`
+3. Adjust agent learning parameters as needed
+
+### Running Locally
 
 ```bash
 git clone https://github.com/your-org/me-dot-u-dot.git
 cd me-dot-u-dot
-./mvnw compile exec:java
+./mvn compile exec:java
 ```
 
 **Access the application:**
 
-- Backend API: [localhost:9000](http://localhost:9000)
-- Frontend UI: [localhost:9000](http://localhost:9000) (served by Akka)
+- **Web Interface**: [http://localhost:9000](http://localhost:9000)
+- **API Endpoints**: Available at the same base URL
 
-### API Endpoints
+## 🎮 Usage
 
-- `POST /api/game/move` - Make a game move and get AI response
-- `GET /` - Web UI interface
+### Starting Games
+
+1. **Create or select players** - Choose human players or AI agents
+2. **Configure AI models** - Select LLM providers for agent players
+3. **Begin gameplay** - Watch agents learn and adapt in real-time
+4. **Observe learning** - Use "View Journal" to see agent reasoning evolution
+
+### Game Modes
+
+- **Human vs Agent** - Classic player vs AI learning experience
+- **Agent vs Agent** - Observe how agents learn from each other
+- **Multi-session learning** - Agents retain knowledge across games
+
+### Monitoring Agent Progress
+
+- Real-time move analysis and decision reasoning
+- Playbook journal entries showing learning milestones
+- Performance metrics and strategic development tracking
+
+## 🔬 Research Applications
+
+This platform enables research into:
+
+- Self-supervised learning in game environments
+- Memory architecture design for AI agents
+- Multi-agent learning dynamics
+- Prompt engineering for agent behavior shaping
+- Long-term knowledge retention and application
+
+---
+*The game mechanics are intentionally undocumented - agents must discover the rules through play, just as the learning algorithms intended.*
