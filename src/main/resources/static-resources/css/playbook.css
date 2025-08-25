@@ -5,13 +5,13 @@
   justify-content: center;
   align-items: center;
   gap: 20px;
-  background-color: var(--panel-color);
-  border-bottom: 1px solid var(--neon-color);
+  background-color: var(--panel);
+  border-bottom: 1px solid var(--neon-cyan);
 }
 
 .player-selection label {
   font-size: 1.2em;
-  color: var(--neon-color);
+  color: var(--neon-cyan);
 }
 
 /* Journal Viewer Styles */
@@ -19,8 +19,8 @@
   flex: 1;
   margin: 20px auto;
   padding: 20px;
-  background-color: var(--panel-color);
-  border: 1px solid var(--neon-color);
+  background-color: var(--panel);
+  border: 1px solid var(--neon-cyan);
   border-radius: 10px;
   width: 90%;
   max-width: 1200px;
@@ -34,13 +34,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--neon-color);
+  border-bottom: 1px solid var(--neon-cyan);
   padding-bottom: 10px;
 }
 
 .journal-header h3 {
   margin: 0;
-  color: var(--neon-color);
+  color: var(--neon-cyan);
 }
 
 .journal-content {
@@ -63,11 +63,11 @@
 }
 
 .journal-label {
-  color: var(--neon-color);
+  color: var(--neon-cyan);
 }
 
 .journal-value {
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .journal-instructions-container {
@@ -78,11 +78,11 @@
 }
 
 .journal-instructions-label {
-  color: var(--neon-color);
+  color: var(--neon-cyan);
 }
 
 .journal-instructions {
-  background-color: var(--bg-color);
+  background-color: var(--bg);
   padding: 15px;
   border-radius: 5px;
   white-space: pre-wrap;
@@ -98,8 +98,8 @@
 
 .nav-btn {
   background: none;
-  border: 1px solid var(--neon-color);
-  color: var(--neon-color);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 5px;
@@ -107,8 +107,8 @@
 }
 
 .nav-btn:hover {
-  background-color: var(--neon-color);
-  color: var(--bg-color);
+  background-color: var(--neon-cyan);
+  color: var(--bg);
 }
 
 .nav-btn:disabled {

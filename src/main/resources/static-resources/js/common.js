@@ -30,8 +30,36 @@ function closeMenuOnClickOutside(e) {
 // Dropdown handling
 const dropdownHandlers = {};
 
+function resolveDropdownElements(id) {
+  // Try explicit prefix pattern: `${id}-menu` / `${id}-btn`
+  let menu = $(`${id}-menu`);
+  let btn = $(`${id}-btn`);
+
+  // If not found, treat `id` as the actual menu id
+  if (!menu) {
+    const candidate = $(id);
+    if (candidate) {
+      if (candidate.classList && candidate.classList.contains('dd-menu')) {
+        menu = candidate;
+        const container = candidate.closest('.dd');
+        if (container) {
+          btn = container.querySelector('.dd-toggle');
+        }
+      } else if (candidate.classList && candidate.classList.contains('dd')) {
+        // `id` refers to the container; find internal menu/button
+        menu = candidate.querySelector('.dd-menu');
+        btn = candidate.querySelector('.dd-toggle');
+      }
+    }
+  }
+
+  return { menu, btn };
+}
+
 function ddToggle(id) {
-  const menu = $(`${id}-menu`);
+  const { menu } = resolveDropdownElements(id);
+  if (!menu) return;
+
   const isVisible = menu.style.display === 'block';
   menu.style.display = isVisible ? 'none' : 'block';
 
@@ -43,14 +71,19 @@ function ddToggle(id) {
 }
 
 function ddClose(id, event) {
-  const menu = $(`${id}-menu`);
-  const btn = $(`${id}-btn`);
+  const { menu, btn } = resolveDropdownElements(id);
+  if (!menu) return;
 
-  if (!menu.contains(event.target) && !btn.contains(event.target)) {
+  const target = event?.target;
+  const clickInsideMenu = target && menu.contains(target);
+  const clickOnBtn = btn && target && btn.contains(target);
+  if (!clickInsideMenu && !clickOnBtn) {
     menu.style.display = 'none';
     // Remove the stored handler
-    document.removeEventListener('click', dropdownHandlers[id]);
-    delete dropdownHandlers[id];
+    if (dropdownHandlers[id]) {
+      document.removeEventListener('click', dropdownHandlers[id]);
+      delete dropdownHandlers[id];
+    }
   }
 }
 

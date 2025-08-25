@@ -16,12 +16,14 @@
   <body>
     <!-- Navigation Menu -->
     <div class="nav-menu">
-      <button class="menu-btn" onclick="toggleMenu()" title="Navigation Menu">
-        <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-      </button>
-      <div id="menuPopup" class="menu-popup" style="display: none">
-        <div class="menu-item" onclick="window.location.href='/'">Game</div>
-        <div class="menu-item current">Playbook Viewer</div>
+      <div class="dd" id="nav">
+        <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+          <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+        </button>
+        <div id="nav-menu" class="dd-menu">
+          <div class="dd-item" onclick="window.location.href='/'">Game</div>
+          <div class="dd-item current">Playbook Viewer</div>
+        </div>
       </div>
     </div>
 
@@ -30,7 +32,7 @@
       <label>Select Agent:</label>
       <div class="dd-container">
         <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Player</button>
-        <div class="dd" id="player-dd-menu"></div>
+        <div class="dd-menu" id="player-dd-menu"></div>
       </div>
     </div>
 

@@ -13,12 +13,14 @@
   <body>
     <!-- Navigation Menu -->
     <div class="nav-menu">
-      <button class="menu-btn" onclick="toggleMenu()" title="Navigation Menu">
-        <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-      </button>
-      <div id="menuPopup" class="menu-popup" style="display: none">
-        <div class="menu-item current">Game</div>
-        <div class="menu-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+      <div class="dd" id="nav">
+        <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+          <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+        </button>
+        <div id="nav-menu" class="dd-menu">
+          <div class="dd-item current">Game</div>
+          <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+        </div>
       </div>
     </div>
 
