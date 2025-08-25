@@ -8,6 +8,7 @@
     <meta http-equiv="Expires" content="0" />
     <title>Me-Dot-U-Dot Playbook Viewer</title>
     <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/journal-viewer.css" />
     <link rel="stylesheet" href="/css/playbook.css" />
     <style>
       /* Any page-specific overrides can go here */
@@ -29,15 +30,15 @@
 
     <!-- Player Selection -->
     <div class="player-selection">
-      <label>Select Agent:</label>
+      <!-- <label>Select Agent:</label> -->
       <div class="dd-container">
-        <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Player</button>
+        <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Agent</button>
         <div class="dd-menu" id="player-dd-menu"></div>
       </div>
     </div>
 
     <!-- Journal Viewer -->
-    <div class="journal-viewer">
+    <div class="journal-viewer-in-playbook">
       <div class="journal-header">
         <h3>Agent Playbook Journal</h3>
       </div>

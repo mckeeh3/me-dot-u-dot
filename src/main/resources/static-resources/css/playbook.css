@@ -15,7 +15,7 @@
 }
 
 /* Journal Viewer Styles */
-.journal-viewer {
+/* .journal-viewer {
   flex: 1;
   margin: 20px auto;
   padding: 20px;
@@ -114,7 +114,7 @@
 .nav-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
+} */
 
 @media (max-width: 768px) {
   .journal-viewer {

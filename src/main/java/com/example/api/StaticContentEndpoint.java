@@ -59,6 +59,11 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("js/common.js");
   }
 
+  @Get("/css/journal-viewer.css")
+  public HttpResponse serveJournalViewerCss() {
+    return HttpResponses.staticResource("css/journal-viewer.css");
+  }
+
   @Get("/favicon.ico")
   public HttpResponse serveFavicon() {
     return HttpResponses.staticResource("favicon.ico");
