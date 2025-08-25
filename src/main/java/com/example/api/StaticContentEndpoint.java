@@ -24,9 +24,9 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("index.html");
   }
 
-  @Get("/index.js")
+  @Get("/js/index.js")
   public HttpResponse serveIndexJs() {
-    return HttpResponses.staticResource("index.js");
+    return HttpResponses.staticResource("js/index.js");
   }
 
   @Get("/playbook.html")

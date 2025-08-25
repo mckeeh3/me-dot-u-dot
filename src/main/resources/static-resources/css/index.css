@@ -1,0 +1,286 @@
+/* Game Container */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: 20px;
+}
+
+/* Control Bar */
+.control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--panel-color);
+  border-bottom: 1px solid var(--neon-color);
+}
+
+.control-left,
+.control-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.control-center {
+  flex: 1;
+  text-align: center;
+  color: var(--neon-color);
+  font-size: 1.2em;
+}
+
+/* Game Area */
+.game-area {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* Player Areas */
+.player-area {
+  flex: 1;
+  min-width: 250px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.player-setup {
+  background-color: var(--panel-color);
+  border: 1px solid var(--neon-color);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.player-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.player-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--neon-color);
+  color: var(--text-color);
+  border-radius: 5px;
+}
+
+.player-row input::placeholder {
+  color: var(--muted-color);
+}
+
+.type-dropdown {
+  flex: 0 0 auto;
+  min-width: 140px;
+}
+
+.player-stats {
+  background-color: var(--panel-color);
+  border: 1px solid var(--neon-color);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  color: var(--neon-color);
+}
+
+/* Board Area */
+.board-area {
+  flex: 2;
+  min-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(var(--size, 5), 1fr);
+  grid-template-rows: repeat(var(--size, 5), 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1;
+}
+
+.dot {
+  position: relative;
+  border-radius: 50%;
+  background-color: var(--panel-color);
+  border: 2px solid var(--neon-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.occupied {
+  cursor: not-allowed;
+}
+
+.dot.p1 {
+  background-color: #ff4444;
+  border-color: #ff6666;
+}
+
+.dot.p2 {
+  background-color: #4444ff;
+  border-color: #6666ff;
+}
+
+.dot.last-move {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--pulse-color), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--pulse-color), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--pulse-color), 0);
+  }
+}
+
+.dot.p1.last-move {
+  --pulse-color: 255, 68, 68;
+}
+
+.dot.p2.last-move {
+  --pulse-color: 68, 68, 255;
+}
+
+/* Level Selection */
+.level-selection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.level-label {
+  color: var(--neon-color);
+}
+
+/* Journal Viewer */
+.journal-viewer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  background-color: var(--panel-color);
+  border: 1px solid var(--neon-color);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 1000;
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--neon-color);
+  padding-bottom: 10px;
+}
+
+.journal-header h3 {
+  margin: 0;
+  color: var(--neon-color);
+}
+
+.journal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.journal-info {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.journal-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.journal-label {
+  color: var(--neon-color);
+}
+
+.journal-value {
+  color: var(--text-color);
+}
+
+.journal-instructions-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-instructions-label {
+  color: var(--neon-color);
+}
+
+.journal-instructions {
+  background-color: var(--bg-color);
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.journal-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .game-area {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .player-area {
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .board-area {
+    width: 100%;
+  }
+
+  .game-board {
+    max-width: 400px;
+  }
+}
