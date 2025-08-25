@@ -92,7 +92,9 @@ public class DotGameAgent extends Agent {
 
     // TODO: remove this once this is fixed: https://github.com/akka/akka-javasdk/issues/880
     if (prompt.agentModel.contains("gpt-5")) {
-      var model = prompt.agentModel.contains("mini") ? "gpt-5-mini" : "gpt-5";
+      var model = prompt.agentModel.contains("mini") ? "gpt-5-mini"
+          : prompt.agentModel.contains("nano") ? "gpt-5-nano"
+              : "gpt-5";
 
       return effects()
           .model(ModelProvider
