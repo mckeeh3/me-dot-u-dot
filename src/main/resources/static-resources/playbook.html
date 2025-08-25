@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Me-Dot-U-Dot Playbook Viewer</title>
+    <style>
+      /* Navigation Menu Styles */
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        padding: 10px;
+      }
+
+      .menu-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .menu-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .menu-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .menu-popup {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: var(--bg-color);
+        border: 1px solid var(--neon-color);
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        min-width: 200px;
+        z-index: 1001;
+      }
+
+      .menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        color: var(--text-color);
+      }
+
+      .menu-item:hover {
+        background-color: var(--neon-color);
+        color: var(--bg-color);
+      }
+
+      .menu-item.current {
+        background-color: rgba(255, 255, 255, 0.1);
+        cursor: default;
+      }
+
+      /* Base Styles */
+      :root {
+        --bg-color: #0b0f1a;
+        --panel-color: #0f1526;
+        --text-color: #e6e9ef;
+        --muted-color: #9aa3b2;
+        --neon-color: #00e5ff;
+        --error-color: #ff4444;
+        --success-color: #44ff44;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Player Selection Styles */
+      .player-selection {
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        background-color: var(--panel-color);
+        border-bottom: 1px solid var(--neon-color);
+      }
+
+      .player-selection label {
+        font-size: 1.2em;
+        color: var(--neon-color);
+      }
+
+      /* Dropdown Styles */
+      .dd-container {
+        position: relative;
+        min-width: 200px;
+      }
+
+      .dd-toggle {
+        width: 100%;
+        padding: 10px;
+        background-color: var(--panel-color);
+        border: 1px solid var(--neon-color);
+        color: var(--text-color);
+        cursor: pointer;
+        text-align: left;
+        border-radius: 5px;
+      }
+
+      .dd {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--panel-color);
+        border: 1px solid var(--neon-color);
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        display: none;
+        z-index: 1000;
+      }
+
+      .dd-item {
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      .dd-item:hover {
+        background-color: var(--neon-color);
+        color: var(--bg-color);
+      }
+
+      /* Journal Viewer Styles */
+      .journal-viewer {
+        flex: 1;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: var(--panel-color);
+        border: 1px solid var(--neon-color);
+        border-radius: 10px;
+        width: 90%;
+        max-width: 1200px;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .journal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--neon-color);
+        padding-bottom: 10px;
+      }
+
+      .journal-header h3 {
+        margin: 0;
+        color: var(--neon-color);
+      }
+
+      .journal-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .journal-info {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .journal-field {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .journal-label {
+        color: var(--neon-color);
+      }
+
+      .journal-value {
+        color: var(--text-color);
+      }
+
+      .journal-instructions-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .journal-instructions-label {
+        color: var(--neon-color);
+      }
+
+      .journal-instructions {
+        background-color: var(--bg-color);
+        padding: 15px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .journal-navigation {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .nav-btn {
+        background: none;
+        border: 1px solid var(--neon-color);
+        color: var(--neon-color);
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 1.2em;
+      }
+
+      .nav-btn:hover {
+        background-color: var(--neon-color);
+        color: var(--bg-color);
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      @media (max-width: 768px) {
+        .journal-viewer {
+          width: 95%;
+          margin: 10px auto;
+          padding: 10px;
+        }
+
+        .journal-info {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Menu -->
+    <div class="nav-menu">
+      <button class="menu-btn" onclick="toggleMenu()" title="Navigation Menu">
+        <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+      </button>
+      <div id="menuPopup" class="menu-popup" style="display: none">
+        <div class="menu-item" onclick="window.location.href='/'">Game</div>
+        <div class="menu-item current">Playbook Viewer</div>
+      </div>
+    </div>
+
+    <!-- Player Selection -->
+    <div class="player-selection">
+      <label>Select Agent:</label>
+      <div class="dd-container">
+        <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Player</button>
+        <div class="dd" id="player-dd-menu"></div>
+      </div>
+    </div>
+
+    <!-- Journal Viewer -->
+    <div class="journal-viewer">
+      <div class="journal-header">
+        <h3>Agent Playbook Journal</h3>
+      </div>
+
+      <div class="journal-content">
+        <div class="journal-info">
+          <div class="journal-field">
+            <span class="journal-label">Agent ID:</span>
+            <span id="journalAgentId" class="journal-value">-</span>
+          </div>
+          <div class="journal-field">
+            <span class="journal-label">Sequence ID:</span>
+            <span id="journalSequenceId" class="journal-value">-</span>
+          </div>
+          <div class="journal-field">
+            <span class="journal-label">Updated At:</span>
+            <span id="journalUpdatedAt" class="journal-value">-</span>
+          </div>
+        </div>
+
+        <div class="journal-instructions-container">
+          <div class="journal-instructions-label">Instructions:</div>
+          <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
+        </div>
+      </div>
+
+      <div class="journal-navigation">
+        <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
+        <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
+      </div>
+    </div>
+
+    <script>
+      // Utility function for getting elements by ID
+      const $ = (id) => document.getElementById(id);
+
+      // Navigation menu functions
+      function toggleMenu() {
+        const popup = $('menuPopup');
+        if (popup) {
+          const isVisible = popup.style.display !== 'none';
+          popup.style.display = isVisible ? 'none' : 'block';
+
+          // Add click outside listener if menu is shown
+          if (!isVisible) {
+            setTimeout(() => {
+              document.addEventListener('click', closeMenuOnClickOutside);
+            }, 0);
+          }
+        }
+      }
+
+      function closeMenuOnClickOutside(e) {
+        const popup = $('menuPopup');
+        const menuBtn = document.querySelector('.menu-btn');
+
+        if (popup && !popup.contains(e.target) && !menuBtn.contains(e.target)) {
+          popup.style.display = 'none';
+          document.removeEventListener('click', closeMenuOnClickOutside);
+        }
+      }
+
+      // Dropdown functions
+      // Store dropdown click handler for proper removal
+      const dropdownHandlers = {};
+
+      function ddToggle(id) {
+        const menu = $(`${id}-menu`);
+        const isVisible = menu.style.display === 'block';
+        menu.style.display = isVisible ? 'none' : 'block';
+
+        if (!isVisible) {
+          // Create and store the handler
+          dropdownHandlers[id] = (e) => ddClose(id, e);
+          document.addEventListener('click', dropdownHandlers[id]);
+        }
+      }
+
+      function ddClose(id, event) {
+        const menu = $(`${id}-menu`);
+        const btn = $(`${id}-btn`);
+
+        if (!menu.contains(event.target) && !btn.contains(event.target)) {
+          menu.style.display = 'none';
+          // Remove the stored handler
+          document.removeEventListener('click', dropdownHandlers[id]);
+          delete dropdownHandlers[id];
+        }
+      }
+
+      // Journal state
+      const journalState = {
+        isViewing: false,
+        currentAgentId: null,
+        currentSequenceId: Number.MAX_SAFE_INTEGER,
+      };
+
+      // Player selection and journal navigation
+      async function populatePlayerMenu() {
+        const menu = $('player-dd-menu');
+        const btn = $('player-dd-btn');
+        menu.innerHTML = '';
+
+        try {
+          const res = await fetch('/player/get-players', {
+            headers: { Accept: 'application/json' },
+          });
+          const response = await res.json();
+          const players = response.players || [];
+
+          // Filter to show only agent players
+          const agentPlayers = players.filter((p) => p.type.toLowerCase() === 'agent');
+
+          if (!agentPlayers.length) {
+            const empty = document.createElement('div');
+            empty.className = 'dd-item';
+            empty.textContent = 'No agent players available';
+            menu.appendChild(empty);
+            btn.textContent = '— Select a player —';
+            return;
+          }
+
+          agentPlayers.forEach((p) => {
+            const item = document.createElement('div');
+            item.className = 'dd-item';
+            item.textContent = `${p.name} (${p.model || 'No model'})`;
+            item.onclick = (e) => {
+              e.stopPropagation();
+              btn.textContent = item.textContent;
+              btn.dataset.playerId = p.id;
+              ddClose('player-dd', e);
+              selectPlayer(p.id);
+            };
+            menu.appendChild(item);
+          });
+        } catch (error) {
+          console.error('Error fetching players:', error);
+          const item = document.createElement('div');
+          item.className = 'dd-item';
+          item.textContent = 'Error loading players';
+          item.style.opacity = '0.5';
+          menu.appendChild(item);
+        }
+      }
+
+      async function selectPlayer(agentId) {
+        journalState.currentAgentId = agentId;
+        journalState.currentSequenceId = Number.MAX_SAFE_INTEGER;
+        await loadLatestJournalEntry();
+      }
+
+      async function loadLatestJournalEntry() {
+        if (!journalState.currentAgentId) return;
+
+        try {
+          const res = await fetch('/game/get-journal-by-agent-id-down', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({
+              agentId: journalState.currentAgentId,
+              sequenceId: journalState.currentSequenceId,
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.journals && data.journals.length > 0) {
+              journalState.isViewing = true;
+              displayJournalEntry(data.journals[0]);
+              journalState.currentSequenceId = data.journals[0].sequenceId;
+              enableNavigationButtons();
+            } else {
+              $('journalAgentId').textContent = journalState.currentAgentId;
+              $('journalSequenceId').textContent = '-';
+              $('journalUpdatedAt').textContent = '-';
+              $('journalInstructions').textContent = 'No journal entries found for this agent.';
+              disableNavigationButtons();
+            }
+          }
+        } catch (error) {
+          console.error('Error loading journal entry:', error);
+          $('journalInstructions').textContent = 'Error loading journal entry.';
+          disableNavigationButtons();
+        }
+      }
+
+      async function navigateJournal(direction) {
+        if (!journalState.currentAgentId) return;
+
+        const endpoint = direction === 'up' ? '/game/get-journal-by-agent-id-up' : '/game/get-journal-by-agent-id-down';
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              agentId: journalState.currentAgentId,
+              sequenceId: journalState.currentSequenceId,
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.journals && data.journals.length > 0) {
+              displayJournalEntry(data.journals[0]);
+              journalState.currentSequenceId = data.journals[0].sequenceId;
+            }
+          }
+        } catch (error) {
+          console.error('Error navigating journal:', error);
+        }
+      }
+
+      function displayJournalEntry(entry) {
+        // Show the journal viewer
+        const journalViewer = document.querySelector('.journal-viewer');
+        if (journalViewer) {
+          journalViewer.style.display = 'flex';
+        }
+
+        // Get all the elements first
+        const agentIdEl = $('journalAgentId');
+        const seqIdEl = $('journalSequenceId');
+        const updatedAtEl = $('journalUpdatedAt');
+        const instructionsEl = $('journalInstructions');
+
+        // Format the date if available
+        const updatedAt = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : '-';
+
+        // Update the elements
+        if (agentIdEl) agentIdEl.textContent = entry.agentId;
+        if (seqIdEl) seqIdEl.textContent = entry.sequenceId;
+        if (updatedAtEl) updatedAtEl.textContent = updatedAt;
+        if (instructionsEl) instructionsEl.textContent = entry.instructions || 'No instructions available.';
+      }
+
+      function enableNavigationButtons() {
+        $('journalUpBtn').disabled = false;
+        $('journalDownBtn').disabled = false;
+      }
+
+      function disableNavigationButtons() {
+        $('journalUpBtn').disabled = true;
+        $('journalDownBtn').disabled = true;
+      }
+
+      // Initialize the UI
+      window.addEventListener('DOMContentLoaded', () => {
+        populatePlayerMenu();
+      });
+    </script>
+  </body>
+</html>

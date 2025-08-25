@@ -1197,5 +1197,31 @@ function updateGameDurationDisplay() {
   $('controlMessage').textContent = `${currentType} ${currentPlayer.name}'s turn - Duration ${gameDuration}`;
 }
 
+// Navigation menu functions
+function toggleMenu() {
+  const popup = $('menuPopup');
+  if (popup) {
+    const isVisible = popup.style.display !== 'none';
+    popup.style.display = isVisible ? 'none' : 'block';
+
+    // Add click outside listener if menu is shown
+    if (!isVisible) {
+      setTimeout(() => {
+        document.addEventListener('click', closeMenuOnClickOutside);
+      }, 0);
+    }
+  }
+}
+
+function closeMenuOnClickOutside(e) {
+  const popup = $('menuPopup');
+  const menuBtn = document.querySelector('.menu-btn');
+
+  if (popup && !popup.contains(e.target) && !menuBtn.contains(e.target)) {
+    popup.style.display = 'none';
+    document.removeEventListener('click', closeMenuOnClickOutside);
+  }
+}
+
 // Initialize the UI when the page loads
 window.addEventListener('DOMContentLoaded', initializeUI);

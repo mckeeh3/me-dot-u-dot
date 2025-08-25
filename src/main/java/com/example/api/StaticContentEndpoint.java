@@ -34,6 +34,11 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("index.js");
   }
 
+  @Get("/playbook.html")
+  public HttpResponse servePlaybookHtml() {
+    return HttpResponses.staticResource("playbook.html");
+  }
+
   @Get("/sounds/**")
   public HttpResponse serveSounds(HttpRequest request) {
     return HttpResponses.staticResource(request, "/sounds/");
