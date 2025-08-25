@@ -24,11 +24,6 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("index.html");
   }
 
-  @Get("/favicon.ico")
-  public HttpResponse serveFavicon() {
-    return HttpResponses.staticResource("favicon.ico");
-  }
-
   @Get("/index.js")
   public HttpResponse serveIndexJs() {
     return HttpResponses.staticResource("index.js");
@@ -37,6 +32,16 @@ public class StaticContentEndpoint {
   @Get("/playbook.html")
   public HttpResponse servePlaybookHtml() {
     return HttpResponses.staticResource("playbook.html");
+  }
+
+  @Get("/playbook.js")
+  public HttpResponse servePlaybookJs() {
+    return HttpResponses.staticResource("playbook.js");
+  }
+
+  @Get("/favicon.ico")
+  public HttpResponse serveFavicon() {
+    return HttpResponses.staticResource("favicon.ico");
   }
 
   @Get("/sounds/**")
