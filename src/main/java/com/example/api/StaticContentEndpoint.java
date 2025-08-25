@@ -34,9 +34,24 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("playbook.html");
   }
 
-  @Get("/playbook.js")
+  @Get("/css/playbook.css")
+  public HttpResponse servePlaybookCss() {
+    return HttpResponses.staticResource("css/playbook.css");
+  }
+
+  @Get("/js/playbook.js")
   public HttpResponse servePlaybookJs() {
-    return HttpResponses.staticResource("playbook.js");
+    return HttpResponses.staticResource("js/playbook.js");
+  }
+
+  @Get("/css/common.css")
+  public HttpResponse serveCommonCss() {
+    return HttpResponses.staticResource("css/common.css");
+  }
+
+  @Get("/js/common.js")
+  public HttpResponse serveCommonJs() {
+    return HttpResponses.staticResource("js/common.js");
   }
 
   @Get("/favicon.ico")

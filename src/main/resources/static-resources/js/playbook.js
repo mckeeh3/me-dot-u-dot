@@ -1,60 +1,3 @@
-// Utility function for getting elements by ID
-const $ = (id) => document.getElementById(id);
-
-// Navigation menu functions
-function toggleMenu() {
-  const popup = $('menuPopup');
-  if (popup) {
-    const isVisible = popup.style.display !== 'none';
-    popup.style.display = isVisible ? 'none' : 'block';
-
-    // Add click outside listener if menu is shown
-    if (!isVisible) {
-      setTimeout(() => {
-        document.addEventListener('click', closeMenuOnClickOutside);
-      }, 0);
-    }
-  }
-}
-
-function closeMenuOnClickOutside(e) {
-  const popup = $('menuPopup');
-  const menuBtn = document.querySelector('.menu-btn');
-
-  if (popup && !popup.contains(e.target) && !menuBtn.contains(e.target)) {
-    popup.style.display = 'none';
-    document.removeEventListener('click', closeMenuOnClickOutside);
-  }
-}
-
-// Dropdown functions
-// Store dropdown click handler for proper removal
-const dropdownHandlers = {};
-
-function ddToggle(id) {
-  const menu = $(`${id}-menu`);
-  const isVisible = menu.style.display === 'block';
-  menu.style.display = isVisible ? 'none' : 'block';
-
-  if (!isVisible) {
-    // Create and store the handler
-    dropdownHandlers[id] = (e) => ddClose(id, e);
-    document.addEventListener('click', dropdownHandlers[id]);
-  }
-}
-
-function ddClose(id, event) {
-  const menu = $(`${id}-menu`);
-  const btn = $(`${id}-btn`);
-
-  if (!menu.contains(event.target) && !btn.contains(event.target)) {
-    menu.style.display = 'none';
-    // Remove the stored handler
-    document.removeEventListener('click', dropdownHandlers[id]);
-    delete dropdownHandlers[id];
-  }
-}
-
 // Journal state
 const journalState = {
   isViewing: false,
@@ -68,10 +11,7 @@ async function populatePlayerMenu() {
   menu.innerHTML = '';
 
   try {
-    const res = await fetch('/player/get-players', {
-      headers: { Accept: 'application/json' },
-    });
-    const response = await res.json();
+    const response = await fetchJson('/player/get-players');
     const players = response.players || [];
 
     // Filter to show only agent players
@@ -127,32 +67,25 @@ async function loadLatestJournalEntry() {
   if (!journalState.currentAgentId) return;
 
   try {
-    const res = await fetch('/game/get-journal-by-agent-id-down', {
+    const data = await fetchJson('/game/get-journal-by-agent-id-down', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
       body: JSON.stringify({
         agentId: journalState.currentAgentId,
         sequenceId: journalState.currentSequenceId,
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.journals && data.journals.length > 0) {
-        journalState.isViewing = true;
-        displayJournalEntry(data.journals[0]);
-        journalState.currentSequenceId = data.journals[0].sequenceId;
-        enableNavigationButtons();
-      } else {
-        $('journalAgentId').textContent = journalState.currentAgentId;
-        $('journalSequenceId').textContent = '-';
-        $('journalUpdatedAt').textContent = '-';
-        $('journalInstructions').textContent = 'No journal entries found for this agent.';
-        disableNavigationButtons();
-      }
+    if (data && data.journals && data.journals.length > 0) {
+      journalState.isViewing = true;
+      displayJournalEntry(data.journals[0]);
+      journalState.currentSequenceId = data.journals[0].sequenceId;
+      enableNavigationButtons();
+    } else {
+      $('journalAgentId').textContent = journalState.currentAgentId;
+      $('journalSequenceId').textContent = '-';
+      $('journalUpdatedAt').textContent = '-';
+      $('journalInstructions').textContent = 'No journal entries found for this agent.';
+      disableNavigationButtons();
     }
   } catch (error) {
     console.error('Error loading journal entry:', error);
@@ -167,24 +100,17 @@ async function navigateJournal(direction) {
   const endpoint = direction === 'up' ? '/game/get-journal-by-agent-id-up' : '/game/get-journal-by-agent-id-down';
 
   try {
-    const res = await fetch(endpoint, {
+    const data = await fetchJson(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
       body: JSON.stringify({
         agentId: journalState.currentAgentId,
         sequenceId: journalState.currentSequenceId,
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.journals && data.journals.length > 0) {
-        displayJournalEntry(data.journals[0]);
-        journalState.currentSequenceId = data.journals[0].sequenceId;
-      }
+    if (data && data.journals && data.journals.length > 0) {
+      displayJournalEntry(data.journals[0]);
+      journalState.currentSequenceId = data.journals[0].sequenceId;
     }
   } catch (error) {
     console.error('Error navigating journal:', error);
@@ -205,7 +131,7 @@ function displayJournalEntry(entry) {
   const instructionsEl = $('journalInstructions');
 
   // Format the date if available
-  const updatedAt = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : '-';
+  const updatedAt = formatDateTime(entry.updatedAt);
 
   // Update the elements
   if (agentIdEl) agentIdEl.textContent = entry.agentId;

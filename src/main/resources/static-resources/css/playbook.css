@@ -1,0 +1,130 @@
+/* Player Selection Styles */
+.player-selection {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-color: var(--panel-color);
+  border-bottom: 1px solid var(--neon-color);
+}
+
+.player-selection label {
+  font-size: 1.2em;
+  color: var(--neon-color);
+}
+
+/* Journal Viewer Styles */
+.journal-viewer {
+  flex: 1;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: var(--panel-color);
+  border: 1px solid var(--neon-color);
+  border-radius: 10px;
+  width: 90%;
+  max-width: 1200px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--neon-color);
+  padding-bottom: 10px;
+}
+
+.journal-header h3 {
+  margin: 0;
+  color: var(--neon-color);
+}
+
+.journal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.journal-info {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.journal-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.journal-label {
+  color: var(--neon-color);
+}
+
+.journal-value {
+  color: var(--text-color);
+}
+
+.journal-instructions-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-instructions-label {
+  color: var(--neon-color);
+}
+
+.journal-instructions {
+  background-color: var(--bg-color);
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.journal-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid var(--neon-color);
+  color: var(--neon-color);
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.2em;
+}
+
+.nav-btn:hover {
+  background-color: var(--neon-color);
+  color: var(--bg-color);
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .journal-viewer {
+    width: 95%;
+    margin: 10px auto;
+    padding: 10px;
+  }
+
+  .journal-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
