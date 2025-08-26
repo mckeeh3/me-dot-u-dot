@@ -36,9 +36,17 @@
       <section class="help-section">
         <h2>About this App</h2>
         <p>
-          Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The backend uses event-sourced entities, views, and agent
-          components to manage game state, player data, and agent playbooks. The UI provides a clean, modern experience to select or create players, start games, and observe gameplay or agent
-          decisions.
+          Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The core focus is observing how specific agents with their
+          unique models evolve and improve their gameplay strategies over time through experience. Each agent maintains a playbook journal that captures its learning progression, allowing you to track
+          how different models adapt, develop tactics, and refine their decision-making processes.
+        </p>
+        <p>
+          The application provides valuable insights into model performance characteristics, including response times during each move, which helps compare how quickly various AI models process game
+          situations and make decisions. This makes it an excellent tool for understanding both the learning capabilities and operational efficiency of different AI models in a game-playing context.
+        </p>
+        <p>
+          The backend uses event-sourced entities, views, and agent components to manage game state, player data, and agent playbooks, while the UI provides a clean, modern experience to create
+          players, start games, and observe the evolution of agent gameplay strategies.
         </p>
       </section>
 
@@ -46,20 +54,72 @@
         <h2>Game Page</h2>
         <ul>
           <li>Use the navigation button to switch between pages.</li>
-          <li>Select or create Player 1 and Player 2. Agents require a model selection.</li>
+          <li>Select or create Player 1 and Player 2.</li>
+          <li>
+            Creating players:
+            <ul>
+              <li>Enter a unique player ID and a display name.</li>
+              <li>Choose a type: human or agent.</li>
+              <li>If you choose agent, select an available model before creating the player.</li>
+              <li>If you enter an existing player ID, the form auto-fills and the type/model fields become read-only.</li>
+              <li>Once you create a player, you can edit it by clicking the player name in the player list.</li>
+              <li>You cannot change the player type or model after creation.</li>
+              <li>The Create & Select button becomes Update & Select when editing an existing player.</li>
+            </ul>
+          </li>
           <li>Choose a game level after both players are selected, then begin the game.</li>
           <li>During play, the board shows available moves and current status. Agent turns are automatic.</li>
           <li>You can cancel a game, or reset after it completes.</li>
           <li>For agent players, open the journal viewer to read the agent's playbook entries.</li>
+          <li>Opponent combinations supported: human vs human, human vs agent, and agent vs agent.</li>
+          <li>The game is played in real-time, with each player's turn being automatic.</li>
+          <li>For agent players, during game play, you can view their playbook journal entries.</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
+        <h2>Agent Players</h2>
+        <p>
+          Agent players are AI-powered entities that use large language models to make game decisions. Each agent is uniquely identified by its agent ID and is configured with a specific model (e.g.,
+          GPT-4, Claude, etc.).
+        </p>
+        <p>
+          Agents operate through a structured system prompt that guides their behavior and learning process. They follow a mandatory tool protocol on each turn and maintain a persistent playbook for
+          continuous improvement.
+        </p>
+        <h3>Agent Tools</h3>
+        <ul>
+          <li><strong>Get Game State Tool:</strong> Retrieves the current game state in a compact format, including board positions, player scores, move history, and whose turn it is.</li>
+          <li><strong>Get Your Playbook Tool:</strong> Accesses the agent's persistent playbook containing self-authored instructions, tactics, and lessons learned from previous games.</li>
+          <li><strong>Make Move Tool:</strong> Submits a move to the game by specifying board coordinates (e.g., "C3").</li>
+          <li><strong>Update Your Playbook Tool:</strong> Allows the agent to revise its playbook with new insights, refined strategies, or corrections based on game experience.</li>
+        </ul>
+        <h3>Learning Process</h3>
+        <ul>
+          <li>Agents must call tools in a specific sequence: get game state → get playbook → decide move → make move → optionally update playbook.</li>
+          <li>The playbook serves as the agent's memory and learning mechanism, storing tactical knowledge that persists across games.</li>
+          <li>Agents are instructed to be evidence-driven, balancing exploration of new strategies with exploitation of proven tactics.</li>
+          <li>After each game, agents analyze outcomes and update their playbooks with new insights, successful patterns, or failure modes to avoid.</li>
         </ul>
       </section>
 
       <section class="help-section">
         <h2>Playbook Viewer</h2>
+        <p>
+          The playbook is the most critical information passed to AI models during gameplay. Along with the current board layout showing which players have selected specific cells, the playbook guides
+          the model's decision-making process for the next move.
+        </p>
+        <p>
+          The journal entries capture the evolution of an agent's playbook over time. Each entry represents a specific version of the agent's playbook at the moment it was updated. While models always
+          receive the most recent playbook version during gameplay, the journal provides valuable insight into how the agent's strategy and learning evolved across multiple games.
+        </p>
+        <h3>Using the Viewer</h3>
         <ul>
-          <li>Select an agent to view their playbook journal and navigate between entries.</li>
-          <li>Entries display metadata and instructions used to guide agent behavior.</li>
-          <li>The viewer shares the same visual style and dropdown components as the game page.</li>
+          <li>Select an agent from the dropdown to view their complete playbook journal history.</li>
+          <li>Navigate between journal entries using the up/down arrows to see how the agent's strategy evolved.</li>
+          <li>Each entry displays metadata (Agent ID, Sequence ID, Updated At) and the full playbook instructions from that point in time.</li>
+          <li>Compare entries across time to understand how the agent learned from wins, losses, and gameplay patterns.</li>
+          <li>The viewer uses the same visual style and dropdown components as the game page for consistency.</li>
         </ul>
       </section>
     </main>
