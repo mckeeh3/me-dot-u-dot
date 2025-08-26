@@ -170,6 +170,8 @@ async function initializeUIforNewGame() {
   populateTypeMenu('p2');
   populateLevelMenu();
 
+  startNewGameWizard();
+
   // Ensure validation is set up after DOM is ready
   setTimeout(() => {
     setupPlayerIdValidation();
