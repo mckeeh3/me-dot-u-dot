@@ -24,6 +24,17 @@ public class DotGameView extends View {
     return queryStreamResult();
   }
 
+  @Query(value = """
+      SELECT *
+        FROM dot_game_view
+       WHERE status = 'in_progress'
+       ORDER BY createdAt DESC
+       LIMIT 1
+      """)
+  public QueryEffect<DotGameRow> getCurrentInProgressGame() {
+    return queryResult();
+  }
+
   @Query("""
       SELECT * AS games
         FROM dot_game_view

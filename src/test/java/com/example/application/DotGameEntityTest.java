@@ -450,6 +450,24 @@ public class DotGameEntityTest {
     assertTrue(state.player2Status().isWinner());
   }
 
+  @Test
+  void testCancelGame() {
+    var testKit = EventSourcedTestKit.of(DotGameEntity::new);
+    var gameId = "game-1010";
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
+
+    createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
+
+    var command = new DotGame.Command.CancelGame(gameId);
+    var result = testKit.method(DotGameEntity::cancelGame).invoke(command);
+    assertTrue(result.isReply());
+    assertEquals(DotGame.Status.canceled, result.getReply().status());
+
+    var state = testKit.getState();
+    assertEquals(DotGame.Status.canceled, state.status());
+  }
+
   static EventSourcedResult<DotGame.State> createGame(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, DotGame.Player player1, DotGame.Player player2, DotGame.Board.Level level) {
     var command = new DotGame.Command.CreateGame(gameId, player1, player2, level);
     return testKit.method(DotGameEntity::createGame).invoke(command);

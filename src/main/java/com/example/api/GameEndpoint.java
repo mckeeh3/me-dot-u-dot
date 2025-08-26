@@ -104,6 +104,25 @@ public class GameEndpoint {
     return new GameResponse(gameState);
   }
 
+  @Get("/get-current-in-progress-game")
+  public String getCurrentInProgressGame() {
+    log.info("Get current in progress game");
+
+    try {
+      var dotGameRow = componentClient
+          .forView()
+          .method(DotGameView::getCurrentInProgressGame)
+          .invoke();
+
+      return "{\"gameId\": \"%s\"}".formatted(dotGameRow.gameId());
+    } catch (akka.javasdk.client.NoEntryFoundException e) {
+      return "{ \"gameId\": null }";
+    } catch (Exception e) {
+      log.error("Error getting current in progress game", e);
+      return "{ \"gameId\": null }";
+    }
+  }
+
   @Post("/get-journal-by-agent-id-down")
   public PlaybookJournalView.Journals getJournalByAgentIdDown(JournalRequest request) {
     log.info("Get journal down by agent id: {}", request);
