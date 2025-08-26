@@ -92,7 +92,7 @@ public class DotGameAgent extends Agent {
 
     // TODO: remove this once this is fixed: https://github.com/akka/akka-javasdk/issues/880
     if (prompt.agentModel.contains("gpt-5")) {
-      var model = prompt.agentModel.contains("mini") ? "gpt-5-mini"
+      var modelName = prompt.agentModel.contains("mini") ? "gpt-5-mini"
           : prompt.agentModel.contains("nano") ? "gpt-5-nano"
               : "gpt-5";
 
@@ -100,7 +100,27 @@ public class DotGameAgent extends Agent {
           .model(ModelProvider
               .openAi()
               .withApiKey(System.getenv("OPENAI_API_KEY"))
-              .withModelName(model))
+              .withModelName(modelName))
+          .tools(functionTools)
+          .systemMessage(systemPrompt)
+          .userMessage(prompt.toPrompt())
+          .onFailure(e -> {
+            forfeitMoveDueToError(prompt, e);
+            return "Forfeited move due to agent error: %s".formatted(e.getMessage());
+          })
+          .thenReply();
+    }
+
+    if (prompt.agentModel.contains("gemini")) {
+      var modelName = prompt.agentModel.contains("flash-lite") ? "gemini-2.5-flash-lite"
+          : prompt.agentModel.contains("flash") ? "gemini-2.5-flash"
+              : prompt.agentModel.contains("pro") ? "gemini-2.5-pro"
+                  : "gemini-2.5-flash";
+
+      return effects()
+          .model(ModelProvider.googleAiGemini()
+              .withApiKey(System.getenv("GOOGLE_AI_GEMINI_API_KEY"))
+              .withModelName(modelName))
           .tools(functionTools)
           .systemMessage(systemPrompt)
           .userMessage(prompt.toPrompt())
