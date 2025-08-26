@@ -77,6 +77,9 @@ function startNewGameWizard() {
 
 function resetGame() {
   if (state.game) {
+    if (state.game.status === 'in_progress') {
+      cancelGame();
+    }
     // Reset to setup mode
     startNewGameWizard();
   }

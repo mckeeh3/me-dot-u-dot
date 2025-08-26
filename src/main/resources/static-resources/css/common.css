@@ -36,7 +36,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 9998;
   padding: 10px;
 }
 
@@ -64,6 +64,7 @@ body {
 
 .nav-menu .dd-menu {
   min-width: 200px;
+  z-index: 9999;
 }
 
 .nav-menu .menu-btn {

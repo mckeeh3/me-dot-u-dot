@@ -11,25 +11,21 @@
     <link rel="stylesheet" href="/css/index.css" />
   </head>
   <body>
-    <!-- Navigation Menu -->
-    <div class="nav-menu">
-      <div class="dd" id="nav">
-        <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
-          <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-        </button>
-        <div id="nav-menu" class="dd-menu">
-          <div class="dd-item current">Game</div>
-          <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
-        </div>
-      </div>
-    </div>
-
     <!-- Top Control Bar -->
     <div class="control-bar">
       <div class="control-left">
-        <button id="resetBtn" class="icon-btn" onclick="resetGame()" style="display: none" title="Reset Game">
-          <img src="/images/refresh.png" alt="Reset" class="icon-img" />
-        </button>
+        <!-- Navigation Menu (moved inside control bar) -->
+        <div class="nav-menu">
+          <div class="dd" id="nav">
+            <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+              <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+            </button>
+            <div id="nav-menu" class="dd-menu">
+              <div class="dd-item current">Game</div>
+              <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="control-center">
         <div id="controlMessage">🎮 Me-Dot-U-Dot</div>
@@ -43,6 +39,9 @@
         </div>
       </div>
       <div class="control-right">
+        <button id="resetBtn" class="icon-btn" onclick="resetGame()" style="display: none" title="Reset Game">
+          <img src="/images/refresh.png" alt="Reset" class="icon-img" />
+        </button>
         <button id="cancelBtn" class="icon-btn" onclick="cancelGame()" style="display: none" title="Cancel Game">❌</button>
       </div>
     </div>
