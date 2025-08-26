@@ -59,6 +59,21 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("js/common.js");
   }
 
+  @Get("/help.html")
+  public HttpResponse serveHelpHtml() {
+    return HttpResponses.staticResource("help.html");
+  }
+
+  @Get("/css/help.css")
+  public HttpResponse serveHelpCss() {
+    return HttpResponses.staticResource("css/help.css");
+  }
+
+  @Get("/js/help.js")
+  public HttpResponse serveHelpJs() {
+    return HttpResponses.staticResource("js/help.js");
+  }
+
   @Get("/css/journal-viewer.css")
   public HttpResponse serveJournalViewerCss() {
     return HttpResponses.staticResource("css/journal-viewer.css");

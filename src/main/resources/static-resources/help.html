@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Help - Me-Dot-U-Dot</title>
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/help.css" />
+  </head>
+  <body>
+    <div class="control-bar">
+      <div class="control-left">
+        <div class="nav-menu">
+          <div class="dd" id="nav">
+            <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+              <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+            </button>
+            <div id="nav-menu" class="dd-menu">
+              <div class="dd-item" onclick="window.location.href='/'">Game</div>
+              <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+              <div class="dd-item current">Help</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="control-center">
+        <div id="controlMessage">Help</div>
+      </div>
+      <div class="control-right"></div>
+    </div>
+
+    <main class="help-container">
+      <section class="help-section">
+        <h2>About this App</h2>
+        <p>
+          Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The backend uses event-sourced entities, views, and agent
+          components to manage game state, player data, and agent playbooks. The UI provides a clean, modern experience to select or create players, start games, and observe gameplay or agent
+          decisions.
+        </p>
+      </section>
+
+      <section class="help-section">
+        <h2>Game Page</h2>
+        <ul>
+          <li>Use the navigation button to switch between pages.</li>
+          <li>Select or create Player 1 and Player 2. Agents require a model selection.</li>
+          <li>Choose a game level after both players are selected, then begin the game.</li>
+          <li>During play, the board shows available moves and current status. Agent turns are automatic.</li>
+          <li>You can cancel a game, or reset after it completes.</li>
+          <li>For agent players, open the journal viewer to read the agent's playbook entries.</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
+        <h2>Playbook Viewer</h2>
+        <ul>
+          <li>Select an agent to view their playbook journal and navigate between entries.</li>
+          <li>Entries display metadata and instructions used to guide agent behavior.</li>
+          <li>The viewer shares the same visual style and dropdown components as the game page.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/help.js"></script>
+  </body>
+</html>
