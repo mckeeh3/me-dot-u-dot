@@ -105,15 +105,70 @@ async function cancelGame() {
   }
 }
 
+async function getCurrentInProgressGame() {
+  const res = await fetch('/game/get-current-in-progress-game');
+  if (res.ok) {
+    const { gameId } = await res.json();
+    return gameId;
+  }
+}
+
 // Initialize the UI on page load
 function initializeUI() {
+  getCurrentInProgressGame().then((gameId) => {
+    if (gameId) {
+      initializeUIforInProgressGame(gameId);
+    } else {
+      initializeUIforNewGame();
+    }
+  });
+}
+
+async function initializeUIforInProgressGame(gameId) {
+  try {
+    // Get the game state
+    const res = await fetch(`/game/get-state/${gameId}`);
+    if (res.ok) {
+      const { gameState } = await res.json();
+
+      // Set the game state
+      state.game = gameState;
+
+      // Set player references
+      state.p1 = gameState.player1Status.player;
+      state.p2 = gameState.player2Status.player;
+
+      // Render the game board and info
+      renderGameInfo();
+      renderBoard();
+      openMoveStream(state.game.gameId);
+
+      // Start the game duration timer
+      const gameStart = new Date(state.game.createdAt);
+      const now = new Date();
+      const elapsedSeconds = Math.floor((now.getTime() - gameStart.getTime()) / 1000);
+      if (timerState.gameDurationStarted) {
+        timerState.gameDurationSeconds = elapsedSeconds;
+      } else {
+        startGameDurationTimer(elapsedSeconds);
+      }
+
+      console.log('Existing game loaded successfully');
+    } else {
+      console.error('Failed to load existing game state');
+      initializeUIforNewGame();
+    }
+  } catch (error) {
+    console.error('Error loading existing game:', error);
+    initializeUIforNewGame();
+  }
+}
+
+async function initializeUIforNewGame() {
   setControlMessage('🎮 Me-Dot-U-Dot');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
   populateLevelMenu();
-
-  // Start with the wizard
-  startNewGameWizard();
 
   // Ensure validation is set up after DOM is ready
   setTimeout(() => {
@@ -1159,11 +1214,11 @@ function resetTimers() {
 }
 
 // Game duration timer functions
-function startGameDurationTimer() {
+function startGameDurationTimer(elapsedSeconds = 0) {
   if (timerState.gameDurationStarted) return; // Already started
 
   timerState.gameDurationStarted = true;
-  timerState.gameDurationSeconds = 0;
+  timerState.gameDurationSeconds = elapsedSeconds || 0;
 
   timerState.gameDurationIntervalId = setInterval(() => {
     timerState.gameDurationSeconds++;
