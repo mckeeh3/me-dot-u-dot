@@ -111,7 +111,7 @@ public class DotGameAgent extends Agent {
           .thenReply();
     }
 
-    if (prompt.agentModel.contains("gemini")) {
+    if (prompt.agentModel.contains("NOOP-gemini")) {
       var modelName = prompt.agentModel.contains("flash-lite") ? "gemini-2.5-flash-lite"
           : prompt.agentModel.contains("flash") ? "gemini-2.5-flash"
               : prompt.agentModel.contains("pro") ? "gemini-2.5-pro"

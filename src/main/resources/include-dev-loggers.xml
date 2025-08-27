@@ -9,13 +9,6 @@
      when the application runs. 
  -->
 <included>
-    <logger name="com.example" level="DEBUG">
-        <appender-ref ref="FILE" />
-    </logger>
-
-    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="TRACE"/>
-    <logger name="kalix.runtime.agent" level="DEBUG"/>
-
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
@@ -30,4 +23,15 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-15.15thread %logger{25}: %msg%n</pattern>
         </encoder>
     </appender>
+
+    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="TRACE">
+        <appender-ref ref="FILE" />
+    </logger>
+    <logger name="kalix.runtime.agent" level="DEBUG">
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <logger name="com.example" level="DEBUG">
+        <appender-ref ref="FILE" />
+    </logger>
 </included>

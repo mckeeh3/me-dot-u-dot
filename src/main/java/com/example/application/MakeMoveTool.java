@@ -24,8 +24,10 @@ public class MakeMoveTool {
       - Input: a single coordinate string (e.g., "C3").
       - Do not include natural language or multiple coordinates.
       - This tool does NOT explain rules or validate strategy — it only records the move.
+
+      The tool will return "Move completed" if the move was successful, otherwise it will return "Move rejected".
       """)
-  public DotGame.State makeMove(
+  public String makeMove(
       @Description("The ID of the game you are making a move in") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId,
       @Description("""
@@ -36,8 +38,16 @@ public class MakeMoveTool {
 
     var command = new DotGame.Command.MakeMove(gameId, agentId, dotId);
 
-    return componentClient.forEventSourcedEntity(gameId)
+    var stateBeforeMove = componentClient.forEventSourcedEntity(gameId)
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    var stateAfterMove = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::makeMove)
         .invoke(command);
+
+    var moveCompleted = stateBeforeMove.moveHistory().size() < stateAfterMove.moveHistory().size();
+
+    return moveCompleted ? "Move completed" : "Move rejected";
   }
 }
