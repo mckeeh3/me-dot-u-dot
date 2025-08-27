@@ -10,9 +10,12 @@
  -->
 <included>
     <logger name="com.example" level="DEBUG">
-        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
+
+    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="TRACE"/>
+    <logger name="kalix.runtime.agent" level="DEBUG"/>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
