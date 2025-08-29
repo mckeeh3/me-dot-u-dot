@@ -56,6 +56,7 @@ public class DotGameView extends View {
         case DotGame.Event.GameCanceled e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveForfeited e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameFinished e -> effects().updateRow(onEvent(e));
+        case DotGame.Event.GameResults e -> effects().updateRow(onEvent(e));
       };
     }
 
@@ -199,6 +200,10 @@ public class DotGameView extends View {
           Optional.empty(),
           LastAction.game_finished.name(),
           "");
+    }
+
+    DotGameRow onEvent(DotGame.Event.GameResults event) {
+      return rowState();
     }
   }
 

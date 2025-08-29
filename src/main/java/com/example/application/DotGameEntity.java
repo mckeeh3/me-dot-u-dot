@@ -75,6 +75,7 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
       case DotGame.Event.GameCanceled e -> currentState().onEvent(e);
       case DotGame.Event.MoveForfeited e -> currentState().onEvent(e);
       case DotGame.Event.GameFinished e -> currentState().onEvent(e);
+      case DotGame.Event.GameResults e -> currentState().onEvent(e);
     };
   }
 }

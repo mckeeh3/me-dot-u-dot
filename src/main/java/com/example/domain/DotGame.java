@@ -114,7 +114,10 @@ public interface DotGame {
           Instant.now());
 
       if (newStatus != Status.in_progress) {
-        return List.of(madeMoveEvent, new Event.GameFinished(gameId, Optional.of(Instant.now())));
+        var eventGameFinished = new Event.GameFinished(gameId, Optional.of(Instant.now()));
+        var eventGameResults = new Event.GameResults(gameId, newStatus, newPlayer1Status, newPlayer2Status, Instant.now());
+
+        return List.of(madeMoveEvent, eventGameFinished, eventGameResults);
       }
 
       return List.of(madeMoveEvent);
@@ -237,6 +240,10 @@ public interface DotGame {
           Optional.empty(),
           moveHistory,
           event.finishedAt);
+    }
+
+    public State onEvent(Event.GameResults event) {
+      return this;
     }
 
     public boolean isGameOver() {
@@ -375,6 +382,14 @@ public interface DotGame {
     public record GameFinished(
         String gameId,
         Optional<Instant> finishedAt) implements Event {}
+
+    @TypeName("game-results")
+    public record GameResults(
+        String gameId,
+        Status status,
+        PlayerStatus player1Status,
+        PlayerStatus player2Status,
+        Instant timestamp) implements Event {}
   }
 
   // ============================================================
