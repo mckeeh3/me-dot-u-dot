@@ -19,19 +19,37 @@ import akka.javasdk.testkit.EventSourcedTestKit;
 public class PlayerGamesEntityTest {
 
   @Test
+  void testAddGame() {
+    var testKit = EventSourcedTestKit.of(PlayerGamesEntity::new);
+    var stats = new GameStats(1, 1, 1, 1);
+    var command = new PlayerGames.Command.AddGame("player1", "game1", stats);
+    var result = testKit.method(PlayerGamesEntity::addGame).invoke(command);
+    assertTrue(result.isReply());
+    assertEquals(1, result.getAllEvents().size());
+
+    var event = result.getNextEventOfType(PlayerGames.Event.GameAdded.class);
+    assertEquals(command.playerId(), event.branchId(), "for trunk branch, branchId should be the same as playerId");
+    assertEquals(command.playerId(), event.playerId());
+    assertEquals(command.gameId(), event.gameId());
+
+    var state = testKit.getState();
+    assertEquals(command.playerId(), state.playerId());
+  }
+
+  @Test
   void testAddGameToBranch() {
     var testKit = EventSourcedTestKit.of(PlayerGamesEntity::new);
     var stats = new GameStats(1, 1, 1, 1);
     var command = new PlayerGames.Command.AddGameToBranch("branch1", "player1", "game1", Optional.empty(), stats);
     var result = testKit.method(PlayerGamesEntity::addGameToBranch).invoke(command);
     assertTrue(result.isReply());
+    assertEquals(1, result.getAllEvents().size());
 
     var event = result.getNextEventOfType(PlayerGames.Event.GameAdded.class);
     assertEquals(command.branchId(), event.branchId());
     assertEquals(command.playerId(), event.playerId());
     assertEquals(command.gameId(), event.gameId());
     assertEquals(command.parentBranchId(), event.parentBranchId());
-    assertEquals(command.stats(), event.stats());
 
     var state = testKit.getState();
     assertEquals(command.branchId(), state.branchId());
@@ -75,6 +93,7 @@ public class PlayerGamesEntityTest {
 
     var result = addGame(testKit, branchId, playerId, "game11", stats);
     assertTrue(result.isReply());
+    assertEquals(1, result.getAllEvents().size());
 
     var event = result.getNextEventOfType(PlayerGames.Event.DelegatedGameToSubBranch.class);
     assertNotNull(event.subBranchId());
@@ -124,13 +143,22 @@ public class PlayerGamesEntityTest {
         event.stats());
     var resultSub = testKitSub.method(PlayerGamesEntity::addGameToBranch).invoke(command);
     assertTrue(resultSub.isReply());
+    assertEquals(2, resultSub.getAllEvents().size());
 
-    var eventSub = resultSub.getNextEventOfType(PlayerGames.Event.GameAdded.class);
-    assertEquals(command.branchId(), eventSub.branchId());
-    assertEquals(command.playerId(), eventSub.playerId());
-    assertEquals(command.gameId(), eventSub.gameId());
-    assertEquals(command.parentBranchId(), eventSub.parentBranchId());
-    assertEquals(command.stats(), eventSub.stats());
+    {
+      var eventSub = resultSub.getNextEventOfType(PlayerGames.Event.GameAdded.class);
+      assertEquals(command.branchId(), eventSub.branchId());
+      assertEquals(command.playerId(), eventSub.playerId());
+      assertEquals(command.gameId(), eventSub.gameId());
+      assertEquals(command.parentBranchId(), eventSub.parentBranchId());
+    }
+
+    {
+      var eventParent = resultSub.getNextEventOfType(PlayerGames.Event.ParentUpdateRequired.class);
+      assertEquals(branchId, eventParent.parentBranchId());
+      assertEquals(event.subBranchId(), eventParent.updatedSubBranchId());
+      assertEquals(stats, eventParent.updatedSubBranchStats());
+    }
 
     var state = testKitSub.getState();
     assertEquals(command.branchId(), state.branchId());
@@ -141,6 +169,11 @@ public class PlayerGamesEntityTest {
     assertTrue(state.leavesContainsLeaf(command.playerId(), command.gameId()));
 
     assertEquals(testKitParent.getState(), stateBefore); // state should not be changed when game is delegated to sub branch
+  }
+
+  static EventSourcedResult<State> addGame(EventSourcedTestKit<PlayerGames.State, PlayerGames.Event, PlayerGamesEntity> testKit, String playerId, String gameId, GameStats stats) {
+    var command = new PlayerGames.Command.AddGame(playerId, gameId, stats);
+    return testKit.method(PlayerGamesEntity::addGame).invoke(command);
   }
 
   static EventSourcedResult<State> addGame(EventSourcedTestKit<PlayerGames.State, PlayerGames.Event, PlayerGamesEntity> testKit, String branchId, String playerId, String gameId, GameStats stats) {

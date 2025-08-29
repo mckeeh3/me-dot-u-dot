@@ -28,10 +28,9 @@ public interface PlayerGames {
     // ============================================================
     // Command AddGame
     // ============================================================
-    public Optional<Event> onCommand(Command.AddGame command) {
-      var branchId = playerId; // the tree truck Id is the player Id
+    public List<Event> onCommand(Command.AddGame command) {
       return onCommand(new Command.AddGameToBranch(
-          branchId,
+          command.playerId, // the tree trunk branchId is the playerId
           command.playerId,
           command.gameId,
           Optional.empty(),
@@ -41,13 +40,13 @@ public interface PlayerGames {
     // ============================================================
     // Command AddGameToBranch
     // ============================================================
-    public Optional<Event> onCommand(Command.AddGameToBranch command) {
+    public List<Event> onCommand(Command.AddGameToBranch command) {
       if (isEmpty()) {
         return handleEmptyBranch(command);
       }
 
       if (leavesContainsLeaf(command.branchId, command.gameId)) {
-        return Optional.empty();
+        return List.of();
       }
 
       if (leaves.size() < maxLeaves) {
@@ -57,7 +56,7 @@ public interface PlayerGames {
       return handleDelegatedGameToSubBranch(command);
     }
 
-    Optional<Event> handleEmptyBranch(Command.AddGameToBranch command) {
+    List<Event> handleEmptyBranch(Command.AddGameToBranch command) {
       var leaf = new Leaf(
           command.playerId,
           command.gameId,
@@ -69,20 +68,29 @@ public interface PlayerGames {
           .limit(maxBranches)
           .toList();
 
-      var stats = reduceStats(newSubBranches, newLeaves);
-
-      return Optional.of(new Event.GameAdded(
+      var event = new Event.GameAdded(
           command.branchId,
           command.playerId,
           command.gameId,
           command.parentBranchId,
           newSubBranches,
           newLeaves,
-          stats,
-          Instant.now()));
+          Instant.now());
+
+      if (command.parentBranchId.isPresent()) {
+        var branchStats = reduceStats(newSubBranches, newLeaves);
+
+        return List.of(event,
+            new Event.ParentUpdateRequired(
+                command.parentBranchId.get(),
+                command.branchId,
+                branchStats));
+      }
+
+      return List.of(event);
     }
 
-    Optional<Event> handleAddLeafToBranch(Command.AddGameToBranch command) {
+    List<Event> handleAddLeafToBranch(Command.AddGameToBranch command) {
       var leaf = new Leaf(
           command.playerId,
           command.gameId,
@@ -96,22 +104,32 @@ public interface PlayerGames {
               .limit(maxBranches)
               .toList();
 
-      var stats = reduceStats(newSubBranches, newLeaves);
-
-      return Optional.of(new Event.GameAdded(
+      var event = new Event.GameAdded(
           command.branchId,
           command.playerId,
           command.gameId,
           command.parentBranchId,
           newSubBranches,
           newLeaves,
-          stats,
-          Instant.now()));
+          Instant.now());
+
+      if (command.parentBranchId.isPresent()) {
+        var branchStats = reduceStats(newSubBranches, newLeaves);
+
+        return List.of(event,
+            new Event.ParentUpdateRequired(
+                command.parentBranchId.get(),
+                command.branchId,
+                branchStats));
+      }
+
+      return List.of(event);
     }
 
-    Optional<Event> handleDelegatedGameToSubBranch(Command.AddGameToBranch command) {
+    List<Event> handleDelegatedGameToSubBranch(Command.AddGameToBranch command) {
       var subBranchId = selectSubBranchId(command);
-      return Optional.of(new Event.DelegatedGameToSubBranch(
+
+      return List.of(new Event.DelegatedGameToSubBranch(
           subBranchId,
           command.playerId,
           command.gameId,
@@ -123,8 +141,8 @@ public interface PlayerGames {
     // ============================================================
     // Command UpdateStats
     // ============================================================
-    public Optional<Event> onCommand(Command.UpdateStats command) {
-      var newSubBranch = new Branch(command.subBranchId, command.stats);
+    public List<Event> onCommand(Command.UpdateSubBranchStats command) {
+      var newSubBranch = new Branch(command.subBranchId, command.subBranchStats);
       var newSubBranches = subBranches.stream().map(branch -> {
         if (branch.branchId.equals(command.subBranchId)) {
           return newSubBranch;
@@ -132,12 +150,24 @@ public interface PlayerGames {
         return branch;
       }).toList();
 
-      return Optional.of(new Event.StatsUpdated(
+      var event = new Event.StatsUpdated(
           command.branchId,
           parentBranchId,
           command.subBranchId,
           newSubBranches,
-          Instant.now()));
+          Instant.now());
+
+      if (parentBranchId.isPresent()) {
+        var branchStats = reduceStats(newSubBranches, leaves);
+
+        return List.of(event,
+            new Event.ParentUpdateRequired(
+                parentBranchId.get(),
+                command.branchId,
+                branchStats));
+      }
+
+      return List.of(event);
     }
 
     // ============================================================
@@ -175,10 +205,6 @@ public interface PlayerGames {
           event.updatedAt);
     }
 
-    public State onEvent(Event.DelegatedGameToSubBranch event) {
-      return this;
-    }
-
     public State onEvent(Event.StatsUpdated event) {
       return new State(
           branchId,
@@ -187,6 +213,14 @@ public interface PlayerGames {
           event.branches,
           leaves,
           event.updatedAt);
+    }
+
+    public State onEvent(Event.DelegatedGameToSubBranch event) {
+      return this;
+    }
+
+    public State onEvent(Event.ParentUpdateRequired event) {
+      return this;
     }
   }
 
@@ -206,10 +240,10 @@ public interface PlayerGames {
         Optional<String> parentBranchId,
         GameStats stats) implements Command {}
 
-    record UpdateStats(
+    record UpdateSubBranchStats(
         String branchId,
         String subBranchId,
-        GameStats stats) implements Command {}
+        GameStats subBranchStats) implements Command {}
   }
 
   // ============================================================
@@ -225,7 +259,6 @@ public interface PlayerGames {
         Optional<String> parentBranchId,
         List<Branch> subBranches,
         List<Leaf> leaves,
-        GameStats stats,
         Instant updatedAt) implements Event {}
 
     @TypeName("delegated-game-to-sub-branch")
@@ -244,6 +277,12 @@ public interface PlayerGames {
         String updatedSubBranchId,
         List<Branch> branches,
         Instant updatedAt) implements Event {}
+
+    @TypeName("parent-update-required")
+    record ParentUpdateRequired(
+        String parentBranchId,
+        String updatedSubBranchId,
+        GameStats updatedSubBranchStats) implements Event {}
   }
 
   // ============================================================

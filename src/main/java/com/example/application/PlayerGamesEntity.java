@@ -39,7 +39,7 @@ public class PlayerGamesEntity extends EventSourcedEntity<PlayerGames.State, Pla
         .thenReply(newState -> newState);
   }
 
-  public Effect<PlayerGames.State> updateStats(PlayerGames.Command.UpdateStats command) {
+  public Effect<PlayerGames.State> updateSubBranchStats(PlayerGames.Command.UpdateSubBranchStats command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()
@@ -65,6 +65,7 @@ public class PlayerGamesEntity extends EventSourcedEntity<PlayerGames.State, Pla
       case PlayerGames.Event.GameAdded e -> currentState().onEvent(e);
       case PlayerGames.Event.DelegatedGameToSubBranch e -> currentState().onEvent(e);
       case PlayerGames.Event.StatsUpdated e -> currentState().onEvent(e);
+      case PlayerGames.Event.ParentUpdateRequired e -> currentState().onEvent(e);
     };
   }
 }
