@@ -38,6 +38,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
+      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -46,13 +47,15 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().name(),
           agentPlayer.player().model());
 
-      var result = componentClient
-          .forAgent()
-          .inSession(event.gameId())
-          .method(DotGameAgent::makeMove)
-          .invoke(prompt);
+      // var result = componentClient
+      // .forAgent()
+      // .inSession(sessionId)
+      // .method(DotGameAgent::makeMove)
+      // .invoke(prompt);
 
-      log.debug("Make move (1 game created) result: {}", result);
+      // log.debug("Make move (1 game created) result: {}", result);
+
+      makeMove(sessionId, prompt, "Make move (1 game created)");
     }
 
     return effects().done();
@@ -97,13 +100,15 @@ public class DotGameToAgentConsumer extends Consumer {
             agentPlayer.player().name(),
             agentPlayer.player().model());
 
-        var result = componentClient
-            .forAgent()
-            .inSession(sessionId)
-            .method(DotGameAgent::makeMove)
-            .invoke(prompt);
+        // var result = componentClient
+        // .forAgent()
+        // .inSession(sessionId)
+        // .method(DotGameAgent::makeMove)
+        // .invoke(prompt);
 
-        log.debug("Make move (3 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
+        // log.debug("Make move (3 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
+
+        makeMove(sessionId, prompt, "Make move (3 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
 
       if (event.player2Status().player().isAgent()) {
@@ -117,13 +122,15 @@ public class DotGameToAgentConsumer extends Consumer {
             agentPlayer.player().name(),
             agentPlayer.player().model());
 
-        var result = componentClient
-            .forAgent()
-            .inSession(sessionId)
-            .method(DotGameAgent::makeMove)
-            .invoke(prompt);
+        // var result = componentClient
+        // .forAgent()
+        // .inSession(sessionId)
+        // .method(DotGameAgent::makeMove)
+        // .invoke(prompt);
 
-        log.debug("Make move (4 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
+        // log.debug("Make move (4 game over, you {}) result: {}", agentPlayer.isWinner() ? "won" : "lost", result);
+
+        makeMove(sessionId, prompt, "Make move (4 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
 
       return effects().done();
@@ -146,13 +153,15 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().name(),
           agentPlayer.player().model());
 
-      var result = componentClient
-          .forAgent()
-          .inSession(sessionId)
-          .method(DotGameAgent::makeMove)
-          .invoke(prompt);
+      // var result = componentClient
+      // .forAgent()
+      // .inSession(sessionId)
+      // .method(DotGameAgent::makeMove)
+      // .invoke(prompt);
 
-      log.debug("Make move (5 move forfeited) result: {}", result);
+      // log.debug("Make move (5 move forfeited) result: {}", result);
+
+      makeMove(sessionId, prompt, "Make move (5 move forfeited)");
     }
 
     return effects().done();
@@ -170,13 +179,15 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().name(),
           agentPlayer.player().model());
 
-      var result = componentClient
-          .forAgent()
-          .inSession(sessionId)
-          .method(DotGameAgent::makeMove)
-          .invoke(prompt);
+      // var result = componentClient
+      // .forAgent()
+      // .inSession(sessionId)
+      // .method(DotGameAgent::makeMove)
+      // .invoke(prompt);
 
-      log.debug("Make move (6 game canceled) result: {}", result);
+      // log.debug("Make move (6 game canceled) result: {}", result);
+
+      makeMove(sessionId, prompt, "Make move (6 game canceled)");
     }
 
     if (event.player2Status().player().isAgent()) {
@@ -190,13 +201,15 @@ public class DotGameToAgentConsumer extends Consumer {
           agentPlayer.player().name(),
           agentPlayer.player().model());
 
-      var result = componentClient
-          .forAgent()
-          .inSession(sessionId)
-          .method(DotGameAgent::makeMove)
-          .invoke(prompt);
+      // var result = componentClient
+      // .forAgent()
+      // .inSession(sessionId)
+      // .method(DotGameAgent::makeMove)
+      // .invoke(prompt);
 
-      log.debug("Make move (7 game canceled) result: {}", result);
+      // log.debug("Make move (7 game canceled) result: {}", result);
+
+      makeMove(sessionId, prompt, "Make move (7 game canceled)");
     }
 
     return effects().done();
