@@ -161,46 +161,60 @@
   width: 100%;
 }
 
+/* Game Board - Exact replica of index.css styles */
 .game-board {
   display: grid;
-  gap: 2px;
-  background: var(--neon-blue);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-  width: 90%;
-  max-width: 600px;
+  gap: min(1.5vw, 12px);
+  width: min(80vh, 90%);
+  aspect-ratio: 1;
+  grid-template-columns: repeat(var(--size, 5), 1fr);
+  user-select: none;
 }
 
 .cell {
-  width: 50px;
-  height: 50px;
-  background: var(--bg);
-  border: 1px solid var(--neon-blue);
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: var(--dot-size, 28px);
   color: var(--text);
+  background: linear-gradient(180deg, rgba(20, 26, 46, 0.65), rgba(13, 17, 31, 0.65));
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.08);
+  transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
   cursor: default;
-  transition: all 0.2s ease;
 }
 
 .cell.player {
-  background: var(--neon-green);
-  color: var(--bg);
-  border-color: var(--neon-green);
+  color: var(--neon-green);
+  text-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
 }
 
 .cell.ai {
-  background: var(--neon-purple);
-  color: var(--bg);
-  border-color: var(--neon-purple);
+  color: var(--neon-magenta);
+  text-shadow: 0 0 12px rgba(255, 58, 242, 0.5);
 }
 
 .cell.last-move {
-  box-shadow: 0 0 10px var(--neon-yellow);
-  border-color: var(--neon-yellow);
+  outline: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.35);
+  animation: neonPulse 1.2s ease-out 1;
+}
+
+@keyframes neonPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(0, 229, 255, 0);
+    transform: scale(1);
+  }
+  40% {
+    box-shadow: 0 0 28px rgba(0, 229, 255, 0.45);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+    transform: scale(1);
+  }
 }
 
 /* Responsive Design */
@@ -236,11 +250,5 @@
   .game-board {
     width: 95%;
     max-width: none;
-  }
-
-  .cell {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
   }
 }
