@@ -186,7 +186,7 @@ public interface PlayerGames {
       return reduceStats(subBranches, leaves);
     }
 
-    public GameStats reduceStats(List<Branch> branches, List<Leaf> leaves) {
+    public static GameStats reduceStats(List<Branch> branches, List<Leaf> leaves) {
       var leafStats = leaves.stream().map(Leaf::stats).reduce(GameStats::add).orElse(GameStats.empty());
       var branchStats = branches.stream().map(Branch::stats).reduce(GameStats::add).orElse(GameStats.empty());
       return leafStats.add(branchStats);

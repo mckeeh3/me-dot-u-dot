@@ -19,7 +19,6 @@ import akka.javasdk.client.ComponentClient;
 @HttpEndpoint("/player")
 public class PlayerEndpoint {
   static final Logger log = LoggerFactory.getLogger(PlayerEndpoint.class);
-
   final ComponentClient componentClient;
 
   public PlayerEndpoint(ComponentClient componentClient) {
