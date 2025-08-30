@@ -201,7 +201,7 @@ function renderGameInfo(gameState) {
 
   const p1 = gameState.player1Status;
   const p2 = gameState.player2Status;
-  const gameDuration = calculateGameDuration(gameState.createdAt, gameState.updatedAt);
+  const gameDuration = calculateGameDuration(gameState.createdAt, gameState.finishedAt);
 
   gameInfo.innerHTML = `
         <div class="game-summary">
@@ -246,11 +246,11 @@ function getGameStatusDisplay(status) {
 }
 
 // Calculate game duration
-function calculateGameDuration(createdAt, updatedAt) {
-  if (!createdAt || !updatedAt) return 'Unknown';
+function calculateGameDuration(createdAt, finishedAt) {
+  if (!createdAt || !finishedAt) return 'Unknown';
 
   const start = new Date(createdAt);
-  const end = new Date(updatedAt);
+  const end = new Date(finishedAt);
   const durationMs = end.getTime() - start.getTime();
 
   const minutes = Math.floor(durationMs / 60000);
