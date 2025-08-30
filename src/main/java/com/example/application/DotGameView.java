@@ -42,7 +42,7 @@ public class DotGameView extends View {
        ORDER BY createdAt DESC
        LIMIT :limit OFFSET :offset
       """)
-  public QueryEffect<GamesPage> getGamesByPlayerPaged(GetGamesByPlayerPagedRequest request) {
+  public QueryEffect<GamesPage> getGamesByPlayerIdPaged(GetGamesByPlayerIdPagedRequest request) {
     return queryResult();
   }
 
@@ -231,7 +231,7 @@ public class DotGameView extends View {
 
   public record GetMoveStreamByGameIdRequest(String gameId) {}
 
-  public record GetGamesByPlayerPagedRequest(String playerId, int limit, int offset) {}
+  public record GetGamesByPlayerIdPagedRequest(String playerId, int limit, int offset) {}
 
   public record GamesPage(List<DotGameRow> games) {}
 }

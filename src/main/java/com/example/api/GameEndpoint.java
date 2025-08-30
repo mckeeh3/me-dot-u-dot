@@ -123,6 +123,16 @@ public class GameEndpoint {
     }
   }
 
+  @Post("/get-games-by-player-id-paged")
+  public DotGameView.GamesPage getGamesByPlayerIdPaged(DotGameView.GetGamesByPlayerIdPagedRequest request) {
+    log.info("Get games by player id paged: {}", request);
+
+    return componentClient
+        .forView()
+        .method(DotGameView::getGamesByPlayerIdPaged)
+        .invoke(request);
+  }
+
   @Post("/get-journal-by-agent-id-down")
   public PlaybookJournalView.Journals getJournalByAgentIdDown(JournalRequest request) {
     log.info("Get journal down by agent id: {}", request);
