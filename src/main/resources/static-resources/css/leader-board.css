@@ -127,9 +127,14 @@
   font-size: 1.5em;
 }
 
-.player-name {
+.player1-name {
   font-weight: bold;
   color: var(--neon-green);
+}
+
+.player2-name {
+  font-weight: bold;
+  color: var(--neon-magenta);
 }
 
 .player-score,

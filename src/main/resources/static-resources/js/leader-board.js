@@ -142,7 +142,8 @@ function renderPlayerGames() {
 // Get game status display text
 function getGameStatus(game) {
   if (game.status === 'won_by_player') {
-    return game.winnerId === selectedPlayerId ? '🏆 Win' : '❌ Loss';
+    const winnerId = game.player1Score > game.player2Score ? game.player1Id : game.player2Id;
+    return winnerId === selectedPlayerId ? '🏆 Win' : '❌ Loss';
   } else if (game.status === 'draw') {
     return '🤝 Draw';
   } else if (game.status === 'canceled') {
@@ -208,13 +209,13 @@ function renderGameInfo(gameState) {
             <div class="player-info">
                 <div class="player">
                     <span class="player-avatar">${p1.player.type === 'agent' ? '🤖' : '👤'}</span>
-                    <span class="player-name">${p1.player.name}</span>
+                    <span class="player1-name">${p1.player.name}</span>
                     <span class="player-score">Score: ${p1.score}</span>
                     <span class="player-moves">Moves: ${p1.moves}</span>
                 </div>
                 <div class="player">
                     <span class="player-avatar">${p2.player.type === 'agent' ? '🤖' : '👤'}</span>
-                    <span class="player-name">${p2.player.name}</span>
+                    <span class="player2-name">${p2.player.name}</span>
                     <span class="player-score">Score: ${p2.score}</span>
                     <span class="player-moves">Moves: ${p2.moves}</span>
                 </div>
