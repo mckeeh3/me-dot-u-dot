@@ -1,5 +1,19 @@
 /* Help page layout matching app style */
 
+.control-center div {
+  text-align: center;
+}
+
+#controlMessage {
+  font-size: 24px;
+  font-weight: bold;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
+}
+
 .help-container {
   padding: 20px;
   max-width: 1100px;
