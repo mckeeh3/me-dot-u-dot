@@ -2,6 +2,8 @@ package com.example.application;
 
 import java.util.List;
 
+import javax.naming.MalformedLinkException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +12,12 @@ import com.example.domain.Playbook;
 
 import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
+import akka.javasdk.agent.JsonParsingException;
+import akka.javasdk.agent.ModelException;
 import akka.javasdk.agent.ModelProvider;
+import akka.javasdk.agent.ModelTimeoutException;
+import akka.javasdk.agent.RateLimitException;
+import akka.javasdk.agent.ToolCallExecutionException;
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.client.ComponentClient;
 
@@ -105,31 +112,31 @@ public class DotGameAgent extends Agent {
           .systemMessage(systemPrompt)
           .userMessage(prompt.toPrompt())
           .onFailure(e -> {
-            forfeitMoveDueToError(prompt, e);
-            return "Forfeited move due to agent error: %s".formatted(e.getMessage());
+            return handleError(prompt, e);
+            // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
           })
           .thenReply();
     }
 
-    if (prompt.agentModel.contains("NOOP-gemini")) {
-      var modelName = prompt.agentModel.contains("flash-lite") ? "gemini-2.5-flash-lite"
-          : prompt.agentModel.contains("flash") ? "gemini-2.5-flash"
-              : prompt.agentModel.contains("pro") ? "gemini-2.5-pro"
-                  : "gemini-2.5-flash";
+    // if (prompt.agentModel.contains("gemini")) {
+    // var modelName = prompt.agentModel.contains("flash-lite") ? "gemini-2.5-flash-lite"
+    // : prompt.agentModel.contains("flash") ? "gemini-2.5-flash"
+    // : prompt.agentModel.contains("pro") ? "gemini-2.5-pro"
+    // : "gemini-2.5-flash";
 
-      return effects()
-          .model(ModelProvider.googleAiGemini()
-              .withApiKey(System.getenv("GOOGLE_AI_GEMINI_API_KEY"))
-              .withModelName(modelName))
-          .tools(functionTools)
-          .systemMessage(systemPrompt)
-          .userMessage(prompt.toPrompt())
-          .onFailure(e -> {
-            forfeitMoveDueToError(prompt, e);
-            return "Forfeited move due to agent error: %s".formatted(e.getMessage());
-          })
-          .thenReply();
-    }
+    // return effects()
+    // .model(ModelProvider.googleAiGemini()
+    // .withApiKey(System.getenv("GOOGLE_AI_GEMINI_API_KEY"))
+    // .withModelName(modelName))
+    // .tools(functionTools)
+    // .systemMessage(systemPrompt)
+    // .userMessage(prompt.toPrompt())
+    // .onFailure(e -> {
+    // return handleError(prompt, e);
+    // // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
+    // })
+    // .thenReply();
+    // }
 
     return effects()
         // .memory(MemoryProvider.limitedWindow().readLast(2))
@@ -138,22 +145,39 @@ public class DotGameAgent extends Agent {
         .systemMessage(systemPrompt)
         .userMessage(prompt.toPrompt())
         .onFailure(e -> {
-          forfeitMoveDueToError(prompt, e);
-          return "Forfeited move due to agent error: %s".formatted(e.getMessage());
+          return handleError(prompt, e);
+          // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
         })
         .thenReply();
   }
 
-  void forfeitMoveDueToError(MakeMovePrompt prompt, Throwable e) {
-    log.error("Forfeiting move due to agent error: %s".formatted(e.getMessage()), e);
+  String handleError(MakeMovePrompt prompt, Throwable exception) {
+    return switch (exception) {
+      case ModelException e -> tryAgain(prompt, e);
+      case RateLimitException e -> forfeitMoveDueToError(prompt, e);
+      case ModelTimeoutException e -> tryAgain(prompt, e);
+      case ToolCallExecutionException e -> tryAgain(prompt, e);
+      case JsonParsingException e -> tryAgain(prompt, e);
+      default -> forfeitMoveDueToError(prompt, exception);
+    };
+  }
 
-    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agentName, e.getMessage());
+  String tryAgain(MakeMovePrompt prompt, Throwable exception) {
+    return "Forfeited move due to agent error: %s".formatted(exception.getMessage());
+  }
+
+  String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
+    log.error("Forfeiting move due to agent error: %s".formatted(exception.getMessage()), exception);
+
+    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agentName, exception.getMessage());
     var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agentId, message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId)
         .method(DotGameEntity::forfeitMove)
         .invoke(command);
+
+    return "Forfeited move due to agent error: %s".formatted(exception.getMessage());
   }
 
   String gameStateAsJson(String gameId) {

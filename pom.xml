@@ -8,7 +8,7 @@
   </parent>
   
   <groupId>com.example</groupId>
-  <artifactId>helloworld-agent</artifactId>
+  <artifactId>me-dot-u-dot</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 

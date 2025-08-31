@@ -7,8 +7,7 @@
 <!-- ====================================================================== -->
 <!-- ====================================================================== -->
 <!--                                                                        -->
-<!-- Effective POM for project                                              -->
-<!-- 'com.example:helloworld-agent:jar:1.0-SNAPSHOT'                        -->
+<!-- Effective POM for project 'com.example:me-dot-u-dot:jar:1.0-SNAPSHOT'  -->
 <!--                                                                        -->
 <!-- ====================================================================== -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -19,12 +18,12 @@
     <version>3.5.1</version>
   </parent>
   <groupId>com.example</groupId>
-  <artifactId>helloworld-agent</artifactId>
+  <artifactId>me-dot-u-dot</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>helloworld-agent</name>
   <description>This is the parent pom for Akka services.
         It contains all dependencies and plugins to build an Akka service using the Akka SDK for Java.</description>
-  <url>https://www.akka.io/akka-javasdk-parent/helloworld-agent</url>
+  <url>https://www.akka.io/akka-javasdk-parent/me-dot-u-dot</url>
   <licenses>
     <license>
       <name>BUSL-1.1</name>
@@ -41,7 +40,7 @@
     </developer>
   </developers>
   <scm>
-    <url>https://github.com/akka/akka-sdk/akka-javasdk-parent/helloworld-agent</url>
+    <url>https://github.com/akka/akka-sdk/akka-javasdk-parent/me-dot-u-dot</url>
   </scm>
   <properties>
     <akka-javasdk.version>3.5.1</akka-javasdk.version>
@@ -50,9 +49,9 @@
     <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
     <docker-maven-plugin.version>0.45.1</docker-maven-plugin.version>
     <docker.base.image>alpine:3.14</docker.base.image>
-    <docker.image>helloworld-agent</docker.image>
+    <docker.image>me-dot-u-dot</docker.image>
     <docker.platform>linux/amd64</docker.platform>
-    <docker.tag>1.0-SNAPSHOT-20250826101557</docker.tag>
+    <docker.tag>1.0-SNAPSHOT-20250831141833</docker.tag>
     <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -166,7 +165,7 @@
       </testResource>
     </testResources>
     <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target</directory>
-    <finalName>helloworld-agent-1.0-SNAPSHOT</finalName>
+    <finalName>me-dot-u-dot-1.0-SNAPSHOT</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -220,14 +219,14 @@
                 <skip>false</skip>
                 <images>
                   <image>
-                    <name>helloworld-agent:%l</name>
+                    <name>me-dot-u-dot:%l</name>
                     <build>
                       <from>alpine:3.14</from>
                       <buildOptions>
                         <platform>linux/amd64</platform>
                       </buildOptions>
                       <tags>
-                        <tag>1.0-SNAPSHOT-20250826101557</tag>
+                        <tag>1.0-SNAPSHOT-20250831141833</tag>
                       </tags>
                       <assembly>
                         <inline>
@@ -309,14 +308,14 @@
             <skip>false</skip>
             <images>
               <image>
-                <name>helloworld-agent:%l</name>
+                <name>me-dot-u-dot:%l</name>
                 <build>
                   <from>alpine:3.14</from>
                   <buildOptions>
                     <platform>linux/amd64</platform>
                   </buildOptions>
                   <tags>
-                    <tag>1.0-SNAPSHOT-20250826101557</tag>
+                    <tag>1.0-SNAPSHOT-20250831141833</tag>
                   </tags>
                   <assembly>
                     <inline>
@@ -447,7 +446,7 @@
             </excludes>
             <systemPropertyVariables>
               <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
-              <akka.javasdk.dev-mode.project-artifact-id>helloworld-agent</akka.javasdk.dev-mode.project-artifact-id>
+              <akka.javasdk.dev-mode.project-artifact-id>me-dot-u-dot</akka.javasdk.dev-mode.project-artifact-id>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -467,7 +466,7 @@
                   <include>**/IT*.java</include>
                   <include>**/*ITCase.java</include>
                 </includes>
-                <argLine>-Dlogback.configurationFile=logback-runtime-dev-mode.xml -Dakka.javasdk.dev-mode.project-artifact-id=helloworld-agent</argLine>
+                <argLine>-Dlogback.configurationFile=logback-runtime-dev-mode.xml -Dakka.javasdk.dev-mode.project-artifact-id=me-dot-u-dot</argLine>
               </configuration>
             </execution>
           </executions>
@@ -497,7 +496,7 @@
               </systemProperty>
               <systemProperty>
                 <key>akka.javasdk.dev-mode.project-artifact-id</key>
-                <value>helloworld-agent</value>
+                <value>me-dot-u-dot</value>
               </systemProperty>
             </systemProperties>
           </configuration>
@@ -593,7 +592,7 @@
               </excludes>
               <systemPropertyVariables>
                 <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
-                <akka.javasdk.dev-mode.project-artifact-id>helloworld-agent</akka.javasdk.dev-mode.project-artifact-id>
+                <akka.javasdk.dev-mode.project-artifact-id>me-dot-u-dot</akka.javasdk.dev-mode.project-artifact-id>
               </systemPropertyVariables>
             </configuration>
           </execution>
@@ -604,7 +603,7 @@
           </excludes>
           <systemPropertyVariables>
             <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
-            <akka.javasdk.dev-mode.project-artifact-id>helloworld-agent</akka.javasdk.dev-mode.project-artifact-id>
+            <akka.javasdk.dev-mode.project-artifact-id>me-dot-u-dot</akka.javasdk.dev-mode.project-artifact-id>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -624,7 +623,7 @@
                 <include>**/IT*.java</include>
                 <include>**/*ITCase.java</include>
               </includes>
-              <argLine>-Dlogback.configurationFile=logback-runtime-dev-mode.xml -Dakka.javasdk.dev-mode.project-artifact-id=helloworld-agent</argLine>
+              <argLine>-Dlogback.configurationFile=logback-runtime-dev-mode.xml -Dakka.javasdk.dev-mode.project-artifact-id=me-dot-u-dot</argLine>
             </configuration>
           </execution>
         </executions>
@@ -708,14 +707,14 @@
               <skip>false</skip>
               <images>
                 <image>
-                  <name>helloworld-agent:%l</name>
+                  <name>me-dot-u-dot:%l</name>
                   <build>
                     <from>alpine:3.14</from>
                     <buildOptions>
                       <platform>linux/amd64</platform>
                     </buildOptions>
                     <tags>
-                      <tag>1.0-SNAPSHOT-20250826101557</tag>
+                      <tag>1.0-SNAPSHOT-20250831141833</tag>
                     </tags>
                     <assembly>
                       <inline>
@@ -797,14 +796,14 @@
           <skip>false</skip>
           <images>
             <image>
-              <name>helloworld-agent:%l</name>
+              <name>me-dot-u-dot:%l</name>
               <build>
                 <from>alpine:3.14</from>
                 <buildOptions>
                   <platform>linux/amd64</platform>
                 </buildOptions>
                 <tags>
-                  <tag>1.0-SNAPSHOT-20250826101557</tag>
+                  <tag>1.0-SNAPSHOT-20250831141833</tag>
                 </tags>
                 <assembly>
                   <inline>
