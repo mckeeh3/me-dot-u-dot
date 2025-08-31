@@ -207,13 +207,13 @@ function renderGameInfo(gameState) {
         <div class="game-summary">
             <h3>Game: ${gameState.gameId}</h3>
             <div class="player-info">
-                <div class="player">
+                <div class="player player1-bg">
                     <span class="player-avatar">${p1.player.type === 'agent' ? '🤖' : '👤'}</span>
                     <span class="player1-name">${p1.player.name}</span>
                     <span class="player-score">Score: ${p1.score}</span>
                     <span class="player-moves">Moves: ${p1.moves}</span>
                 </div>
-                <div class="player">
+                <div class="player player2-bg">
                     <span class="player-avatar">${p2.player.type === 'agent' ? '🤖' : '👤'}</span>
                     <span class="player2-name">${p2.player.name}</span>
                     <span class="player-score">Score: ${p2.score}</span>

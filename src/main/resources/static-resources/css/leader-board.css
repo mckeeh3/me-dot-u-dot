@@ -161,11 +161,11 @@
   position: relative;
 }
 
-.player:first-child {
+.player1-bg {
   background: rgba(57, 255, 20, 0.1);
 }
 
-.player:last-child {
+.player2-bg {
   background: rgba(255, 58, 242, 0.1);
 }
 
