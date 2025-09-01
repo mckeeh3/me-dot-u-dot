@@ -2,8 +2,6 @@ package com.example.application;
 
 import java.util.List;
 
-import javax.naming.MalformedLinkException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

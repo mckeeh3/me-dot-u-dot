@@ -74,6 +74,11 @@
   font-size: 1.5em;
 }
 
+.leader-board-section,
+.player-games-section {
+  min-width: 300px;
+}
+
 /* Table Styles */
 .table-container {
   overflow-x: auto;
@@ -84,7 +89,7 @@
   width: 100%;
   border-collapse: collapse;
   background: rgba(15, 21, 38, 0.98);
-  border: 2px solid rgba(0, 229, 255, 0.3);
+  /* border: 2px solid rgba(0, 229, 255, 0.3); */
   border-radius: 12px;
   overflow: hidden;
 }
@@ -127,8 +132,8 @@
 /* Game Details Section */
 .game-info {
   background: var(--bg);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 6px;
+  /* border: 1px solid rgba(0, 229, 255, 0.25); */
+  border-radius: 12px;
   padding: 0;
   margin-bottom: 20px;
   color: var(--text);
