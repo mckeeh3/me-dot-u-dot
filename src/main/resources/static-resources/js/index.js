@@ -403,7 +403,11 @@ async function playMoveSound(oldState, newState) {
 
 async function playSound(sound) {
   const audio = new Audio(`/sounds/${sound}`);
-  audio.play();
+  try {
+    await audio.play();
+  } catch (error) {
+    console.warn('Audio playback failed:', error);
+  }
 }
 
 async function createPlayer(which) {
