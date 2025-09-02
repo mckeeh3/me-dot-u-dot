@@ -51,7 +51,7 @@
     <docker.base.image>alpine:3.14</docker.base.image>
     <docker.image>me-dot-u-dot</docker.image>
     <docker.platform>linux/amd64</docker.platform>
-    <docker.tag>1.0-SNAPSHOT-20250902131148</docker.tag>
+    <docker.tag>1.0-SNAPSHOT-20250902190505</docker.tag>
     <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -226,7 +226,7 @@
                         <platform>linux/amd64</platform>
                       </buildOptions>
                       <tags>
-                        <tag>1.0-SNAPSHOT-20250902131148</tag>
+                        <tag>1.0-SNAPSHOT-20250902190505</tag>
                       </tags>
                       <assembly>
                         <inline>
@@ -315,7 +315,7 @@
                     <platform>linux/amd64</platform>
                   </buildOptions>
                   <tags>
-                    <tag>1.0-SNAPSHOT-20250902131148</tag>
+                    <tag>1.0-SNAPSHOT-20250902190505</tag>
                   </tags>
                   <assembly>
                     <inline>
@@ -714,7 +714,7 @@
                       <platform>linux/amd64</platform>
                     </buildOptions>
                     <tags>
-                      <tag>1.0-SNAPSHOT-20250902131148</tag>
+                      <tag>1.0-SNAPSHOT-20250902190505</tag>
                     </tags>
                     <assembly>
                       <inline>
@@ -803,7 +803,7 @@
                   <platform>linux/amd64</platform>
                 </buildOptions>
                 <tags>
-                  <tag>1.0-SNAPSHOT-20250902131148</tag>
+                  <tag>1.0-SNAPSHOT-20250902190505</tag>
                 </tags>
                 <assembly>
                   <inline>

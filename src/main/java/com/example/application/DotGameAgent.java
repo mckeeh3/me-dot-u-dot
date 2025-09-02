@@ -111,30 +111,9 @@ public class DotGameAgent extends Agent {
           .userMessage(prompt.toPrompt())
           .onFailure(e -> {
             return handleError(prompt, e);
-            // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
           })
           .thenReply();
     }
-
-    // if (prompt.agentModel.contains("gemini")) {
-    // var modelName = prompt.agentModel.contains("flash-lite") ? "gemini-2.5-flash-lite"
-    // : prompt.agentModel.contains("flash") ? "gemini-2.5-flash"
-    // : prompt.agentModel.contains("pro") ? "gemini-2.5-pro"
-    // : "gemini-2.5-flash";
-
-    // return effects()
-    // .model(ModelProvider.googleAiGemini()
-    // .withApiKey(System.getenv("GOOGLE_AI_GEMINI_API_KEY"))
-    // .withModelName(modelName))
-    // .tools(functionTools)
-    // .systemMessage(systemPrompt)
-    // .userMessage(prompt.toPrompt())
-    // .onFailure(e -> {
-    // return handleError(prompt, e);
-    // // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
-    // })
-    // .thenReply();
-    // }
 
     return effects()
         // .memory(MemoryProvider.limitedWindow().readLast(2))
@@ -144,7 +123,6 @@ public class DotGameAgent extends Agent {
         .userMessage(prompt.toPrompt())
         .onFailure(e -> {
           return handleError(prompt, e);
-          // return "Forfeited move due to agent error: %s".formatted(e.getMessage());
         })
         .thenReply();
   }
@@ -161,7 +139,7 @@ public class DotGameAgent extends Agent {
   }
 
   String tryAgain(MakeMovePrompt prompt, Throwable exception) {
-    return "Forfeited move due to agent error: %s".formatted(exception.getMessage());
+    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agentName, exception.getMessage());
   }
 
   String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
