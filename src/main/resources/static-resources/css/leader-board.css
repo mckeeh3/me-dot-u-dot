@@ -262,6 +262,7 @@
   border: 1px solid rgba(0, 229, 255, 0.25);
   border-radius: 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: var(--dot-size, 28px);
@@ -270,6 +271,8 @@
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.08);
   transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
   cursor: default;
+  position: relative;
+  padding: 2px;
 }
 
 .cell.player {
@@ -286,6 +289,55 @@
   outline: 2px solid var(--neon-cyan);
   box-shadow: 0 0 24px rgba(0, 229, 255, 0.35);
   animation: neonPulse 1.2s ease-out 1;
+}
+
+/* Cell layer styles for player moves */
+.cell-layer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 30%;
+  font-size: 0.6em;
+  line-height: 1;
+}
+
+.cell-layer-top {
+  justify-content: space-between;
+}
+
+.cell-layer-middle {
+  justify-content: center;
+  font-size: 0.8em;
+}
+
+.cell-layer-bottom {
+  justify-content: flex-end;
+}
+
+.cell-id {
+  font-weight: bold;
+  color: var(--text-secondary);
+  font-size: 0.7em;
+  padding-left: 0.5em;
+}
+
+.game-move-count {
+  font-weight: bold;
+  color: var(--neon-cyan);
+  font-size: 0.7em;
+  padding-right: 0.5em;
+}
+
+.player-dot {
+  font-size: 1.2em;
+}
+
+.player-move-count {
+  font-weight: bold;
+  color: var(--text-secondary);
+  font-size: 0.7em;
+  padding-right: 0.5em;
 }
 
 @keyframes neonPulse {

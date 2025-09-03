@@ -316,7 +316,23 @@ function renderGameBoard(gameState) {
         const isPlayer1 = playerId === gameState.player1Status.player.id;
         const cls = isPlayer1 ? 'player' : 'ai';
         cell.classList.add(cls);
-        cell.textContent = '●';
+
+        // Find the move data for this cell
+        const moveData = moveCounts.find((move) => move.dotId === id);
+
+        // Create 3-layer structure
+        cell.innerHTML = `
+          <div class="cell-layer cell-layer-top">
+            <span class="cell-id">${id}</span>
+            <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
+          </div>
+          <div class="cell-layer cell-layer-middle">
+            <span class="player-dot">●</span>
+          </div>
+          <div class="cell-layer cell-layer-bottom">
+            <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
+          </div>
+        `;
       }
 
       if (lastMoveId && id === lastMoveId) {
