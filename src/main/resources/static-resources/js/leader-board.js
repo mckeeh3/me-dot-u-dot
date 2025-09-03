@@ -203,19 +203,28 @@ function renderGameInfo(gameState) {
   const p2 = gameState.player2Status;
   const gameDuration = calculateGameDuration(gameState.createdAt, gameState.finishedAt);
 
+  // Determine the winner
+  let p1IsWinner = false;
+  let p2IsWinner = false;
+
+  if (gameState.status === 'won_by_player') {
+    p1IsWinner = p1.score > p2.score;
+    p2IsWinner = p2.score > p1.score;
+  }
+
   gameInfo.innerHTML = `
         <div class="game-summary">
             <h3>Game: ${gameState.gameId}</h3>
             <div class="player-info">
                 <div class="player player1-bg">
                     <span class="player-avatar">${p1.player.type === 'agent' ? '🤖' : '👤'}</span>
-                    <span class="player1-name">${p1.player.name}</span>
+                    <span class="player1-name">${p1IsWinner ? '🏆 ' : ''}${p1.player.name}</span>
                     <span class="player-score">Score: ${p1.score}</span>
                     <span class="player-moves">Moves: ${p1.moves}</span>
                 </div>
                 <div class="player player2-bg">
                     <span class="player-avatar">${p2.player.type === 'agent' ? '🤖' : '👤'}</span>
-                    <span class="player2-name">${p2.player.name}</span>
+                    <span class="player2-name">${p2IsWinner ? '🏆 ' : ''}${p2.player.name}</span>
                     <span class="player-score">Score: ${p2.score}</span>
                     <span class="player-moves">Moves: ${p2.moves}</span>
                 </div>
