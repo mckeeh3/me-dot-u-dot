@@ -275,12 +275,12 @@
   padding: 2px;
 }
 
-.cell.player {
+.cell.player1 {
   color: var(--neon-green);
   text-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
 }
 
-.cell.ai {
+.cell.player2 {
   color: var(--neon-magenta);
   text-shadow: 0 0 12px rgba(255, 58, 242, 0.5);
 }

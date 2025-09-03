@@ -140,7 +140,7 @@ async function initializeUIforInProgressGame(gameId) {
 
       // Render the game board and info
       renderGameInfo();
-      renderBoard();
+      renderGameBoard();
       openMoveStream(state.game.gameId);
 
       // Start the game duration timer
@@ -292,9 +292,45 @@ function updatePlayerStats(playerNum, playerStatus) {
   }
 }
 
-function renderBoard() {
+function calculateMoveCounts(gameState) {
+  if (!gameState)
+    return {
+      dotId: '',
+      playerId: '',
+      p1Moves: 0,
+      p2Moves: 0,
+      gameMoves: 0,
+    };
+
+  let p1MoveCount = 0;
+  let p2MoveCount = 0;
+  let gameMoveCount = 0;
+
+  const enhancedMoves = gameState.moveHistory.map((move) => {
+    gameMoveCount++;
+
+    if (move.playerId === gameState.player1Status.player.id) {
+      p1MoveCount++;
+    } else if (move.playerId === gameState.player2Status.player.id) {
+      p2MoveCount++;
+    }
+
+    return {
+      dotId: move.dotId,
+      playerId: move.playerId,
+      p1Moves: p1MoveCount,
+      p2Moves: p2MoveCount,
+      gameMoves: gameMoveCount,
+    };
+  });
+
+  return enhancedMoves;
+}
+
+function renderGameBoard() {
   const board = $('gameBoard');
   board.innerHTML = '';
+
   const size = currentSize();
   board.style.setProperty('--size', size);
   const dotSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
@@ -304,29 +340,52 @@ function renderBoard() {
   const dots = state.game ? state.game.board.dots : [];
   const byId = new Map(dots.map((d) => [d.id, d]));
   const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].dotId : null;
+  const moveCounts = calculateMoveCounts(state.game);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
-      const d = byId.get(id);
+      const dot = byId.get(id);
+
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.dataset.dotId = id;
 
-      if (d && d.player && d.player.id) {
-        const pid = d.player.id;
-        const cls = pid === state.p1?.id ? 'player' : pid === state.p2?.id ? 'ai' : '';
-        if (cls) cell.classList.add(cls);
-        cell.textContent = '●';
+      if (dot && dot.player && dot.player.id) {
+        const playerId = dot.player.id;
+        const isPlayer1 = playerId === state.game.player1Status.player.id;
+        const cls = isPlayer1 ? 'player1' : 'player2';
+        cell.classList.add(cls);
+        // const cls = playerId === state.p1?.id ? 'player1' : playerId === state.p2?.id ? 'player2' : '';
+        // if (cls) cell.classList.add(cls);
+        // cell.textContent = '●';
+
+        // Find the move data for this cell
+        const moveData = moveCounts.find((move) => move.dotId === id);
+
+        // Create 3-layer structure
+        cell.innerHTML = `
+          <div class="cell-layer cell-layer-top">
+            <span class="cell-id">${id}</span>
+            <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
+          </div>
+          <div class="cell-layer cell-layer-middle">
+            <span class="player-dot">●</span>
+          </div>
+          <div class="cell-layer cell-layer-bottom">
+            <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
+          </div>
+        `;
       }
+
       if (lastMoveId && id === lastMoveId) {
         cell.classList.add('last-move');
       }
 
       const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
       const isInProgress = state.game && state.game.status === 'in_progress';
-      const isOccupied = !!(d && d.player && d.player.id);
+      const isOccupied = !!(dot && dot.player && dot.player.id);
       if (!isAgentsTurn && isInProgress && !isOccupied) {
         cell.addEventListener('click', () => onCellClick(id));
       } else {
@@ -515,7 +574,7 @@ async function onCellClick(dotId) {
   await playMoveSound(state.game, gameState);
   state.game = gameState;
   renderGameInfo();
-  renderBoard();
+  renderGameBoard();
 }
 
 let evtSrc;
@@ -544,13 +603,13 @@ async function refreshGameState() {
   await playMoveSound(state.game, gameState);
   state.game = gameState;
   renderGameInfo();
-  renderBoard();
+  renderGameBoard();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // Prefill ids
   setStatus("🎮 Let's play a game!");
-  renderBoard();
+  renderGameBoard();
 });
 
 async function populatePlayerMenu(which) {
@@ -1032,7 +1091,7 @@ async function beginGame() {
   $('controlMessage').style.display = 'block';
 
   renderGameInfo();
-  renderBoard();
+  renderGameBoard();
   openMoveStream(state.game.gameId);
 }
 

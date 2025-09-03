@@ -42,7 +42,7 @@ async function loadLeaderBoard() {
 
 // Render leader board table
 function renderLeaderBoard() {
-  const tbody = document.getElementById('leaderBoardBody');
+  const tbody = $('leaderBoardBody');
   tbody.innerHTML = '';
 
   leaderBoardData.forEach((player, index) => {
@@ -85,7 +85,7 @@ function updateSelectedPlayerUI() {
   }
 
   // Update section 2 title
-  document.getElementById('selectedPlayerId').textContent = selectedPlayerId;
+  $('selectedPlayerId').textContent = selectedPlayerId;
 }
 
 // Load games for a specific player
@@ -119,7 +119,7 @@ async function loadPlayerGames(playerId) {
 
 // Render player games table
 function renderPlayerGames() {
-  const tbody = document.getElementById('playerGamesBody');
+  const tbody = $('playerGamesBody');
   tbody.innerHTML = '';
 
   playerGamesData.forEach((game, index) => {
@@ -197,7 +197,7 @@ async function loadGameDetails(gameId) {
 
 // Render game information
 function renderGameInfo(gameState) {
-  const gameInfo = document.getElementById('gameInfo');
+  const gameInfo = $('gameInfo');
 
   const p1 = gameState.player1Status;
   const p2 = gameState.player2Status;
@@ -296,7 +296,7 @@ function calculateMoveCounts(gameState) {
 
 // Render game board
 function renderGameBoard(gameState) {
-  const board = document.getElementById('gameBoard');
+  const board = $('gameBoard');
   board.innerHTML = '';
 
   const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
@@ -323,7 +323,7 @@ function renderGameBoard(gameState) {
       if (dot && dot.player && dot.player.id) {
         const playerId = dot.player.id;
         const isPlayer1 = playerId === gameState.player1Status.player.id;
-        const cls = isPlayer1 ? 'player' : 'ai';
+        const cls = isPlayer1 ? 'player1' : 'player2';
         cell.classList.add(cls);
 
         // Find the move data for this cell
