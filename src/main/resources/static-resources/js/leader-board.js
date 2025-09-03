@@ -259,6 +259,32 @@ function calculateGameDuration(createdAt, finishedAt) {
   return `${minutes}m ${seconds}s`;
 }
 
+function calculateMoveCounts(gameState) {
+  let p1MoveCount = 0;
+  let p2MoveCount = 0;
+  let gameMoveCount = 0;
+
+  const enhancedMoves = gameState.moveHistory.map((move) => {
+    gameMoveCount++;
+
+    if (move.playerId === gameState.player1Status.player.id) {
+      p1MoveCount++;
+    } else if (move.playerId === gameState.player2Status.player.id) {
+      p2MoveCount++;
+    }
+
+    return {
+      dotId: move.dotId,
+      playerId: move.playerId,
+      p1Moves: p1MoveCount,
+      p2Moves: p2MoveCount,
+      gameMoves: gameMoveCount,
+    };
+  });
+
+  return enhancedMoves;
+}
+
 // Render game board
 function renderGameBoard(gameState) {
   const board = document.getElementById('gameBoard');
@@ -273,6 +299,7 @@ function renderGameBoard(gameState) {
   const dots = gameState.board.dots || [];
   const byId = new Map(dots.map((d) => [d.id, d]));
   const lastMoveId = gameState.moveHistory?.length ? gameState.moveHistory[gameState.moveHistory.length - 1].dotId : null;
+  const moveCounts = calculateMoveCounts(gameState);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
