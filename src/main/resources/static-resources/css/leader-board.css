@@ -312,7 +312,7 @@
 }
 
 .cell-layer-bottom {
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .cell-id {
@@ -331,6 +331,13 @@
 
 .player-dot {
   font-size: 1.2em;
+}
+
+.player-think-time {
+  font-weight: bold;
+  color: var(--text-secondary);
+  font-size: 0.7em;
+  padding-left: 0.5em;
 }
 
 .player-move-count {

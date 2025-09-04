@@ -46,8 +46,32 @@ public class MakeMoveTool {
         .method(DotGameEntity::makeMove)
         .invoke(command);
 
+    var gameOver = stateAfterMove.status() != DotGame.Status.in_progress;
     var moveCompleted = stateBeforeMove.moveHistory().size() < stateAfterMove.moveHistory().size();
+    var areYouCurrentPlayer = stateAfterMove.currentPlayer().isPresent() && stateAfterMove.currentPlayer().get().player().id().equals(agentId);
 
-    return moveCompleted ? "Move completed" : "Move rejected";
+    if (moveCompleted && gameOver) {
+      var result = "Move completed, game over, you %s".formatted(stateAfterMove.status() == DotGame.Status.won_by_player ? "won" : "lost");
+      log.debug(result);
+
+      return result;
+    }
+
+    if (moveCompleted) {
+      var result = "Move completed, it's your opponent's turn";
+      log.debug(result);
+
+      return result;
+    }
+
+    var moveResult = "Move %s, you %s the current player, %s"
+        .formatted(
+            (moveCompleted ? "completed" : "rejected"),
+            (areYouCurrentPlayer ? "are" : "are not"),
+            (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
+
+    log.debug(moveResult);
+
+    return moveResult;
   }
 }
