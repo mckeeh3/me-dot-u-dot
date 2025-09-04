@@ -1,5 +1,6 @@
 package com.example.domain;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -98,7 +99,12 @@ public interface DotGame {
         }
       }
 
-      var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(new Move(command.dotId, command.playerId)))
+      var createdAtPlusTotalThinkMs = moveHistory.stream()
+          .map(m -> Duration.ofMillis(m.thinkMs()))
+          .reduce(createdAt, Instant::plus, (a, b) -> b);
+      var thinkMs = Duration.between(createdAtPlusTotalThinkMs, Instant.now()).toMillis();
+      var newMove = new Move(command.dotId, command.playerId, thinkMs);
+      var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(newMove))
           .toList();
 
       var newCurrentPlayer = newStatus == Status.in_progress ? Optional.of(getNextPlayer()) : Optional.<PlayerStatus>empty();
@@ -689,5 +695,9 @@ public interface DotGame {
     }
   }
 
-  public record Move(String dotId, String playerId) {}
+  public record Move(String dotId, String playerId, long thinkMs) {
+    public Move(String dotId, String playerId) {
+      this(dotId, playerId, 15_000); // TODO this is temporary for local testing due to new field thinkMs
+    }
+  }
 }

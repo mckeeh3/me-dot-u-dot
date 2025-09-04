@@ -382,7 +382,8 @@ public class DotGameEntityTest {
       assertEquals(gameId, event.gameId());
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(9, event.moveHistory().size());
-      assertEquals(new DotGame.Move("A5", "player1"), event.moveHistory().get(event.moveHistory().size() - 1));
+      assertEquals("A5", event.moveHistory().get(event.moveHistory().size() - 1).dotId());
+      assertEquals("player1", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
     {
@@ -439,7 +440,8 @@ public class DotGameEntityTest {
       assertEquals(gameId, event.gameId());
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(10, event.moveHistory().size());
-      assertEquals(new DotGame.Move("B5", "player2"), event.moveHistory().get(event.moveHistory().size() - 1));
+      assertEquals("B5", event.moveHistory().get(event.moveHistory().size() - 1).dotId());
+      assertEquals("player2", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
     {
