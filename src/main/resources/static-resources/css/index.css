@@ -628,7 +628,7 @@ body {
 }
 
 .cell-layer-bottom {
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 .cell-id {
@@ -647,6 +647,13 @@ body {
 
 .player-dot {
   font-size: 1.2em;
+}
+
+.player-think-time {
+  font-weight: bold;
+  color: white;
+  font-size: 0.7em;
+  padding-left: 0.5em;
 }
 
 .player-move-count {

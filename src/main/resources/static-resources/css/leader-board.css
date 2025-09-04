@@ -335,7 +335,7 @@
 
 .player-think-time {
   font-weight: bold;
-  color: var(--text-secondary);
+  color: white;
   font-size: 0.7em;
   padding-left: 0.5em;
 }

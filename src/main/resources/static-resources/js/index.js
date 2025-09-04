@@ -292,6 +292,13 @@ function updatePlayerStats(playerNum, playerStatus) {
   }
 }
 
+function calculateMoveThinkTime(thinkMs) {
+  if (!thinkMs) return '';
+  const minutes = Math.floor(thinkMs / 60000);
+  const seconds = Math.floor((thinkMs % 60000) / 1000);
+  return minutes > 0 ? `${minutes}m${seconds}s` : `${seconds}s`;
+}
+
 function calculateMoveCounts(gameState) {
   if (!gameState)
     return {
@@ -300,6 +307,8 @@ function calculateMoveCounts(gameState) {
       p1Moves: 0,
       p2Moves: 0,
       gameMoves: 0,
+      p1ThinkMs: '',
+      p2ThinkMs: '',
     };
 
   let p1MoveCount = 0;
@@ -321,6 +330,8 @@ function calculateMoveCounts(gameState) {
       p1Moves: p1MoveCount,
       p2Moves: p2MoveCount,
       gameMoves: gameMoveCount,
+      p1ThinkMs: calculateMoveThinkTime(move.thinkMs),
+      p2ThinkMs: calculateMoveThinkTime(move.thinkMs),
     };
   });
 
@@ -374,6 +385,7 @@ function renderGameBoard() {
             <span class="player-dot">●</span>
           </div>
           <div class="cell-layer cell-layer-bottom">
+            <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>
             <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
           </div>
         `;
