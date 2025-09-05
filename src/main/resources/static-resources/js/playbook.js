@@ -68,7 +68,7 @@ async function loadLatestJournalEntry() {
   if (!journalState.currentAgentId) return;
 
   try {
-    const data = await fetchJournalEntry('down', journalState.currentSequenceId);
+    const data = await fetchJournalEntry('down');
 
     if (data && data.journals && data.journals.length > 0) {
       journalState.isViewing = true;
@@ -93,7 +93,7 @@ async function navigateJournal(direction) {
   if (!journalState.currentAgentId) return;
 
   try {
-    const data = await fetchJournalEntry(direction, journalState.currentSequenceId);
+    const data = await fetchJournalEntry(direction);
 
     if (data && data.journals && data.journals.length > 0) {
       displayJournalEntry();
@@ -103,23 +103,41 @@ async function navigateJournal(direction) {
   }
 }
 
-async function fetchJournalEntry(direction, sequenceId) {
+async function fetchJournalEntry(direction) {
   const endpoint = direction === 'up' ? '/playbook/get-journal-by-agent-id-up' : '/playbook/get-journal-by-agent-id-down';
 
-  const data = await fetchJson(endpoint, {
+  const dataCurrent = await fetchJson(endpoint, {
     method: 'POST',
     body: JSON.stringify({
       agentId: journalState.currentAgentId,
-      sequenceId: sequenceId,
+      sequenceId: journalState.currentSequenceId,
     }),
   });
 
-  if (data && data.journals && data.journals.length > 0) {
-    journalState.currentSequenceId = data.journals[0].sequenceId;
-    journalState.currentEntry = data.journals[0];
+  if (dataCurrent && dataCurrent.journals && dataCurrent.journals.length > 0) {
+    journalState.currentSequenceId = dataCurrent.journals[0].sequenceId;
+    journalState.currentEntry = dataCurrent.journals[0];
   }
 
-  return data;
+  const checkbox = $('showDiffCheckbox');
+  journalState.showDiff = checkbox ? checkbox.checked : false;
+
+  if (journalState.showDiff) {
+    const dataPrevious = await fetchJson('/playbook/get-journal-by-agent-id-and-sequence', {
+      method: 'POST',
+      body: JSON.stringify({
+        agentId: journalState.currentAgentId,
+        sequenceId: journalState.currentSequenceId - 1,
+      }),
+    });
+    if (dataPrevious && dataPrevious.journals && dataPrevious.journals.length > 0) {
+      journalState.previousEntry = dataPrevious.journals[0];
+    } else {
+      journalState.previousEntry = '';
+    }
+  }
+
+  return dataCurrent;
 }
 
 function displayJournalEntry() {
