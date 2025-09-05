@@ -37,6 +37,17 @@ public class PlaybookJournalView extends View {
     return queryResult();
   }
 
+  @Query("""
+      SELECT * AS journals
+        FROM playbook_journal_view
+       WHERE agentId = :agentId
+       AND sequenceId = :sequenceId
+       LIMIT 1
+      """)
+  public QueryEffect<Journals> getByAgentIdAndSequence(GetByAgentIdAndSequenceRequest request) {
+    return queryResult();
+  }
+
   @Consume.FromEventSourcedEntity(PlaybookJournalEntity.class)
   public static class ByAgent extends TableUpdater<JournalRow> {
 
@@ -64,6 +75,8 @@ public class PlaybookJournalView extends View {
       Instant updatedAt) {}
 
   public record GetByAgentIdRequest(String agentId) {}
+
+  public record GetByAgentIdAndSequenceRequest(String agentId, long sequenceId) {}
 
   public record GetByAgentIdDownRequest(String agentId, long sequenceId) {}
 

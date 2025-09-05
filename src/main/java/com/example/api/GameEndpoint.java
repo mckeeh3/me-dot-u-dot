@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
-import com.example.application.PlaybookJournalView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
@@ -133,30 +132,6 @@ public class GameEndpoint {
         .invoke(request);
   }
 
-  @Post("/get-journal-by-agent-id-down")
-  public PlaybookJournalView.Journals getJournalByAgentIdDown(JournalRequest request) {
-    log.info("Get journal down by agent id: {}", request);
-
-    var queryRequest = new PlaybookJournalView.GetByAgentIdDownRequest(request.agentId(), request.sequenceId());
-
-    return componentClient
-        .forView()
-        .method(PlaybookJournalView::getByAgentIdDown)
-        .invoke(queryRequest);
-  }
-
-  @Post("/get-journal-by-agent-id-up")
-  public PlaybookJournalView.Journals getJournalByAgentIdUp(JournalRequest request) {
-    log.info("Get journal up by agent id: {}", request);
-
-    var queryRequest = new PlaybookJournalView.GetByAgentIdUpRequest(request.agentId(), request.sequenceId());
-
-    return componentClient
-        .forView()
-        .method(PlaybookJournalView::getByAgentIdUp)
-        .invoke(queryRequest);
-  }
-
   @Get("/get-all-ai-agent-models")
   public List<String> getAllAiAgentModels() {
     return config.root()
@@ -175,6 +150,4 @@ public class GameEndpoint {
   public record CancelGame(String gameId) {}
 
   public record GameResponse(DotGame.State gameState) {}
-
-  public record JournalRequest(String agentId, long sequenceId) {}
 }

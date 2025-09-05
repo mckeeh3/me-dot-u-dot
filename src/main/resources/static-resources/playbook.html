@@ -70,10 +70,12 @@
       <div class="journal-navigation">
         <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
         <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
+        <label class="diff-checkbox-label"> <input type="checkbox" id="showDiffCheckbox" onchange="toggleDiff()" /> Show diff </label>
       </div>
     </div>
 
     <script src="/js/common.js"></script>
     <script src="/js/playbook.js"></script>
+    <script src="/js/diff.js"></script>
   </body>
 </html>

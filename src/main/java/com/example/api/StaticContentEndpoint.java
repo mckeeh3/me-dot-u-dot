@@ -94,6 +94,11 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("css/journal-viewer.css");
   }
 
+  @Get("/js/diff.js")
+  public HttpResponse serveDiffJs() {
+    return HttpResponses.staticResource("js/diff.js");
+  }
+
   @Get("/favicon.ico")
   public HttpResponse serveFavicon() {
     return HttpResponses.staticResource("favicon.ico");
