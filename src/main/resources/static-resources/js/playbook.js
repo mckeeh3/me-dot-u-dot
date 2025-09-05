@@ -122,19 +122,17 @@ async function fetchJournalEntry(direction) {
   const checkbox = $('showDiffCheckbox');
   journalState.showDiff = checkbox ? checkbox.checked : false;
 
-  if (journalState.showDiff) {
-    const dataPrevious = await fetchJson('/playbook/get-journal-by-agent-id-and-sequence', {
-      method: 'POST',
-      body: JSON.stringify({
-        agentId: journalState.currentAgentId,
-        sequenceId: journalState.currentSequenceId - 1,
-      }),
-    });
-    if (dataPrevious && dataPrevious.journals && dataPrevious.journals.length > 0) {
-      journalState.previousEntry = dataPrevious.journals[0];
-    } else {
-      journalState.previousEntry = '';
-    }
+  const dataPrevious = await fetchJson('/playbook/get-journal-by-agent-id-and-sequence', {
+    method: 'POST',
+    body: JSON.stringify({
+      agentId: journalState.currentAgentId,
+      sequenceId: journalState.currentSequenceId - 1,
+    }),
+  });
+  if (dataPrevious && dataPrevious.journals && dataPrevious.journals.length > 0) {
+    journalState.previousEntry = dataPrevious.journals[0];
+  } else {
+    journalState.previousEntry = null;
   }
 
   return dataCurrent;
@@ -161,11 +159,35 @@ function displayJournalEntry() {
   if (agentIdEl) agentIdEl.textContent = entry.agentId;
   if (seqIdEl) seqIdEl.textContent = entry.sequenceId;
   if (updatedAtEl) updatedAtEl.textContent = updatedAt;
-  if (instructionsEl) instructionsEl.textContent = entry.instructions || 'No instructions available.';
+
+  diffJournalEntry(instructionsEl);
 }
 
-function formatJournalEntry() {
-  return journalState.showDiff ? formatDiff(journalState.currentEntry.instructions, journalState.previousEntry.instructions) : journalState.currentEntry.instructions;
+function diffJournalEntry(instructionsEl) {
+  const diffFragment = document.createDocumentFragment();
+  if (journalState.showDiff) {
+    const oldInstructions = journalState?.previousEntry?.instructions || '';
+    const newInstructions = journalState?.currentEntry?.instructions || '';
+    const diff = Diff.diffWords(oldInstructions, newInstructions);
+
+    diff.forEach((part) => {
+      const diffSpan = document.createElement('span');
+      const color = part.added ? 'green' : part.removed ? 'red' : 'lightgrey';
+      diffSpan.style.color = color;
+      diffSpan.appendChild(document.createTextNode(part.value));
+      diffFragment.appendChild(diffSpan);
+    });
+  } else {
+    const instructionsSpan = document.createElement('span');
+    instructionsSpan.textContent = journalState?.currentEntry?.instructions || 'No instructions available.';
+    diffFragment.appendChild(instructionsSpan);
+  }
+
+  while (instructionsEl.firstChild) {
+    instructionsEl.removeChild(instructionsEl.firstChild);
+  }
+
+  instructionsEl.appendChild(diffFragment);
 }
 
 function enableNavigationButtons() {
