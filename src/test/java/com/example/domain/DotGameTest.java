@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+import java.util.Optional;
+
 public class DotGameTest {
 
   DotGame.Board level1Board;
@@ -201,15 +204,6 @@ public class DotGameTest {
 
   @Test
   void testScoreDotAt_Level1_AllEightDirections() {
-    // Create lines in all 8 directions from C3
-    // Horizontal: A3, B3, C3 (right)
-    // Horizontal: C3, D3, E3 (left)
-    // Vertical: C1, C2, C3 (down)
-    // Vertical: C3, C4, C5 (up)
-    // Diagonal: A1, B2, C3 (down-right)
-    // Diagonal: C3, D4, E5 (up-left)
-    // Diagonal: E1, D2, C3 (down-left)
-    // Diagonal: C3, B4, A5 (up-right)
     var board = level1Board
         .withDot("A3", player1)
         .withDot("B3", player1)
@@ -246,14 +240,6 @@ public class DotGameTest {
 
   @Test
   void testScoreDotAt_Level3_AllEightDirections() {
-    /**
-     * "moveHistory": [ { "dotId": "C3", "playerId": "player-1" }, { "dotId": "B3", "playerId": "agent-1" }, { "dotId":
-     * "C5", "playerId": "player-1" }, { "dotId": "C4", "playerId": "agent-1" }, { "dotId": "A5", "playerId": "player-1" },
-     * { "dotId": "C2", "playerId": "agent-1" }, { "dotId": "B5", "playerId": "player-1" }, { "dotId": "D3", "playerId":
-     * "agent-1" }, { "dotId": "B4", "playerId": "player-1" }, { "dotId": "D4", "playerId": "agent-1" }, { "dotId": "A1",
-     * "playerId": "player-1" }, { "dotId": "B2", "playerId": "agent-1" }, { "dotId": "A3", "playerId": "player-1" } ],
-     */
-
     // _____ 1 __ 2 __ 3 __ 4 __ 5
     // A | p1 | __ | p1 | __ | p1 |
     // B | __ | a1 | a1 | p1 | p1 |
@@ -278,5 +264,27 @@ public class DotGameTest {
         .withDot("A3", player1); // player-1
 
     assertEquals(1, board.scoreDotAt("A3")); // winning move
+  }
+
+  @Test
+  void testScoreMove_Level1_CenterDot_OneHorizontalLine() {
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
+    var moveHistory = List.of(
+        new DotGame.Move("A3", player1.id()),
+        new DotGame.Move("B3", player1.id()),
+        new DotGame.Move("C2", player1.id()),
+        new DotGame.Move("C1", player1.id()),
+        new DotGame.Move("C5", player1.id()),
+        new DotGame.Move("C4", player2.id()));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves.create(player1).scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("C1", Optional.of(player1)),
+        new DotGame.Dot("C2", Optional.of(player1)),
+        new DotGame.Dot("C3", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 }

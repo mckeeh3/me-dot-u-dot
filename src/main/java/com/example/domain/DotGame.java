@@ -2,6 +2,8 @@ package com.example.domain;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -464,6 +466,126 @@ public interface DotGame {
     Dot withPlayer(Player player) {
       return new Dot(id, Optional.of(player));
     }
+
+    int row() {
+      return id.charAt(0) - 'A' + 1;
+    }
+
+    int col() {
+      return Integer.parseInt(id.substring(1));
+    }
+  }
+
+  // ============================================================
+  // ScoringMove
+  // ============================================================
+  public enum ScoringMoveType {
+    horizontal,
+    vertical,
+    diagonal,
+    adjacent
+  }
+
+  public record ScoringMove(Dot move, ScoringMoveType type, int score, List<Dot> scoringDots) {}
+
+  public record ScoringMoves(Player player, List<ScoringMove> scoringMoves) {
+    static ScoringMoves create(Player player) {
+      return new ScoringMoves(player, List.of());
+    }
+
+    ScoringMoves withScoringMoves(List<ScoringMove> scoringMoves) {
+      return new ScoringMoves(player, Stream.concat(this.scoringMoves.stream(), scoringMoves.stream()).toList());
+    }
+
+    ScoringMoves scoreMove(Dot move, Board.Level level, List<Move> moveHistory) {
+      if (!player.equals((move.player().orElse(Player.empty())))) {
+        return this;
+      }
+
+      return withScoringMoves(scoreMoveHorizontal(move, level, moveHistory))
+          .withScoringMoves(scoreMoveVertical(move, moveHistory))
+          .withScoringMoves(scoreMoveDiagonal(move, moveHistory))
+          .withScoringMoves(scoreMoveAdjacent(move, moveHistory));
+    }
+
+    List<ScoringMove> scoreMoveHorizontal(Dot move, Board.Level level, List<Move> moveHistory) {
+      var row = move.row();
+      var groups = new ArrayList<List<Move>>();
+      var group = new ArrayList<Move>();
+
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), player.id())))
+          .toList()
+          .stream()
+          .filter(m -> m.playerId().equals(player.id()))
+          .filter(m -> m.row() == row)
+          .sorted(Comparator.comparingInt(m -> m.col()))
+          .toList()
+          .forEach(m -> {
+            if (group.isEmpty() || m.col() == group.get(group.size() - 1).col() + 1) {
+              group.add(m);
+            } else {
+              groups.add(group.stream().toList());
+              group.clear();
+              group.add(m);
+            }
+          });
+      groups.add(group);
+
+      var scoringMoves = groups.stream()
+          .map(g -> {
+            var score = scoreLine(move, level, g);
+            var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
+            return new ScoringMove(move, ScoringMoveType.horizontal, score, scoringDots);
+          })
+          .filter(scoringMove -> scoringMove.score > 0)
+          .toList();
+
+      return scoringMoves;
+    }
+
+    List<ScoringMove> scoreMoveVertical(Dot move, List<Move> moveHistory) {
+      return scoringMoves.stream()
+          .filter(scoringMove -> scoringMove.type == ScoringMoveType.vertical)
+          .toList();
+    }
+
+    List<ScoringMove> scoreMoveDiagonal(Dot move, List<Move> moveHistory) {
+      return scoringMoves.stream()
+          .filter(scoringMove -> scoringMove.type == ScoringMoveType.diagonal)
+          .toList();
+    }
+
+    List<ScoringMove> scoreMoveAdjacent(Dot move, List<Move> moveHistory) {
+      return scoringMoves.stream()
+          .filter(scoringMove -> scoringMove.type == ScoringMoveType.adjacent)
+          .toList();
+    }
+
+    int scoreLine(Dot move, Board.Level level, List<Move> moves) {
+      // check if line is too short
+      if (moves.size() < level.concurrentDotsToScore()) {
+        return 0;
+      }
+
+      // check if move is contained in the line
+      if (moves.stream().filter(m -> m.dotId().equals(move.id())).count() != 1) {
+        return 0;
+      }
+
+      // check if move is at start or end of the line
+      boolean isMoveAtStartOrEnd = moves.get(0).dotId().equals(move.id()) || moves.get(moves.size() - 1).dotId().equals(move.id());
+      if (isMoveAtStartOrEnd) {
+        return 1;
+      }
+
+      // check if line is longer than the concurrent dots to score
+      if (moves.size() > level.concurrentDotsToScore()) {
+        return moves.size() - level.concurrentDotsToScore() + 1;
+      }
+
+      // line is exactly the concurrent dots to score
+      return 1;
+    }
   }
 
   // ============================================================
@@ -497,6 +619,14 @@ public interface DotGame {
           case eight -> 19;
           case nine -> 21;
         };
+      }
+
+      public int lineDotsToScore() {
+        return getSize() / 2 + 1;
+      }
+
+      public int concurrentDotsToScore() {
+        return Math.min(8, lineDotsToScore());
       }
     }
 
@@ -697,7 +827,15 @@ public interface DotGame {
 
   public record Move(String dotId, String playerId, long thinkMs) {
     public Move(String dotId, String playerId) {
-      this(dotId, playerId, 15_000); // TODO this is temporary for local testing due to new field thinkMs
+      this(dotId, playerId, 0);
+    }
+
+    int row() {
+      return dotId.charAt(0) - 'A' + 1;
+    }
+
+    int col() {
+      return Integer.parseInt(dotId.substring(1));
     }
   }
 }
