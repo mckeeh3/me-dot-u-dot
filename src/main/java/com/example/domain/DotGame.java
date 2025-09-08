@@ -493,6 +493,12 @@ public interface DotGame {
       return new ScoringMoves(player, List.of());
     }
 
+    public int totalScore() {
+      return scoringMoves.stream()
+          .map(s -> s.score())
+          .reduce(0, Integer::sum);
+    }
+
     ScoringMoves withScoringMoves(List<ScoringMove> scoringMoves) {
       return new ScoringMoves(player, Stream.concat(this.scoringMoves.stream(), scoringMoves.stream()).toList());
     }
@@ -508,6 +514,9 @@ public interface DotGame {
           .withScoringMoves(scoreMoveAdjacent(move, level, moveHistory));
     }
 
+    // ============================================================
+    // ScoreMoveHorizontal
+    // ============================================================
     List<ScoringMove> scoreMoveHorizontal(Dot move, Board.Level level, List<Move> moveHistory) {
       var row = move.row();
       var groups = new ArrayList<List<Move>>();
@@ -543,6 +552,9 @@ public interface DotGame {
       return scoringMoves;
     }
 
+    // ============================================================
+    // ScoreMoveVertical
+    // ============================================================
     List<ScoringMove> scoreMoveVertical(Dot move, Board.Level level, List<Move> moveHistory) {
       var col = move.col();
       var groups = new ArrayList<List<Move>>();
@@ -583,6 +595,9 @@ public interface DotGame {
       downLeft
     }
 
+    // ============================================================
+    // ScoreMoveDiagonal
+    // ============================================================
     List<ScoringMove> scoreMoveDiagonal(Dot move, Board.Level level, List<Move> moveHistory) {
       var downRight = scoreMoveDiagonal(DiagonalDirection.downRight, move, level, moveHistory);
       var downLeft = scoreMoveDiagonal(DiagonalDirection.downLeft, move, level, moveHistory);
@@ -620,9 +635,7 @@ public interface DotGame {
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
 
-      return scoringMoves.stream()
-          .filter(scoringMove -> scoringMove.type == ScoringMoveType.diagonal)
-          .toList();
+      return scoringMoves;
     }
 
     static boolean isDiagonal(DiagonalDirection direction, Dot move, Move otherMove) {
@@ -648,9 +661,10 @@ public interface DotGame {
           || (direction == DiagonalDirection.downLeft && nextMove.row() - lastMove.row() == 1 && lastMove.col() - nextMove.col() == 1);
     }
 
+    // ============================================================
+    // ScoreMoveAdjacent
+    // ============================================================
     List<ScoringMove> scoreMoveAdjacent(Dot move, Board.Level level, List<Move> moveHistory) {
-      var moveRow = move.row();
-      var moveCol = move.col();
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
@@ -658,34 +672,36 @@ public interface DotGame {
           .toList()
           .stream()
           .filter(m -> m.playerId().equals(player.id()))
-          .filter(m -> m.row() == moveRow && m.col() == moveCol)
-          .sorted(Comparator.comparingInt(m -> m.row()))
+          .filter(m -> isAdjacent(move, m))
+          .sorted(Comparator.comparing(Move::dotId))
           .toList()
           .forEach(m -> {
-            if (group.isEmpty() || m.row() == group.get(group.size() - 1).row() + 1) {
-              group.add(m);
-            } else {
-              groups.add(group.stream().toList());
-              group.clear();
-              group.add(m);
-            }
+            group.add(m);
           });
       groups.add(group);
 
       var scoringMoves = groups.stream()
           .map(g -> {
-            var score = scoreLine(move, level, g);
+            var adjacentDotsToScore = Math.min(8, level.concurrentDotsToScore());
+            var score = g.size() > adjacentDotsToScore ? g.size() - adjacentDotsToScore : 0;
             var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
             return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringDots);
           })
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
 
-      return scoringMoves.stream()
-          .filter(scoringMove -> scoringMove.type == ScoringMoveType.adjacent)
-          .toList();
+      return scoringMoves;
     }
 
+    static boolean isAdjacent(Dot move, Move otherMove) {
+      return move.row() == otherMove.row() && Math.abs(move.col() - otherMove.col()) == 1
+          || move.col() == otherMove.col() && Math.abs(move.row() - otherMove.row()) == 1
+          || Math.abs(move.row() - otherMove.row()) == 1 && Math.abs(move.col() - otherMove.col()) == 1;
+    }
+
+    // ============================================================
+    // ScoreLine
+    // ============================================================
     static int scoreLine(Dot move, Board.Level level, List<Move> moves) {
       // check if line is too short
       if (moves.size() < level.concurrentDotsToScore()) {
