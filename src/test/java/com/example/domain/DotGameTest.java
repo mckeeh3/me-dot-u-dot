@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,8 +269,6 @@ public class DotGameTest {
 
   @Test
   void testScoreMove_Level1_CenterDot_OneHorizontalLine() {
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
-    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
     var moveHistory = List.of(
         new DotGame.Move("A3", player1.id()),
         new DotGame.Move("B3", player1.id()),
@@ -279,12 +278,192 @@ public class DotGameTest {
         new DotGame.Move("C4", player2.id()));
     var move = new DotGame.Dot("C3", Optional.of(player1));
     var scoringMoves = DotGame.ScoringMoves.create(player1).scoreMove(move, DotGame.Board.Level.one, moveHistory);
-    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(2, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
     var expectedMoves = List.of(
         new DotGame.Dot("C1", Optional.of(player1)),
         new DotGame.Dot("C2", Optional.of(player1)),
         new DotGame.Dot("C3", Optional.of(player1)));
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
+  }
+
+  @Test
+  void testScoreMoveAt_Level1_CenterDot_OneVerticalLine() {
+    var moveHistory = List.of(
+        new DotGame.Move("A4", player1.id()),
+        new DotGame.Move("B3", player1.id()),
+        new DotGame.Move("C2", player1.id()),
+        new DotGame.Move("B4", player1.id()),
+        new DotGame.Move("D4", player2.id()),
+        new DotGame.Move("C1", player1.id()));
+    var move = new DotGame.Dot("C4", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves.create(player1).scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(0).type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("A4", Optional.of(player1)),
+        new DotGame.Dot("B4", Optional.of(player1)),
+        new DotGame.Dot("C4", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
+  }
+
+  @Test
+  void testScoreDiagonalLineDownRight() {
+    var moveHistory = List.of(
+        new DotGame.Move("A1", player1.id()),
+        new DotGame.Move("A2", player2.id()),
+        new DotGame.Move("B2", player1.id()),
+        new DotGame.Move("A3", player2.id()),
+        new DotGame.Move("A4", player1.id()),
+        new DotGame.Move("A5", player2.id()));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves.create(player1).scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("A1", Optional.of(player1)),
+        new DotGame.Dot("B2", Optional.of(player1)),
+        new DotGame.Dot("C3", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
+  }
+
+  @Test
+  void testScoreDiagonalLineDownLeft() {
+    var moveHistory = List.of(
+        new DotGame.Move("A5", player1.id()),
+        new DotGame.Move("A2", player2.id()),
+        new DotGame.Move("B4", player1.id()),
+        new DotGame.Move("A3", player2.id()),
+        new DotGame.Move("A4", player1.id()),
+        new DotGame.Move("A5", player2.id()));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves.create(player1).scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("A5", Optional.of(player1)),
+        new DotGame.Dot("B4", Optional.of(player1)),
+        new DotGame.Dot("C3", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
+  }
+
+  @Test
+  void testIsDiagonal() {
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var direction = DotGame.ScoringMoves.DiagonalDirection.downRight;
+
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("A1", player1.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("B2", player1.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("C3", player1.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("D4", player1.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("E5", player1.id())));
+
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("A5", player1.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("B4", player1.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("C3", player1.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("D2", player1.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("E1", player1.id())));
+
+    direction = DotGame.ScoringMoves.DiagonalDirection.downLeft;
+
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("A5", player2.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("B4", player2.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("C3", player2.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("D2", player2.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("E1", player2.id())));
+
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("A1", player2.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("B2", player2.id())));
+    assertTrue(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("C3", player2.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("D4", player2.id())));
+    assertFalse(DotGame.ScoringMoves.isDiagonal(direction, move, new DotGame.Move("E5", player2.id())));
+  }
+
+  @Test
+  void testIsDiagonallyConsecutive() {
+    var moves = List.of(
+        new DotGame.Move("A1", player1.id()),
+        new DotGame.Move("B2", player2.id()),
+        new DotGame.Move("C3", player1.id()),
+        new DotGame.Move("D4", player2.id()),
+        new DotGame.Move("E5", player1.id()));
+    var directionDownRight = DotGame.ScoringMoves.DiagonalDirection.downRight;
+    var group = new ArrayList<DotGame.Move>();
+
+    moves.forEach(m -> {
+      if (group.isEmpty() || DotGame.ScoringMoves.isDiagonallyConsecutive(directionDownRight, group, m)) {
+        group.add(m);
+      }
+    });
+    assertEquals(group, moves);
+
+    moves = List.of(
+        new DotGame.Move("A5", player1.id()),
+        new DotGame.Move("B4", player2.id()),
+        new DotGame.Move("C3", player1.id()),
+        new DotGame.Move("D2", player2.id()),
+        new DotGame.Move("E1", player1.id()));
+    var directionDownLeft = DotGame.ScoringMoves.DiagonalDirection.downLeft;
+    group.clear();
+
+    moves.forEach(m -> {
+      if (group.isEmpty() || DotGame.ScoringMoves.isDiagonallyConsecutive(directionDownLeft, group, m)) {
+        group.add(m);
+      }
+    });
+    assertEquals(group, moves);
+  }
+
+  // move 1 - E1
+  // move 2 - D2
+  // move 3 - B4
+  // move 4 - A5
+  // move 5 - C3 - winning move, 3 points (A5, B4, C3), (E1, D2, C3), (D2, C3, B4)
+  @Test
+  void testScoreDiagonalFullLineDownLeftMultiplePoints() {
+    var moveHistory = List.of(
+        new DotGame.Move("E1", player1.id()),
+        new DotGame.Move("D2", player1.id()),
+        new DotGame.Move("B4", player1.id()),
+        new DotGame.Move("A5", player1.id()));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1)
+        .scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    var scoringMove = scoringMoves.scoringMoves().get(0);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(3, scoringMove.score());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMove.type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("A5", Optional.of(player1)),
+        new DotGame.Dot("B4", Optional.of(player1)),
+        new DotGame.Dot("C3", Optional.of(player1)),
+        new DotGame.Dot("D2", Optional.of(player1)),
+        new DotGame.Dot("E1", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMove.scoringDots());
+  }
+
+  @Test
+  void testScoreDiagonalFullLineDownRightMultiplePoints() {
+    var moveHistory = List.of(
+        new DotGame.Move("A1", player1.id()),
+        new DotGame.Move("B2", player1.id()),
+        new DotGame.Move("D4", player1.id()),
+        new DotGame.Move("E5", player1.id()));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1)
+        .scoreMove(move, DotGame.Board.Level.one, moveHistory);
+    var scoringMove = scoringMoves.scoringMoves().get(0);
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(3, scoringMove.score());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMove.type());
+    var expectedMoves = List.of(
+        new DotGame.Dot("A1", Optional.of(player1)),
+        new DotGame.Dot("B2", Optional.of(player1)),
+        new DotGame.Dot("C3", Optional.of(player1)),
+        new DotGame.Dot("D4", Optional.of(player1)),
+        new DotGame.Dot("E5", Optional.of(player1)));
+    assertEquals(expectedMoves, scoringMove.scoringDots());
   }
 }
