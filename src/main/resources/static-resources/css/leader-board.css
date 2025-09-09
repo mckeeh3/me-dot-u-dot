@@ -206,6 +206,7 @@
 .player-score,
 .player-moves {
   font-size: 0.9em;
+  font-weight: bold;
   color: var(--text-secondary);
 }
 
