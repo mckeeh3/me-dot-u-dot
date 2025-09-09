@@ -266,6 +266,19 @@ public class DotGameTest {
         .withDot("A3", player1); // player-1
 
     assertEquals(1, board.scoreDotAt("A3")); // winning move
+
+    var moveHistory = moves(board);
+    var move = new DotGame.Dot("A3", Optional.of(player1));
+
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1)
+        .scoreMove(move, DotGame.Board.Level.one, moveHistory);
+
+    assertEquals(1, scoringMoves.totalScore());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
+
+    var expectedMoves = dots(player1, List.of("A3", "B4", "C5"));
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
   @Test
@@ -507,6 +520,13 @@ public class DotGameTest {
         .toList();
   }
 
+  static List<DotGame.Move> moves(DotGame.Board board) {
+    return board.dots().stream()
+        .filter(d -> d.player().isPresent())
+        .map(d -> new DotGame.Move(d.id(), d.player().get().id()))
+        .toList();
+  }
+
   static List<DotGame.Dot> dots(DotGame.Player player, List<String> ids) {
     return ids.stream()
         .map(d -> new DotGame.Dot(d, Optional.of(player)))
@@ -516,6 +536,12 @@ public class DotGameTest {
   static List<DotGame.Dot> dots(DotGame.Player player1, DotGame.Player player2, List<String> ids) {
     return IntStream.range(0, ids.size())
         .mapToObj(i -> new DotGame.Dot(ids.get(i), i % 2 == 0 ? Optional.of(player1) : Optional.of(player2)))
+        .toList();
+  }
+
+  static List<DotGame.Dot> dots(DotGame.Board board) {
+    return board.dots().stream()
+        .filter(d -> d.player().isPresent())
         .toList();
   }
 }
