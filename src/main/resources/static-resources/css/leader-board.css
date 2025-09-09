@@ -222,7 +222,8 @@
   flex: 1;
   padding: 15px;
   text-align: center;
-  font-size: 0.9em;
+  font-size: 1em;
+  font-weight: bold;
   color: var(--text-secondary);
   position: relative;
   background: rgba(255, 255, 255, 0.1);
