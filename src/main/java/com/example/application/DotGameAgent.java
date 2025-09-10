@@ -95,28 +95,7 @@ public class DotGameAgent extends Agent {
   public Effect<String> makeMove(MakeMovePrompt prompt) {
     log.debug("MakeMovePrompt: {}", prompt);
 
-    // TODO: remove this once this is fixed: https://github.com/akka/akka-javasdk/issues/880
-    if (prompt.agentModel.contains("gpt-5")) {
-      var modelName = prompt.agentModel.contains("mini") ? "gpt-5-mini"
-          : prompt.agentModel.contains("nano") ? "gpt-5-nano"
-              : "gpt-5";
-
-      return effects()
-          .model(ModelProvider
-              .openAi()
-              .withApiKey(System.getenv("OPENAI_API_KEY"))
-              .withModelName(modelName))
-          .tools(functionTools)
-          .systemMessage(systemPrompt)
-          .userMessage(prompt.toPrompt())
-          .onFailure(e -> {
-            return handleError(prompt, e);
-          })
-          .thenReply();
-    }
-
     return effects()
-        // .memory(MemoryProvider.limitedWindow().readLast(2))
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agentModel))
         .tools(functionTools)
         .systemMessage(systemPrompt)

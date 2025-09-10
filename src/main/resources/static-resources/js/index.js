@@ -466,7 +466,7 @@ async function playMoveSound(oldState, newState) {
     const newP2Moves = newState.player2Status?.moves || 0;
 
     if (newP1Moves > oldP1Moves || newP2Moves > oldP2Moves) {
-      await playSound('game-move.wav');
+      await playSound('game-move-1.wav');
       return;
     }
   }
@@ -1149,7 +1149,7 @@ function exitJournalViewer() {
 async function navigateJournal(direction) {
   if (!journalState.currentAgentId) return;
 
-  const endpoint = direction === 'up' ? '/game/get-journal-by-agent-id-up' : '/game/get-journal-by-agent-id-down';
+  const endpoint = direction === 'up' ? '/playbook/get-journal-by-agent-id-up' : '/playbook/get-journal-by-agent-id-down';
 
   try {
     const res = await fetch(endpoint, {
@@ -1183,7 +1183,7 @@ async function loadJournalEntry() {
   if (!journalState.currentAgentId) return;
 
   try {
-    const res = await fetch('/game/get-journal-by-agent-id-down', {
+    const res = await fetch('/playbook/get-journal-by-agent-id-down', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -72,17 +72,16 @@ public interface DotGame {
 
       var dotOptional = board.dotAt(command.dotId);
       if (dotOptional.isEmpty()) {
-        return forfeitMove(command.playerId);
+        return forfeitMove(command.playerId); // invalid board position
       }
 
       var dot = dotOptional.get();
       if (isEmpty() || isGameOver() || dot.isOccupied()) {
-        return forfeitMove(command.playerId);
+        return forfeitMove(command.playerId); // invalid move, already occupied or game over
       }
 
-      // Check if it's the player's turn
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
-        return List.of();
+        return List.of(); // not the current player's turn
       }
 
       var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
