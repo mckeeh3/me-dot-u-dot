@@ -111,6 +111,8 @@
   overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
+  max-height: calc(100vh - 500px); /* Dynamic height based on viewport, accounting for header/navigation */
+  min-height: 800px; /* Ensure minimum usable height */
 }
 
 .journal-navigation {
