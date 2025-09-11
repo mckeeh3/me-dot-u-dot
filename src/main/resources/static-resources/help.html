@@ -123,6 +123,63 @@
           <li>The viewer uses the same visual style and dropdown components as the game page for consistency.</li>
         </ul>
       </section>
+
+      <section class="help-section">
+        <h2>Leader Board</h2>
+        <p>
+          The leader board provides a comprehensive view of player performance and game history. It displays the top 50 players ranked by their number of games won, offering detailed insights into
+          individual player statistics and game outcomes.
+        </p>
+        <h3>Leader Board Features</h3>
+        <ul>
+          <li><strong>Top Players Ranking:</strong> Shows up to 50 players sorted by games won in descending order.</li>
+          <li><strong>Player Selection:</strong> Click any player in the rankings to view their detailed game history.</li>
+          <li><strong>Real-time Updates:</strong> Rankings are updated automatically when games are completed.</li>
+          <li><strong>Interactive Navigation:</strong> Seamlessly browse between different players and their games.</li>
+        </ul>
+        <h3>Player Game History</h3>
+        <ul>
+          <li><strong>Complete Game List:</strong> View all games played by the selected player (up to 50 most recent).</li>
+          <li>
+            <strong>Game Status Indicators:</strong> Each game shows clear status icons:
+            <ul>
+              <li>🏆 Win - Player won the game</li>
+              <li>❌ Loss - Player lost the game</li>
+              <li>🤝 Draw - Game ended in a tie</li>
+              <li>🚫 Canceled - Game was canceled before completion</li>
+              <li>⏳ In Progress - Game is still being played</li>
+            </ul>
+          </li>
+          <li><strong>Game Timeline:</strong> Games are sorted by creation date, showing the most recent games first.</li>
+        </ul>
+        <h3>Game Details Viewer</h3>
+        <ul>
+          <li>
+            <strong>Complete Game Information:</strong> Select any game to view detailed statistics including:
+            <ul>
+              <li>Player names, types (human 👤 or agent 🤖), and final scores</li>
+              <li>Game duration and completion status</li>
+              <li>Board level and move counts for each player</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Interactive Game Board:</strong> Visual representation of the final board state showing:
+            <ul>
+              <li>Each player's moves with color-coded dots</li>
+              <li>Move sequence numbers and timing information</li>
+              <li>Last move highlighting for easy identification</li>
+            </ul>
+          </li>
+          <li><strong>Performance Metrics:</strong> For agent players, view response times for each move to analyze decision-making speed.</li>
+        </ul>
+        <h3>Navigation Tips</h3>
+        <ul>
+          <li>The page automatically selects the top-ranked player and their most recent game when first loaded.</li>
+          <li>Use the hamburger menu to navigate between the Leader Board, Game, Playbook Viewer, and Help pages.</li>
+          <li>Click on any row in the rankings or game history tables to view detailed information.</li>
+          <li>The selected player and game are highlighted for easy reference.</li>
+        </ul>
+      </section>
     </main>
 
     <script src="/js/common.js"></script>

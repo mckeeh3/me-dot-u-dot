@@ -20,7 +20,9 @@
   border-radius: 10px;
   width: 90%;
   max-width: 1200px;
-  min-height: 500px;
+  /* min-height: 500px; */
+  max-height: calc(100vh - 10vh); /* Dynamic height based on viewport, accounting for header/navigation */
+  min-height: 800px; /* Ensure minimum usable height */
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -111,8 +113,6 @@
   overflow-y: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-  max-height: calc(100vh - 500px); /* Dynamic height based on viewport, accounting for header/navigation */
-  min-height: 800px; /* Ensure minimum usable height */
 }
 
 .journal-navigation {

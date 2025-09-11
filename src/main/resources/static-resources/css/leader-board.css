@@ -87,6 +87,8 @@
 /* Table Styles */
 .table-container {
   overflow-x: auto;
+  max-height: calc(100vh - 22vh); /* Dynamic height based on viewport, accounting for header/navigation */
+  min-height: 800px; /* Ensure minimum usable height */
 }
 
 .leader-table,
