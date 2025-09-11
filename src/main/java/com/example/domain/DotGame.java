@@ -75,9 +75,13 @@ public interface DotGame {
         return forfeitMove(command.playerId); // invalid board position
       }
 
+      if (!status.equals(Status.in_progress)) {
+        return forfeitMove(command.playerId);
+      }
+
       var dot = dotOptional.get();
-      if (isEmpty() || isGameOver() || dot.isOccupied()) {
-        return forfeitMove(command.playerId); // invalid move, already occupied or game over
+      if (dot.isOccupied()) {
+        return List.of();
       }
 
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
@@ -251,10 +255,6 @@ public interface DotGame {
 
     public State onEvent(Event.GameResults event) {
       return this;
-    }
-
-    public boolean isGameOver() {
-      return status == Status.won_by_player || status == Status.draw || status == Status.canceled;
     }
 
     static Status gameStatus(Board board, PlayerStatus player1Status, PlayerStatus player2Status) {
