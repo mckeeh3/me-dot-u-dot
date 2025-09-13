@@ -67,25 +67,22 @@ public interface DotGame {
     // ============================================================
     public List<Event> onCommand(Command.MakeMove command) {
       if (!status.equals(Status.in_progress)) {
-        return List.of();
+        return List.of(); // No state change tells the agent to try again
       }
 
       var dotOptional = board.dotAt(command.dotId);
       if (dotOptional.isEmpty()) {
-        return forfeitMove(command.playerId); // invalid board position
-      }
-
-      if (!status.equals(Status.in_progress)) {
-        return forfeitMove(command.playerId);
+        var message = "Invalid board position: %s".formatted(command.dotId);
+        return forfeitMove(command.playerId, message); // invalid board position
       }
 
       var dot = dotOptional.get();
       if (dot.isOccupied()) {
-        return List.of();
+        return List.of(); // No state change tells the agent to try again
       }
 
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
-        return List.of(); // not the current player's turn
+        return List.of(); // No state change tells the agent to try again
       }
 
       var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
@@ -134,14 +131,14 @@ public interface DotGame {
       return List.of(madeMoveEvent);
     }
 
-    List<Event> forfeitMove(String playerId) {
+    List<Event> forfeitMove(String playerId, String message) {
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
       return List.of(new Event.MoveForfeited(
           gameId,
           status,
           newCurrentPlayer,
-          "Invalid move by playerId: %s".formatted(playerId),
+          message,
           Instant.now()));
     }
 
@@ -424,25 +421,29 @@ public interface DotGame {
   // ============================================================
   // PlayerStatus
   // ============================================================
-  public record PlayerStatus(Player player, int moves, int score, boolean isWinner) {
+  public record PlayerStatus(Player player, int moves, int score, boolean isWinner, ScoringMoves scoringMoves) {
+    public PlayerStatus(Player player, int moves, int score, boolean isWinner) {
+      this(player, moves, score, isWinner, ScoringMoves.empty());
+    }
+
     static PlayerStatus empty() {
-      return new PlayerStatus(Player.empty(), 0, 0, false);
+      return new PlayerStatus(Player.empty(), 0, 0, false, ScoringMoves.empty());
     }
 
     PlayerStatus incrementMoves() {
-      return new PlayerStatus(player, moves + 1, score, isWinner);
+      return new PlayerStatus(player, moves + 1, score, isWinner, scoringMoves);
     }
 
     PlayerStatus incrementScore(int scoreIncrement) {
-      return new PlayerStatus(player, moves, score + scoreIncrement, isWinner);
+      return new PlayerStatus(player, moves, score + scoreIncrement, isWinner, scoringMoves);
     }
 
     PlayerStatus setWinner() {
-      return new PlayerStatus(player, moves, score, true);
+      return new PlayerStatus(player, moves, score, true, scoringMoves);
     }
 
     PlayerStatus setLoser() {
-      return new PlayerStatus(player, moves, score, false);
+      return new PlayerStatus(player, moves, score, false, scoringMoves);
     }
   }
 
@@ -488,6 +489,10 @@ public interface DotGame {
   public record ScoringMove(Dot move, ScoringMoveType type, int score, List<Dot> scoringDots) {}
 
   public record ScoringMoves(Player player, List<ScoringMove> scoringMoves) {
+    static ScoringMoves empty() {
+      return new ScoringMoves(Player.empty(), List.of());
+    }
+
     static ScoringMoves create(Player player) {
       return new ScoringMoves(player, List.of());
     }

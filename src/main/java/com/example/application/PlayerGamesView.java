@@ -2,6 +2,9 @@ package com.example.application;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.domain.PlayerGames;
 
 import akka.javasdk.annotations.ComponentId;
@@ -12,6 +15,7 @@ import akka.javasdk.view.View;
 
 @ComponentId("player-games-view")
 public class PlayerGamesView extends View {
+  static final Logger log = LoggerFactory.getLogger(PlayerGamesView.class);
 
   @Query("""
       SELECT * AS playerGames
@@ -27,17 +31,21 @@ public class PlayerGamesView extends View {
   public static class ByPlayer extends TableUpdater<PlayerGamesRow> {
 
     public Effect<PlayerGamesRow> onEvent(PlayerGames.Event event) {
+      log.debug("Event: {}", event);
+
       return switch (event) {
-        case PlayerGames.Event.GameAdded e -> effects().updateRow(onEvent(e));
+        case PlayerGames.Event.GameAdded e -> {
+          if (e.parentBranchId().isPresent()) { // must be the trunk branch
+            yield effects().ignore();
+          }
+
+          yield effects().updateRow(onEvent(e));
+        }
         default -> effects().ignore();
       };
     }
 
     public PlayerGamesRow onEvent(PlayerGames.Event.GameAdded event) {
-      if (event.parentBranchId().isPresent()) { // must be the trunk branch
-        return rowState();
-      }
-
       var stats = PlayerGames.State.reduceStats(event.subBranches(), event.leaves());
 
       return new PlayerGamesRow(

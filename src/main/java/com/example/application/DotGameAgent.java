@@ -113,6 +113,7 @@ public class DotGameAgent extends Agent {
       case ModelTimeoutException e -> tryAgain(prompt, e);
       case ToolCallExecutionException e -> tryAgain(prompt, e);
       case JsonParsingException e -> tryAgain(prompt, e);
+      case NullPointerException e -> tryAgain(prompt, e);
       default -> forfeitMoveDueToError(prompt, exception);
     };
   }
