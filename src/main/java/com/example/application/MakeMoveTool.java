@@ -31,12 +31,12 @@ public class MakeMoveTool {
       @Description("The ID of the game you are making a move in") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId,
       @Description("""
-          The board coordinate to claim (e.g., "C3"). Coordinates start
+          The square (board coordinate) to claim (e.g., "C3"). Squares IDs start
           at A1 in the top-left and extend to the board size determined by level
-          """) String dotId) {
-    log.debug("AgentId: {}, Make move: {} in game: {}", agentId, dotId, gameId);
+          """) String squareId) {
+    log.debug("AgentId: {}, Make move: {} in game: {}", agentId, squareId, gameId);
 
-    var command = new DotGame.Command.MakeMove(gameId, agentId, dotId);
+    var command = new DotGame.Command.MakeMove(gameId, agentId, squareId);
 
     var stateBeforeMove = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)

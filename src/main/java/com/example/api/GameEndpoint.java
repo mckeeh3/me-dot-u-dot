@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.application.GetGameStateTool;
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
@@ -141,6 +142,12 @@ public class GameEndpoint {
         .map(key -> key.replace("ai-agent-model-", ""))
         .sorted()
         .toList();
+  }
+
+  @Get("/get-game-state-tool/{gameId}")
+  public GetGameStateTool.CompactGameState getGameStateTool(String gameId) {
+    log.info("Get game state tool: {}", gameId);
+    return new GetGameStateTool(componentClient).getGameState(gameId);
   }
 
   public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}

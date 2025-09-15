@@ -467,11 +467,11 @@ public interface DotGame {
       return new Dot(id, Optional.of(player));
     }
 
-    int row() {
+    public int row() {
       return id.charAt(0) - 'A' + 1;
     }
 
-    int col() {
+    public int col() {
       return Integer.parseInt(id.substring(1));
     }
   }

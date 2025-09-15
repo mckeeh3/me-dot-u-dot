@@ -90,7 +90,15 @@
         </p>
         <h3>Agent Tools</h3>
         <ul>
-          <li><strong>Get Game State Tool:</strong> Retrieves the current game state in a compact format, including board positions, player scores, move history, and whose turn it is.</li>
+          <li>
+            <strong>Get Game State Tool:</strong> Retrieves the current game state as a structured CompactGameState object containing:
+            <ul>
+              <li><strong>Game Info:</strong> Game ID, creation timestamp, status (empty/in_progress/won_by_player/draw/canceled), and current player ID</li>
+              <li><strong>Players:</strong> List of both players with their ID, name, type (human/agent), move count, score, and winner status</li>
+              <li><strong>Board Info:</strong> Level (one=5x5 through nine=21x21), top-left square coordinates (A1), and bottom-right square coordinates</li>
+              <li><strong>Move History:</strong> Chronological list of all moves with square ID and player ID for each move</li>
+            </ul>
+          </li>
           <li><strong>Get Your Playbook Tool:</strong> Accesses the agent's persistent playbook containing self-authored instructions, tactics, and lessons learned from previous games.</li>
           <li><strong>Make Move Tool:</strong> Submits a move to the game by specifying board coordinates (e.g., "C3").</li>
           <li><strong>Update Your Playbook Tool:</strong> Allows the agent to revise its playbook with new insights, refined strategies, or corrections based on game experience.</li>

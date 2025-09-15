@@ -1,13 +1,15 @@
 package com.example.application;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
 
-import akka.javasdk.client.ComponentClient;
 import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
+import akka.javasdk.client.ComponentClient;
 
 public class GetGameStateTool {
   static final Logger log = LoggerFactory.getLogger(GetGameStateTool.class);
@@ -18,18 +20,24 @@ public class GetGameStateTool {
   }
 
   @FunctionTool(description = """
-      Retrieve the current game state in a compact format.
+      Retrieve the current game state as a structured CompactGameState object.
 
-      - Returns CompactGameState.State with fields:
-        - gameId: unique game identifier
+      Returns CompactGameState with nested objects:
+      - gameInfo: {gameId, createdAt, status, currentPlayerId}
         - status: empty | in_progress | won_by_player | draw | canceled
+        - currentPlayerId: ID of player whose turn it is (null if game not in progress)
+      - players: {players: [player1, player2]}
+        - Each player: {id, name, type, moves, score, winner}
+        - type: human | agent
+        - winner: boolean indicating if this player won
+      - boardInfo: {level, topLeftSquare, bottomRightSquare}
         - level: one..nine (board size: one=5x5 .. nine=21x21)
-        - board: occupied cells only, e.g. "A1:p1,B2:p2"
-        - p1 / p2: "id|name|type|moves|score|winner"
-        - turn: current player ID (null if not in progress)
-        - moves: chronological moves, e.g. "A1:p1,B2:p2"
-      - Coordinates: A1 = top-left, columns A–U, rows 1–21 depending on level.
-      - This is the authoritative source for board state, scores, and whose turn it is.
+        - squares: {squareId, row, column} for board bounds
+      - moveHistory: {moves: [{squareId, playerId}, ...]}
+        - Chronological list of all moves made in the game
+
+      Coordinates: A1 = top-left, columns A–U, rows 1–21 depending on level.
+      This is the authoritative source for board state, scores, and whose turn it is.
       """)
   public CompactGameState getGameState(
       @Description("The ID of the game you are playing") String gameId) {
@@ -56,68 +64,87 @@ public class GetGameStateTool {
    * @param moves   Move history as "A1:p1,B2:p2,C3:p1"
    */
   public record CompactGameState(
-      String gameId,
-      String created,
-      String status,
-      String level,
-      String board,
-      String p1,
-      String p2,
-      String turn,
-      String moves) {
+      GameInfo gameInfo,
+      Players players,
+      BoardInfo boardInfo,
+      EmptySquares emptySquares,
+      MoveHistory moveHistory) {
 
     /**
      * Convert from full DotGame.State to compact representation
      */
     static CompactGameState from(DotGame.State gameState) {
-      // Compact board: only occupied dots as "A1:p1,B2:p2"
-      var boardBuilder = new StringBuilder();
-      gameState.board().dots().stream()
-          .filter(dot -> dot.player().isPresent())
-          .forEach(dot -> {
-            if (boardBuilder.length() > 0)
-              boardBuilder.append(",");
-            boardBuilder.append(dot.id()).append(":").append(dot.player().get().id());
-          });
-
-      // Compact player info: "id|name|type|moves|score|winner"
-      var p1 = formatPlayer(gameState.player1Status());
-      var p2 = formatPlayer(gameState.player2Status());
-
-      // Current turn player ID
-      var turn = gameState.currentPlayer()
-          .map(player -> player.player().id())
-          .orElse(null);
-
-      // Compact moves: "A1:p1,B2:p2"
-      var movesBuilder = new StringBuilder();
-      gameState.moveHistory().forEach(move -> {
-        if (movesBuilder.length() > 0)
-          movesBuilder.append(",");
-        movesBuilder.append(move.dotId()).append(":").append(move.playerId());
-      });
-
       return new CompactGameState(
+          GameInfo.from(gameState),
+          Players.from(gameState),
+          BoardInfo.from(gameState.board()),
+          EmptySquares.from(gameState.board()),
+          MoveHistory.from(gameState.moveHistory()));
+    }
+  }
+
+  record GameInfo(String gameId, String createdAt, String status, String currentPlayerId) {
+    static GameInfo from(DotGame.State gameState) {
+      return new GameInfo(
           gameState.gameId(),
           gameState.createdAt().toString(),
           gameState.status().name(),
-          gameState.board().level().name(),
-          boardBuilder.toString(),
-          p1,
-          p2,
-          turn,
-          movesBuilder.toString());
+          gameState.currentPlayer().map(p -> p.player().id()).orElse(null));
     }
+  }
 
-    static String formatPlayer(DotGame.PlayerStatus playerStatus) {
-      DotGame.Player player = playerStatus.player();
-      return String.format("%s|%s|%s|%d|%d|%s",
-          player.id(),
-          player.name(),
-          player.type().name(),
+  record Square(String squareId, int row, int column) {
+    static Square from(DotGame.Dot dot) {
+      return new Square(dot.id(), dot.row(), dot.col());
+    }
+  }
+
+  record BoardInfo(String level, Square topLeftSquare, Square bottomRightSquare) {
+    static BoardInfo from(DotGame.Board board) {
+      return new BoardInfo(
+          board.level().name(),
+          Square.from(board.dots().get(0)),
+          Square.from(board.dots().get(board.dots().size() - 1)));
+    }
+  }
+
+  record Player(String id, String name, String type, int moves, int score, boolean winner) {
+    static Player from(DotGame.PlayerStatus playerStatus) {
+      return new Player(
+          playerStatus.player().id(),
+          playerStatus.player().name(),
+          playerStatus.player().type().name(),
           playerStatus.moves(),
           playerStatus.score(),
           playerStatus.isWinner());
+    }
+  }
+
+  record Players(List<Player> players) {
+    static Players from(DotGame.State gameState) {
+      return new Players(List.of(Player.from(gameState.player1Status()), Player.from(gameState.player2Status())));
+    }
+  }
+
+  record EmptySquares(List<String> emptySquareIds) {
+    static EmptySquares from(DotGame.Board board) {
+      return new EmptySquares(board.dots()
+          .stream()
+          .filter(d -> d.player().isEmpty())
+          .map(DotGame.Dot::id)
+          .toList());
+    }
+  }
+
+  record Move(String squareId, String playerId) {
+    static Move from(DotGame.Move move) {
+      return new Move(move.dotId(), move.playerId());
+    }
+  }
+
+  record MoveHistory(List<Move> moves) {
+    static MoveHistory from(List<DotGame.Move> moves) {
+      return new MoveHistory(moves.stream().map(Move::from).toList());
     }
   }
 }
