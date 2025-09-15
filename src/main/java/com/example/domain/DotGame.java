@@ -488,13 +488,13 @@ public interface DotGame {
 
   public record ScoringMove(Dot move, ScoringMoveType type, int score, List<Dot> scoringDots) {}
 
-  public record ScoringMoves(Player player, List<ScoringMove> scoringMoves) {
+  public record ScoringMoves(String playerId, List<ScoringMove> scoringMoves) {
     static ScoringMoves empty() {
-      return new ScoringMoves(Player.empty(), List.of());
+      return new ScoringMoves(Player.empty().id(), List.of());
     }
 
     static ScoringMoves create(Player player) {
-      return new ScoringMoves(player, List.of());
+      return new ScoringMoves(player.id(), List.of());
     }
 
     public int totalScore() {
@@ -504,11 +504,11 @@ public interface DotGame {
     }
 
     ScoringMoves withScoringMoves(List<ScoringMove> scoringMoves) {
-      return new ScoringMoves(player, Stream.concat(this.scoringMoves.stream(), scoringMoves.stream()).toList());
+      return new ScoringMoves(playerId, Stream.concat(this.scoringMoves.stream(), scoringMoves.stream()).toList());
     }
 
     ScoringMoves scoreMove(Dot move, Board.Level level, List<Move> moveHistory) {
-      if (!player.equals((move.player().orElse(Player.empty())))) {
+      if (!playerId.equals((move.player().orElse(Player.empty()).id()))) {
         return this;
       }
 
@@ -526,10 +526,10 @@ public interface DotGame {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), player.id())))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
           .toList()
           .stream()
-          .filter(m -> m.playerId().equals(player.id()))
+          .filter(m -> m.playerId().equals(playerId))
           .filter(m -> m.row() == row)
           .sorted(Comparator.comparingInt(m -> m.col()))
           .toList()
@@ -564,10 +564,10 @@ public interface DotGame {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), player.id())))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
           .toList()
           .stream()
-          .filter(m -> m.playerId().equals(player.id()))
+          .filter(m -> m.playerId().equals(playerId))
           .filter(m -> m.col() == col)
           .sorted(Comparator.comparingInt(m -> m.row()))
           .toList()
@@ -612,10 +612,10 @@ public interface DotGame {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), player.id())))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
           .toList()
           .stream()
-          .filter(m -> m.playerId().equals(player.id()))
+          .filter(m -> m.playerId().equals(playerId))
           .filter(m -> isDiagonal(direction, move, m))
           .sorted(Comparator.comparingInt(m -> m.row()))
           .toList()
@@ -672,10 +672,10 @@ public interface DotGame {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), player.id())))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
           .toList()
           .stream()
-          .filter(m -> m.playerId().equals(player.id()))
+          .filter(m -> m.playerId().equals(playerId))
           .filter(m -> isAdjacent(move, m))
           .sorted(Comparator.comparing(Move::dotId))
           .toList()
