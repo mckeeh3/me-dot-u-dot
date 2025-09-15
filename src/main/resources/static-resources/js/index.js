@@ -1105,6 +1105,7 @@ async function beginGame() {
   renderGameInfo();
   renderGameBoard();
   openMoveStream(state.game.gameId);
+  playSound('game-start.mp3');
 }
 
 // Journal viewer state
