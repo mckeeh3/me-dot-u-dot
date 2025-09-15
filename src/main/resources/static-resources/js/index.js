@@ -1168,10 +1168,6 @@ async function navigateJournal(direction) {
         const entry = data.journals[0];
         journalState.currentSequenceId = entry.sequenceId;
         displayJournalEntry(entry);
-      } else {
-        // No more entries in this direction
-        const instructions = direction === 'up' ? 'No more recent journal entries.' : 'No more previous journal entries.';
-        $('journalInstructions').textContent = instructions;
       }
     }
   } catch (error) {
