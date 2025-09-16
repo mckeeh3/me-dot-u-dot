@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.example.application.GetGameStateTool.CompactGameState;
 import com.example.domain.DotGame;
 
 import akka.javasdk.testkit.EventSourcedResult;
@@ -424,6 +425,21 @@ public class DotGameEntityTest {
     assertTrue(state.currentPlayer().isEmpty());
     assertTrue(state.player1Status().isWinner());
     assertFalse(state.player2Status().isWinner());
+
+    var c = CompactGameState.from(state);
+    assertEquals(player1.id(), c.players().players().get(0).id());
+    assertEquals(player2.id(), c.players().players().get(1).id());
+    assertEquals(DotGame.Status.won_by_player.name(), c.gameInfo().status());
+    assertEquals(player1.id(), c.player1ScoringMoves().playerId());
+    assertEquals(player2.id(), c.player2ScoringMoves().playerId());
+    assertEquals(3, c.player1ScoringMoves().scoringMoves().size());
+    assertEquals(2, c.player2ScoringMoves().scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.horizontal.name(), c.player1ScoringMoves().scoringMoves().get(0).type());
+    assertEquals(1, c.player1ScoringMoves().scoringMoves().get(0).score());
+    assertEquals(1, c.player2ScoringMoves().scoringMoves().get(0).score());
+    assertEquals(DotGame.ScoringMoveType.horizontal.name(), c.player2ScoringMoves().scoringMoves().get(0).type());
+    assertEquals(List.of("A1", "A2", "A3"), c.player1ScoringMoves().scoringMoves().get(0).scoringSquareIds().stream().sorted().toList());
+    assertEquals(List.of("B1", "B2", "B3"), c.player2ScoringMoves().scoringMoves().get(0).scoringSquareIds().stream().sorted().toList());
   }
 
   @Test
@@ -500,6 +516,93 @@ public class DotGameEntityTest {
 
     var state = testKit.getState();
     assertEquals(DotGame.Status.canceled, state.status());
+  }
+
+  @Test
+  void testRealGame() {
+    // move history
+    // {
+    // "squareId": "C3",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "B3",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "C2",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "C1",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "C4",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "C5",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "D3",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "E3",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "B2",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "B1",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "D4",
+    // "playerId": "agent-gemini-2-5-pro"
+    // },
+    // {
+    // "squareId": "E4",
+    // "playerId": "agent-gemini-2-5-flash"
+    // },
+    // {
+    // "squareId": "D2",
+    // "playerId": "agent-gemini-2-5-pro"
+    // }
+
+    var testKit = EventSourcedTestKit.of(DotGameEntity::new);
+    var gameId = "game-1111";
+    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
+    var player2 = new DotGame.Player("player2", DotGame.PlayerType.human, "Bob", "model1");
+
+    createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
+
+    makeMove(testKit, gameId, "player1", "C3");
+    makeMove(testKit, gameId, "player2", "B3");
+    makeMove(testKit, gameId, "player1", "C2");
+    makeMove(testKit, gameId, "player2", "C1");
+    makeMove(testKit, gameId, "player1", "C4");
+    makeMove(testKit, gameId, "player2", "C5");
+    makeMove(testKit, gameId, "player1", "D3");
+    makeMove(testKit, gameId, "player2", "E3");
+    makeMove(testKit, gameId, "player1", "B2");
+    makeMove(testKit, gameId, "player2", "B1");
+    makeMove(testKit, gameId, "player1", "D4");
+    makeMove(testKit, gameId, "player2", "E4");
+    makeMove(testKit, gameId, "player1", "D2");
+
+    var state = testKit.getState();
+
+    assertEquals(DotGame.Status.won_by_player, state.status());
+    assertEquals(player1, state.player1Status().player());
+    assertEquals(player2, state.player2Status().player());
+    assertTrue(state.currentPlayer().isEmpty());
+    assertTrue(state.player1Status().isWinner());
+    assertFalse(state.player2Status().isWinner());
   }
 
   static EventSourcedResult<DotGame.State> createGame(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, DotGame.Player player1, DotGame.Player player2, DotGame.Board.Level level) {

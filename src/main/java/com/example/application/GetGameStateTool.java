@@ -68,7 +68,9 @@ public class GetGameStateTool {
       Players players,
       BoardInfo boardInfo,
       EmptySquares emptySquares,
-      MoveHistory moveHistory) {
+      MoveHistory moveHistory,
+      ScoringMoves player1ScoringMoves,
+      ScoringMoves player2ScoringMoves) {
 
     /**
      * Convert from full DotGame.State to compact representation
@@ -79,7 +81,9 @@ public class GetGameStateTool {
           Players.from(gameState),
           BoardInfo.from(gameState.board()),
           EmptySquares.from(gameState.board()),
-          MoveHistory.from(gameState.moveHistory()));
+          MoveHistory.from(gameState.moveHistory()),
+          ScoringMoves.from(gameState.player1Status().scoringMoves()),
+          ScoringMoves.from(gameState.player2Status().scoringMoves()));
     }
   }
 
@@ -145,6 +149,18 @@ public class GetGameStateTool {
   record MoveHistory(List<Move> moves) {
     static MoveHistory from(List<DotGame.Move> moves) {
       return new MoveHistory(moves.stream().map(Move::from).toList());
+    }
+  }
+
+  record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
+    static ScoringMove from(DotGame.ScoringMove scoringMove) {
+      return new ScoringMove(scoringMove.move().id(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringDots());
+    }
+  }
+
+  record ScoringMoves(String playerId, int totalScore, List<ScoringMove> scoringMoves) {
+    static ScoringMoves from(DotGame.ScoringMoves scoringMoves) {
+      return new ScoringMoves(scoringMoves.playerId(), scoringMoves.totalScore(), scoringMoves.scoringMoves().stream().map(ScoringMove::from).toList());
     }
   }
 }
