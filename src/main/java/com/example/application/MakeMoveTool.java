@@ -51,21 +51,22 @@ public class MakeMoveTool {
     var areYouCurrentPlayer = stateAfterMove.currentPlayer().isPresent() && stateAfterMove.currentPlayer().get().player().id().equals(agentId);
 
     if (moveCompleted && gameOver) {
-      var result = "Move completed, game over, you %s".formatted(stateAfterMove.status() == DotGame.Status.won_by_player ? "won" : "lost");
+      var result = "Move to %s completed, game over, you %s".formatted(squareId, stateAfterMove.status() == DotGame.Status.won_by_player ? "won" : "lost");
       log.debug(result);
 
       return result;
     }
 
     if (moveCompleted) {
-      var result = "Move completed, it's your opponent's turn";
+      var result = "Move to %s completed, it's your opponent's turn".formatted(squareId);
       log.debug(result);
 
       return result;
     }
 
-    var moveResult = "Move %s, you %s the current player, %s"
+    var moveResult = "Move to %s %s, you %s the current player, %s"
         .formatted(
+            squareId,
             (moveCompleted ? "completed" : "rejected"),
             (areYouCurrentPlayer ? "are" : "are not"),
             (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
