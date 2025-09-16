@@ -31,7 +31,9 @@ public class DotGameAgent extends Agent {
         new GetGameStateTool(componentClient),
         new GetYourPlaybookTool(componentClient),
         new MakeMoveTool(componentClient),
-        new UpdateYourPlaybookTool(componentClient));
+        new UpdateYourPlaybookTool(componentClient),
+        new GetYourSystemPromptTool(componentClient),
+        new UpdateYourSystemPromptTool(componentClient));
   }
 
   static final String systemPrompt = """
@@ -98,12 +100,21 @@ public class DotGameAgent extends Agent {
     return effects()
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agentModel))
         .tools(functionTools)
-        .systemMessage(systemPrompt)
+        .systemMessage(systemPrompt(prompt.agentId))
         .userMessage(prompt.toPrompt())
         .onFailure(e -> {
           return handleError(prompt, e);
         })
         .thenReply();
+  }
+
+  String systemPrompt(String agentId) {
+    var result = componentClient
+        .forEventSourcedEntity(agentId)
+        .method(AgentRoleEntity::getState)
+        .invoke();
+
+    return result.systemPrompt();
   }
 
   String handleError(MakeMovePrompt prompt, Throwable exception) {
@@ -179,8 +190,8 @@ public class DotGameAgent extends Agent {
 
             Use the get game state tool to get the current game state and use the get your playbook tool to get your playbook.
             Use this information to decide how to make your next move.
-            Use the make move tool to make your move.
-            Optionally, you can use the update playbook tool to update your playbook.
+            ALWAYS use the make move tool to make your move when it is your turn.
+            Optionally, you can use the update playbook tool to update your playbook and the update system prompt tool to update your system prompt.
             """.formatted(agentId, agentName, gameId).stripIndent();
       }
 
@@ -190,9 +201,8 @@ public class DotGameAgent extends Agent {
           Your Name is %s.
           Here's the current game Id: %s.
 
-          Use the get game state tool to get the current game state and use the get your playbook tool to get your playbook.
-          Use this information to decide how to update your playbook.
-          Use the update playbook tool to update your playbook.
+          You can optionally update your playbook and system prompt via the provided tools to capture your learnings  and experience
+          from this game to improve your performance in future games.
           """.formatted(agentId, agentName, gameId).stripIndent();
     }
   }
