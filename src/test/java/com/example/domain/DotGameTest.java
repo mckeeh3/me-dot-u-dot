@@ -120,7 +120,7 @@ public class DotGameTest {
     assertEquals(1, scoringMoves.totalScore());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
 
-    var expectedMoves = dots(player1, List.of("A3", "B4", "C5"));
+    var expectedMoves = List.of("A3", "B4", "C5");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
@@ -141,7 +141,7 @@ public class DotGameTest {
     assertEquals(2, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
 
-    var expectedMoves = dots(player1, List.of("C1", "C2", "C3"));
+    var expectedMoves = List.of("C1", "C2", "C3");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
@@ -157,7 +157,7 @@ public class DotGameTest {
     assertEquals(1, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(0).type());
 
-    var expectedMoves = dots(player1, List.of("A4", "B4", "C4"));
+    var expectedMoves = List.of("A4", "B4", "C4");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
@@ -173,7 +173,7 @@ public class DotGameTest {
     assertEquals(1, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
 
-    var expectedMoves = dots(player1, List.of("A1", "B2", "C3"));
+    var expectedMoves = List.of("A1", "B2", "C3");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
@@ -188,7 +188,7 @@ public class DotGameTest {
 
     assertEquals(1, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(0).type());
-    var expectedMoves = dots(player1, List.of("A5", "B4", "C3"));
+    var expectedMoves = List.of("A5", "B4", "C3");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringDots());
   }
 
@@ -267,7 +267,7 @@ public class DotGameTest {
     assertEquals(1, scoringMoves.scoringMoves().size());
     assertEquals(3, scoringMove.score());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMove.type());
-    var expectedMoves = dots(player1, List.of("A5", "B4", "C3", "D2", "E1"));
+    var expectedMoves = List.of("A5", "B4", "C3", "D2", "E1");
     assertEquals(expectedMoves, scoringMove.scoringDots());
   }
 
@@ -284,7 +284,7 @@ public class DotGameTest {
     assertEquals(1, scoringMoves.scoringMoves().size());
     assertEquals(3, scoringMove.score());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMove.type());
-    var expectedMoves = dots(player1, List.of("A1", "B2", "C3", "D4", "E5"));
+    var expectedMoves = List.of("A1", "B2", "C3", "D4", "E5");
     assertEquals(expectedMoves, scoringMove.scoringDots());
   }
 
@@ -342,7 +342,7 @@ public class DotGameTest {
     assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(1).type());
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(2).type());
     assertEquals(DotGame.ScoringMoveType.adjacent, scoringMoves.scoringMoves().get(3).type());
-    var expectedMoves = dots(player1, List.of("B2", "B3", "C2", "C4", "D3", "D4"));
+    var expectedMoves = List.of("B2", "B3", "C2", "C4", "D3", "D4");
     assertEquals(expectedMoves, scoringMoves.scoringMoves().get(3).scoringDots());
 
     assertEquals(6, scoringMoves.totalScore()); // 1 + 1 + 1 + 3, one for each line, and 3 for the adjacent dots
