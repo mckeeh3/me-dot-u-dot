@@ -25,219 +25,75 @@ public class DotGameTest {
   }
 
   @Test
-  void testScoreDotAt_Level1_CenterDot_NoLines() {
-    // Place dot at C3 with no other dots around it
-    var board = level1Board.withDot("C3", player1);
+  void testScoreDotAt_Level1_All_Across_Horizontal_Vertical_And_Adjacent() {
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p2 | __ | p1 | __ | p2 |
+    // B | __ | p2 | p1 | p2 | __ |
+    // C | p1 | p1 | p1 | p1 | p1 |
+    // D | __ | p2 | p1 | p2 | __ |
+    // E | p2 | __ | p1 | __ | p2 |
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "A3", "A1",
+        "B3", "A5",
+        "D3", "B2",
+        "E3", "B4",
+        "C1", "D2",
+        "C2", "D4",
+        "C4", "E1",
+        "C5", "E5"));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
 
-    // Required length for level 1: (5/2) + 1 = 3
-    // C3 alone can't form any lines of length 3
-    assertEquals(0, board.scoreDotAt("C3"));
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1)
+        .scoreMove(move, DotGame.Board.Level.one, moveHistory);
+
+    assertEquals(7, scoringMoves.totalScore());
+    assertEquals(3, scoringMoves.scoringMoves().size());
+
+    var horizontalScoringMove = scoringMoves.scoringMoves().get(0);
+    assertEquals(3, horizontalScoringMove.score());
+
+    var verticalScoringMove = scoringMoves.scoringMoves().get(1);
+    assertEquals(3, verticalScoringMove.score());
+
+    var adjacentScoringMove = scoringMoves.scoringMoves().get(2);
+    assertEquals(1, adjacentScoringMove.score());
   }
 
   @Test
-  void testScoreDotAt_Level1_CenterDot_OneHorizontalLine() {
-    // Create horizontal line: A3, B3, C3
-    var board = level1Board
-        .withDot("A3", player1)
-        .withDot("B3", player1)
-        .withDot("C3", player1);
+  void testScoringMovesAt_Level1_All_Diagonal_And_adjacent() {
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p1 | P2 | __ | P2 | p1 |
+    // B | __ | p1 | p2 | p1 | P2 |
+    // C | P2 | P2 | P1 | P2 | P2 |
+    // D | __ | P1 | __ | P1 | __ |
+    // E | P1 | __ | __ | __ | P1 |
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "A1", "A2",
+        "A5", "A4",
+        "B2", "B3",
+        "B4", "B5",
+        "D2", "C2",
+        "D4", "C4",
+        "E1", "C1",
+        "E5", "C5"));
+    var move = new DotGame.Dot("C3", Optional.of(player1));
 
-    // Should score 1 point for the horizontal line of length 3
-    assertEquals(1, board.scoreDotAt("C3"));
-  }
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1)
+        .scoreMove(move, DotGame.Board.Level.one, moveHistory);
 
-  @Test
-  void testScoreDotAt_Level1_CenterDot_OneVerticalLine() {
-    // Create vertical line: C1, C2, C3
-    var board = level1Board
-        .withDot("C1", player1)
-        .withDot("C2", player1)
-        .withDot("C3", player1);
+    assertEquals(7, scoringMoves.totalScore());
+    assertEquals(3, scoringMoves.scoringMoves().size());
 
-    // Should score 1 point for the vertical line of length 3
-    assertEquals(1, board.scoreDotAt("C3"));
-  }
+    var diagonalScoringMove1 = scoringMoves.scoringMoves().get(0);
+    assertEquals(3, diagonalScoringMove1.score());
 
-  @Test
-  void testScoreDotAt_Level1_CenterDot_OneDiagonalLine() {
-    // Create diagonal line: A1, B2, C3
-    var board = level1Board
-        .withDot("A1", player1)
-        .withDot("B2", player1)
-        .withDot("C3", player1);
+    var diagonalScoringMove2 = scoringMoves.scoringMoves().get(1);
+    assertEquals(3, diagonalScoringMove2.score());
 
-    // Should score 1 point for the diagonal line of length 3
-    assertEquals(1, board.scoreDotAt("C3"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_CenterDot_MultipleLines() {
-    // Create multiple lines from C3:
-    // Horizontal: A3, B3, C3
-    // Vertical: C1, C2, C3
-    // Diagonal: A1, B2, C3
-    var board = level1Board
-        .withDot("A3", player1)
-        .withDot("B3", player1)
-        .withDot("C1", player1)
-        .withDot("C2", player1)
-        .withDot("A1", player1)
-        .withDot("B2", player1)
-        .withDot("C3", player1);
-
-    // Should score 3 points (horizontal, vertical, diagonal)
-    assertEquals(3, board.scoreDotAt("C3"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_EdgeDot_LimitedLines() {
-    // Place dot at E5 (bottom right)
-    // Only possible lines:
-    // Horizontal: C5, D5, E5
-    // Vertical: E3, E4, E5
-    // Diagonal: C3, D4, E5
-    var board = level1Board
-        .withDot("C5", player1)
-        .withDot("D5", player1)
-        .withDot("E3", player1)
-        .withDot("E4", player1)
-        .withDot("C3", player1)
-        .withDot("D4", player1)
-        .withDot("E5", player1);
-
-    // Should score 3 points (only 3 directions are possible from E5)
-    assertEquals(3, board.scoreDotAt("E5"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_EdgeDot_TooShortLines() {
-    // Place dot at E5 with only 2 dots in each direction
-    var board = level1Board
-        .withDot("D5", player1)
-        .withDot("E4", player1)
-        .withDot("E5", player1);
-
-    // Lines are too short (length 2 < required 3)
-    assertEquals(0, board.scoreDotAt("E5"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_CornerDot_VeryLimitedLines() {
-    // Place dot at A1 (top left)
-    // Only possible lines:
-    // Horizontal: A1, A2, A3
-    // Vertical: A1, B1, C1
-    // Diagonal: A1, B2, C3
-    var board = level1Board
-        .withDot("A2", player1)
-        .withDot("A3", player1)
-        .withDot("B1", player1)
-        .withDot("C1", player1)
-        .withDot("B2", player1)
-        .withDot("C3", player1)
-        .withDot("A1", player1);
-
-    // Should score 3 points (only 3 directions are possible from A1)
-    assertEquals(3, board.scoreDotAt("A1"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_LineWithGaps_NoScore() {
-    // Create line with gaps: A3, C3 (missing B3)
-    var board = level1Board
-        .withDot("A3", player1)
-        .withDot("C3", player1);
-
-    // No consecutive line of length 3
-    assertEquals(0, board.scoreDotAt("C3"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_LineWithDifferentPlayer_NoScore() {
-    // Create line with different player in middle: A3, B3(player2), C3
-    var board = level1Board
-        .withDot("A3", player1)
-        .withDot("B3", player2)
-        .withDot("C3", player1);
-
-    // No consecutive line of same player
-    assertEquals(0, board.scoreDotAt("C3"));
-  }
-
-  @Test
-  void testScoreDotAt_Level3_LongerLines() {
-    // Required length for level 3: (9/2) + 1 = 5
-    // Create horizontal line: A5, B5, C5, D5, E5
-    var board = level3Board
-        .withDot("A5", player1)
-        .withDot("B5", player1)
-        .withDot("C5", player1)
-        .withDot("D5", player1)
-        .withDot("E5", player1);
-
-    // Should score 1 point for the horizontal line of length 5
-    assertEquals(1, board.scoreDotAt("E5"));
-  }
-
-  @Test
-  void testScoreDotAt_Level3_LineTooShort() {
-    // Create line of length 4, but required is 5
-    var board = level3Board
-        .withDot("A5", player1)
-        .withDot("B5", player1)
-        .withDot("C5", player1)
-        .withDot("D5", player1);
-
-    // Line too short
-    assertEquals(0, board.scoreDotAt("D5"));
-  }
-
-  @Test
-  void testScoreDotAt_EmptyDot_NoScore() {
-    // Test empty dot
-    assertEquals(0, level1Board.scoreDotAt("C3"));
-  }
-
-  @Test
-  void testScoreDotAt_InvalidCoordinates_NoScore() {
-    // Test invalid coordinates
-    assertEquals(0, level1Board.scoreDotAt("Z99"));
-  }
-
-  @Test
-  void testScoreDotAt_Level1_AllEightDirections() {
-    var board = level1Board
-        .withDot("A3", player1)
-        .withDot("B3", player1)
-        .withDot("C1", player1)
-        .withDot("C2", player1)
-        .withDot("C4", player1)
-        .withDot("C5", player1)
-        .withDot("D3", player1)
-        .withDot("E3", player1)
-        .withDot("A1", player1)
-        .withDot("B2", player1)
-        .withDot("D4", player1)
-        .withDot("E5", player1)
-        .withDot("E1", player1)
-        .withDot("D2", player1)
-        .withDot("B4", player1)
-        .withDot("A5", player1)
-        .withDot("C3", player1);
-
-    // C3 is in the middle of all 8 lines, so it should score 4 points for 4 new lines
-    // plus 2 for 8 adjacent dots
-    assertEquals(6, board.scoreDotAt("C3"));
-
-    // Test that the end dots score correctly based on the actual board setup
-    assertEquals(3, board.scoreDotAt("A3")); // End of horizontal, diagonal down-right, diagonal down-left
-    assertEquals(3, board.scoreDotAt("E3")); // End of horizontal, diagonal up-right, diagonal up-left
-    assertEquals(3, board.scoreDotAt("C1")); // End of vertical, diagonal down-right, diagonal up-right
-    assertEquals(3, board.scoreDotAt("C5")); // End of vertical, diagonal up-left, diagonal down-left
-    assertEquals(1, board.scoreDotAt("A1")); // End of diagonal down-right only (A1-B2-C3)
-    assertEquals(1, board.scoreDotAt("E5")); // End of diagonal up-left only (E5-D4-C3)
-    assertEquals(1, board.scoreDotAt("E1")); // End of diagonal down-left only (E1-D2-C3)
-    assertEquals(1, board.scoreDotAt("A5")); // End of diagonal up-right only (A5-B4-C3)
+    var adjacentScoringMove = scoringMoves.scoringMoves().get(2);
+    assertEquals(1, adjacentScoringMove.score());
   }
 
   @Test
@@ -248,26 +104,13 @@ public class DotGameTest {
     // C | __ | a1 | p1 | a1 | p1 |
     // D | __ | __ | a1 | a1 | __ |
     // E | __ | __ | __ | __ | __ |
-    var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");
-    var agent1 = new DotGame.Player("agent1", DotGame.PlayerType.agent, "Agent 1", "model1");
-    var board = level1Board
-        .withDot("C3", player1) // player-1
-        .withDot("B3", agent1) // agent-1
-        .withDot("C5", player1) // player-1
-        .withDot("C4", agent1) // agent-1
-        .withDot("A5", player1) // player-1
-        .withDot("C2", agent1) // agent-1
-        .withDot("B5", player1) // player-1
-        .withDot("D3", agent1) // agent-1
-        .withDot("B4", player1) // player-1
-        .withDot("D4", agent1) // agent-1
-        .withDot("A1", player1) // player-1
-        .withDot("B2", agent1) // agent-1
-        .withDot("A3", player1); // player-1
-
-    assertEquals(1, board.scoreDotAt("A3")); // winning move
-
-    var moveHistory = moves(board);
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "C3", "B3", //
+        "C5", "C4", //
+        "A5", "C2", //
+        "B5", "D3", //
+        "B4", "D4", //
+        "A1", "B2"));
     var move = new DotGame.Dot("A3", Optional.of(player1));
 
     var scoringMoves = DotGame.ScoringMoves
@@ -283,7 +126,12 @@ public class DotGameTest {
 
   @Test
   void testScoreMove_Level1_CenterDot_OneHorizontalLine() {
-    var moveHistory = moves(player1, player2, List.of("A3", "A1", "B3", "A3", "C2", "A4", "C1", "A5", "C5", "C4"));
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "A3", "A1", //
+        "B3", "A3", //
+        "C2", "A4", //
+        "C1", "A5", //
+        "C5", "C4"));
     var move = new DotGame.Dot("C3", Optional.of(player1));
 
     var scoringMoves = DotGame.ScoringMoves
@@ -299,7 +147,7 @@ public class DotGameTest {
 
   @Test
   void testScoreMoveAt_Level1_CenterDot_OneVerticalLine() {
-    var moveHistory = moves(player1, player2, List.of("A4", "A5", "B3", "C5", "C2", "E5", "B4", "D4", "C1"));
+    var moveHistory = moveHistory(player1, player2, List.of("A4", "A5", "B3", "C5", "C2", "E5", "B4", "D4", "C1"));
     var move = new DotGame.Dot("C4", Optional.of(player1));
 
     var scoringMoves = DotGame.ScoringMoves
@@ -315,7 +163,7 @@ public class DotGameTest {
 
   @Test
   void testScoreDiagonalLineDownRight() {
-    var moveHistory = moves(player1, player2, List.of("A1", "A2", "B2", "A3", "A4", "A5"));
+    var moveHistory = moveHistory(player1, player2, List.of("A1", "A2", "B2", "A3", "A4", "A5"));
     var move = new DotGame.Dot("C3", Optional.of(player1));
 
     var scoringMoves = DotGame.ScoringMoves
@@ -331,7 +179,7 @@ public class DotGameTest {
 
   @Test
   void testScoreDiagonalLineDownLeft() {
-    var moveHistory = moves(player1, player2, List.of("A5", "A2", "B4", "A3", "A4", "A5"));
+    var moveHistory = moveHistory(player1, player2, List.of("A5", "A2", "B4", "A3", "A4", "A5"));
     var move = new DotGame.Dot("C3", Optional.of(player1));
 
     var scoringMoves = DotGame.ScoringMoves
@@ -478,13 +326,13 @@ public class DotGameTest {
     var scoringMoves = DotGame.ScoringMoves
         .create(player1);
 
-    var moveHistory = moves(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3"));
+    var moveHistory = moveHistory(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3"));
     var move = new DotGame.Dot("C4", Optional.of(player1));
 
     scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.one, moveHistory);
     assertEquals(0, scoringMoves.totalScore());
 
-    moveHistory = moves(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3", "C4", "E5"));
+    moveHistory = moveHistory(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3", "C4", "E5"));
     move = new DotGame.Dot("C3", Optional.of(player1));
 
     scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.one, moveHistory);
@@ -514,7 +362,7 @@ public class DotGameTest {
         .toList();
   }
 
-  static List<DotGame.Move> moves(DotGame.Player player1, DotGame.Player player2, List<String> ids) {
+  static List<DotGame.Move> moveHistory(DotGame.Player player1, DotGame.Player player2, List<String> ids) {
     return IntStream.range(0, ids.size())
         .mapToObj(i -> new DotGame.Move(ids.get(i), i % 2 == 0 ? player1.id() : player2.id()))
         .toList();

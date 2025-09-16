@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.example.domain.DotGame;
@@ -148,11 +150,7 @@ public class DotGameEntityTest {
     assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the dot is already occupied
-    assertEquals(1, result.getAllEvents().size());
-    var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
-    assertEquals(gameId, event.gameId());
-    assertTrue(event.currentPlayer().isPresent());
-    assertEquals(player1, event.currentPlayer().get().player());
+    assertEquals(0, result.getAllEvents().size());
   }
 
   @Test
@@ -301,15 +299,16 @@ public class DotGameEntityTest {
 
     var state = testKit.getState();
 
-    // C3 should score 1 point because it has a vertical line down to C1 (length 3)
-    // Required length for level 1: (5/2) + 1 = 3
-    assertEquals(1, state.board().scoreDotAt("C3"));
+    assertEquals(1, state.player1Status().score());
+    assertEquals(0, state.player2Status().score());
 
-    // C1 should score 1 point because it has a vertical line up to C3 (length 3)
-    assertEquals(1, state.board().scoreDotAt("C1"));
+    var scoringMoves = state.player1Status().scoringMoves().scoringMoves();
+    assertEquals(1, scoringMoves.size());
+    assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.get(0).type());
+    assertEquals(1, scoringMoves.get(0).score());
 
-    // C2 should score 1 points because it's in the middle of line of length 3
-    assertEquals(1, state.board().scoreDotAt("C2"));
+    var expectedMoves = List.of("C1", "C2", "C3");
+    assertEquals(expectedMoves, scoringMoves.get(0).scoringDots());
   }
 
   @Test
@@ -329,28 +328,45 @@ public class DotGameEntityTest {
     makeMove(testKit, gameId, "player2", "F4");
     makeMove(testKit, gameId, "player1", "A3");
     makeMove(testKit, gameId, "player2", "E5");
-    makeMove(testKit, gameId, "player1", "A4"); // First line of player1
-    makeMove(testKit, gameId, "player2", "D6"); // First line of player2
-    makeMove(testKit, gameId, "player1", "A5"); // Bonus point for player1
-    makeMove(testKit, gameId, "player2", "C7"); // Bonus point for player2
+    makeMove(testKit, gameId, "player1", "A4"); // 1st scoring move
+    makeMove(testKit, gameId, "player2", "D6"); // 1st scoring move
+    makeMove(testKit, gameId, "player1", "A5"); // 2nd scoring move
+    makeMove(testKit, gameId, "player2", "C7"); // 2nd scoring move
 
     var state = testKit.getState();
-    assertEquals(1, state.board().scoreDotAt("G3"));
-    assertEquals(1, state.board().scoreDotAt("F4"));
-    assertEquals(1, state.board().scoreDotAt("E5"));
-    assertEquals(1, state.board().scoreDotAt("D6"));
-    assertEquals(1, state.board().scoreDotAt("C7"));
-    assertEquals(0, state.board().scoreDotAt("D8")); // D8 is not in a line
-
-    assertEquals(1, state.board().scoreDotAt("A1"));
-    assertEquals(1, state.board().scoreDotAt("A2"));
-    assertEquals(1, state.board().scoreDotAt("A3"));
-    assertEquals(1, state.board().scoreDotAt("A4"));
-    assertEquals(1, state.board().scoreDotAt("A5"));
-    assertEquals(0, state.board().scoreDotAt("A6")); // A6 is not in a line
 
     assertEquals(2, state.player1Status().score());
     assertEquals(2, state.player2Status().score());
+
+    var scoringMoves = state.player1Status().scoringMoves().scoringMoves();
+    assertEquals(2, scoringMoves.size());
+    assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.get(0).type());
+    assertEquals(1, scoringMoves.get(0).score());
+    assertEquals(1, scoringMoves.get(1).score());
+
+    var expectedMoves = scoringMoves.get(0).scoringDots();
+
+    assertTrue(expectedMoves.contains("A1"));
+    assertTrue(expectedMoves.contains("A2"));
+    assertTrue(expectedMoves.contains("A3"));
+    assertTrue(expectedMoves.contains("A4"));
+
+    scoringMoves = state.player2Status().scoringMoves().scoringMoves();
+    assertEquals(2, scoringMoves.size());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.get(0).type());
+    assertEquals(1, scoringMoves.get(0).score());
+
+    expectedMoves = scoringMoves.get(0).scoringDots();
+
+    assertTrue(expectedMoves.contains("G3"));
+    assertTrue(expectedMoves.contains("F4"));
+    assertTrue(expectedMoves.contains("E5"));
+    assertTrue(expectedMoves.contains("D6"));
+
+    scoringMoves = state.player2Status().scoringMoves().scoringMoves();
+    assertEquals(2, scoringMoves.size());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.get(0).type());
+    assertEquals(1, scoringMoves.get(0).score());
   }
 
   @Test

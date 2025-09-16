@@ -87,10 +87,12 @@ public interface DotGame {
 
       var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
 
-      var newPlayer1Status = isPlayer1Turn() ? player1Status.incrementMoves() : player1Status;
-      newPlayer1Status = isPlayer1Turn() ? newPlayer1Status.incrementScore(newBoard.scoreDotAt(command.dotId)) : newPlayer1Status;
-      var newPlayer2Status = isPlayer2Turn() ? player2Status.incrementMoves() : player2Status;
-      newPlayer2Status = isPlayer2Turn() ? newPlayer2Status.incrementScore(newBoard.scoreDotAt(command.dotId)) : newPlayer2Status;
+      var newPlayer1Status = isPlayer1Turn() ? player1Status.makeMove(command.dotId, board.level(), moveHistory) : player1Status;
+      // newPlayer1Status = isPlayer1Turn() ? newPlayer1Status.incrementScore(newBoard.scoreDotAt(command.dotId)) :
+      // newPlayer1Status;
+      var newPlayer2Status = isPlayer2Turn() ? player2Status.makeMove(command.dotId, board.level(), moveHistory) : player2Status;
+      // newPlayer2Status = isPlayer2Turn() ? newPlayer2Status.incrementScore(newBoard.scoreDotAt(command.dotId)) :
+      // newPlayer2Status;
 
       var newStatus = gameStatus(newBoard, newPlayer1Status, newPlayer2Status);
 
@@ -98,6 +100,9 @@ public interface DotGame {
         if (newStatus == Status.won_by_player) {
           newPlayer1Status = isCurrentPlayer(newPlayer1Status) ? newPlayer1Status.setWinner() : newPlayer1Status.setLoser();
           newPlayer2Status = isCurrentPlayer(newPlayer2Status) ? newPlayer2Status.setWinner() : newPlayer2Status.setLoser();
+        } else { // draw
+          newPlayer1Status = newPlayer1Status.setLoser();
+          newPlayer2Status = newPlayer2Status.setLoser();
         }
       }
 
@@ -423,7 +428,7 @@ public interface DotGame {
   // ============================================================
   public record PlayerStatus(Player player, int moves, int score, boolean isWinner, ScoringMoves scoringMoves) {
     public PlayerStatus(Player player, int moves, int score, boolean isWinner) {
-      this(player, moves, score, isWinner, ScoringMoves.empty());
+      this(player, moves, score, isWinner, ScoringMoves.create(player));
     }
 
     static PlayerStatus empty() {
@@ -436,6 +441,12 @@ public interface DotGame {
 
     PlayerStatus incrementScore(int scoreIncrement) {
       return new PlayerStatus(player, moves, score + scoreIncrement, isWinner, scoringMoves);
+    }
+
+    PlayerStatus makeMove(String dotId, Board.Level level, List<Move> moveHistory) {
+      var move = new Dot(dotId, Optional.of(player));
+      var newScoringMoves = scoringMoves.scoreMove(move, level, moveHistory);
+      return new PlayerStatus(player, moves + 1, newScoringMoves.totalScore(), isWinner, newScoringMoves);
     }
 
     PlayerStatus setWinner() {
@@ -486,7 +497,7 @@ public interface DotGame {
     adjacent
   }
 
-  public record ScoringMove(Dot move, ScoringMoveType type, int score, List<Dot> scoringDots) {}
+  public record ScoringMove(Dot move, ScoringMoveType type, int score, List<String> scoringDots) {}
 
   public record ScoringMoves(String playerId, List<ScoringMove> scoringMoves) {
     static ScoringMoves empty() {
@@ -547,7 +558,7 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
+            var scoringDots = g.stream().map(m -> m.dotId()).toList();
             return new ScoringMove(move, ScoringMoveType.horizontal, score, scoringDots);
           })
           .filter(scoringMove -> scoringMove.score > 0)
@@ -585,7 +596,7 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
+            var scoringDots = g.stream().map(m -> m.dotId()).toList();
             return new ScoringMove(move, ScoringMoveType.vertical, score, scoringDots);
           })
           .filter(scoringMove -> scoringMove.score > 0)
@@ -633,7 +644,7 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
+            var scoringDots = g.stream().map(m -> m.dotId()).toList();
             return new ScoringMove(move, ScoringMoveType.diagonal, score, scoringDots);
           })
           .filter(scoringMove -> scoringMove.score > 0)
@@ -688,7 +699,7 @@ public interface DotGame {
           .map(g -> {
             var adjacentDotsToScore = Math.min(8, level.concurrentDotsToScore());
             var score = g.size() > adjacentDotsToScore ? g.size() - adjacentDotsToScore : 0;
-            var scoringDots = g.stream().map(m -> new Dot(m.dotId(), move.player())).toList();
+            var scoringDots = g.stream().map(m -> m.dotId()).toList();
             return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringDots);
           })
           .filter(scoringMove -> scoringMove.score > 0)
@@ -801,7 +812,7 @@ public interface DotGame {
           .toList());
     }
 
-    public int scoreDotAt(String id) {
+    public int scoreDotAtX(String id) {
       var dot = dotAt(id);
       if (dot.isEmpty() || dot.get().player().isEmpty()) {
         return 0; // No player at this dot
