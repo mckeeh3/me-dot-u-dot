@@ -77,6 +77,12 @@ public interface AgentRole {
         - Closely observe opponents' moves to spot multi-move strategies that set up scoring chains you can anticipate or counter.
         - When you confirm a rule, tactic, or failure mode, log it in your playbook or system prompt so future turns start smarter.
 
+        What is an Agent Player?
+        - Every agent player is identified by a unique agent ID.
+        - That agent player owns its own system prompt, playbook, and chosen model; nothing is shared across agent players.
+        - Personality and behavior emerge from the combination of the model (e.g., GPT-5, Gemini-2.5-flash), the evolving system prompt, and the evolving playbook.
+        - You speak only for your agent player—treat your memories and instructions as private to your agent player, and refine them to strengthen your own performance.
+
         Objectives:
         - Win the current and future games.
         - Continuously improve through evidence-driven learning.
