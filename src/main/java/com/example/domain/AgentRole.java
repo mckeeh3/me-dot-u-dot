@@ -3,6 +3,8 @@ package com.example.domain;
 import java.time.Instant;
 import java.util.Optional;
 
+import akka.javasdk.annotations.TypeName;
+
 public interface AgentRole {
 
   public record State(
@@ -11,15 +13,39 @@ public interface AgentRole {
       Instant updatedAt) {
 
     public static State empty() {
-      return new State("", AgentRole.systemPrompt(), Instant.now());
+      return new State("", "", Instant.now());
     }
 
     public boolean isEmpty() {
       return agentId.isEmpty();
     }
 
+    // ============================================================
+    // Command CreateAgentRole
+    // ============================================================
+    public Optional<Event> onCommand(Command.CreateAgentRole command) {
+      if (!isEmpty()) {
+        return Optional.empty();
+      }
+      if (systemPrompt.isEmpty()) { // TODO this is a temp fix
+        return Optional.of(new Event.AgentRoleUpdated(command.agentId, AgentRole.initialSystemPrompt(), Instant.now()));
+      }
+
+      return Optional.of(new Event.AgentRoleCreated(command.agentId, AgentRole.initialSystemPrompt(), Instant.now()));
+    }
+
+    // ============================================================
+    // Command UpdateAgentRole
+    // ============================================================
     public Optional<Event> onCommand(Command.UpdateAgentRole command) {
       return Optional.of(new Event.AgentRoleUpdated(command.agentId, command.systemPrompt, Instant.now()));
+    }
+
+    // ============================================================
+    // Event handlers
+    // ============================================================
+    public State onEvent(Event.AgentRoleCreated event) {
+      return new State(event.agentId, event.systemPrompt, event.createdAt);
     }
 
     public State onEvent(Event.AgentRoleUpdated event) {
@@ -28,15 +54,22 @@ public interface AgentRole {
   }
 
   public sealed interface Command {
+    record CreateAgentRole(String agentId) implements Command {}
+
     record UpdateAgentRole(String agentId, String systemPrompt) implements Command {}
   }
 
   public sealed interface Event {
+
+    @TypeName("agent-role-created")
+    record AgentRoleCreated(String agentId, String systemPrompt, Instant createdAt) implements Event {}
+
+    @TypeName("agent-role-updated")
     record AgentRoleUpdated(String agentId, String systemPrompt, Instant updatedAt) implements Event {}
   }
 
   // Defines the initial default system prompt for the agent role.
-  static String systemPrompt() {
+  static String initialSystemPrompt() {
     return """
         You are the me-dot-u-dot agent in a two-player, turn-based game played on a 2D grid with coordinates such as A1, B3, E5.
         - You only know what is in the latest message and what you retrieve via tools.

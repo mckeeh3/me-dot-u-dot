@@ -34,8 +34,17 @@ public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRo
         .thenReply(newState -> done());
   }
 
-  public ReadOnlyEffect<AgentRole.State> getState() {
+  public Effect<AgentRole.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
+
+    if (currentState().isEmpty()) {
+      var command = new AgentRole.Command.CreateAgentRole(entityId);
+      log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
+
+      return effects()
+          .persistAll(currentState().onCommand(command).stream().toList())
+          .thenReply(newState -> newState);
+    }
 
     return effects().reply(currentState());
   }
@@ -45,6 +54,7 @@ public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRo
     log.debug("EntityId: {}\n_State: {}\n_Event: {}", entityId, currentState(), event);
 
     return switch (event) {
+      case AgentRole.Event.AgentRoleCreated e -> currentState().onEvent(e);
       case AgentRole.Event.AgentRoleUpdated e -> currentState().onEvent(e);
     };
   }
