@@ -26,7 +26,13 @@ The game distinguishes between the **agent implementation** and the **agent play
 - When a turn begins, `DotGameToAgentConsumer` launches `DotGameAgent` on behalf of the specific agent player. The agent player’s model must call the provided tools to read game state, consult its playbook, and optionally revise both the playbook and system prompt after acting.
 - Because playbook and role updates are scoped per agent ID, two agent players running on the same underlying LLM remain independent learners.
 
-This separation—shared agent capabilities plus per-player memory—enables the core experiment of the app: agent players that continually adapt based on their own gameplay history.
+Agent players are also distinguished by their chosen LLM model. The player record captures both the agent type (always `DotGameAgent` today) and the specific model identifier (for example, `gpt-5-mini` versus `gemini-2.5-pro`). Running multiple agent players side by side lets you probe how different providers handle the same gameplay loop and self-learning workflow. Observations so far include:
+
+- **Response latency** – Even fast models often require several seconds, and sometimes minutes, to gather tool outputs and decide on a move.
+- **Learning behaviour** – Models vary in how aggressively they rewrite their playbooks and system prompts after each game, revealing different strategies for consolidating experience.
+- **Operational cost** – Because every turn invokes the same tool sequence, cost differences between models become directly comparable while they execute identical tasks.
+
+This separation—shared agent capabilities plus per-player memory and model choice—enables the core experiment of the app: agent players that continually adapt based on their own gameplay history while exposing how different LLMs behave under identical conditions.
 
 ### Learning Progression
 
