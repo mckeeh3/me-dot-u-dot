@@ -19,12 +19,12 @@ public class UpdateYourPlaybookTool {
   }
 
   @FunctionTool(description = """
-      Replace your current playbook with a new version.
+      Rewrite your playbook to capture the tactical knowledge you want to reuse next time you play.
 
-      - Input: the full updated playbook text (concise, self-authored instructions).
-      - Purpose: persist lessons, tactics, and corrections learned from experience.
-      - Typical updates: refine clarity, keep effective ideas, remove stale or conflicting guidance.
-      - This tool overwrites the previous playbook; always include the full revised version.
+      - Input: the complete, polished playbook (succinct tactics, heuristics, counter-strategies, and reminders).
+      - When to use: after a turn or game when you have a concrete lesson, new pattern, or clarified move sequence worth memorialising.
+      - Goal: turn raw observations into actionable guidance that future turns can follow without re-deriving the insight.
+      - Remember: the playbook differs from the system prompt—the playbook focuses on situational tactics, while the system prompt governs your overall role. This call replaces the playbook entirely, so bring forward the advice that still works and revise the parts that should change.
       """)
   public Done updatePlaybook(
       @Description("The ID of your agent") String agentId,

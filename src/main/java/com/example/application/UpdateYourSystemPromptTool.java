@@ -19,12 +19,12 @@ public class UpdateYourSystemPromptTool {
   }
 
   @FunctionTool(description = """
-      Replace your current system prompt with a new version.
+      Rewrite your system prompt so your future turns reflect the lessons you just learned.
 
-      - Input: the full updated system prompt text (concise, role-defining instructions).
-      - Purpose: persist behavioral adjustments, role refinements, and operational corrections learned from experience.
-      - Typical updates: refine personality, keep effective behavioral patterns, remove conflicting directives.
-      - This tool overwrites the previous system prompt; always include the full revised version.
+      - Input: the complete, updated system prompt (include expectations, tone, mandatory tool order, and any new guardrails).
+      - When to use: after you notice recurring mistakes, discover a stronger workflow, or need to clarify how you should reason and respond.
+      - Goal: capture durable behavioral upgrades so every subsequent turn starts with the improved guidance.
+      - Remember: this call replaces the old prompt entirely—copy forward the parts you still rely on and inject the refinements that will make you more effective.
       """)
   public Done updateSystemPrompt(
       @Description("The ID of your agent") String agentId,

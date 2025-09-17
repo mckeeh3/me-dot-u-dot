@@ -18,12 +18,12 @@ public class GetYourPlaybookTool {
   }
 
   @FunctionTool(description = """
-      Retrieve your current playbook text.
+      Retrieve your current playbook text so you can apply or revise it.
 
-      - The playbook is a persistent, free-form instruction set authored by you.
-      - It contains discoveries, tactics, and lessons distilled from prior games.
-      - Use it to ground your next move decisions and maintain consistency across turns.
-      - Returns the full current playbook (as plain text).
+      - The playbook is your tactical memory: a persistent, self-authored document containing proven openings, counter-moves, and heuristics.
+      - Use this tool before planning a move to anchor your reasoning in what already works.
+      - Also call it immediately before updating the playbook; copy forward the guidance you still trust and edit only what needs to change.
+      - Returns the full current playbook (plain text).
       """)
   public Playbook.State getYourPlaybook(
       @Description("The ID of your agent") String agentId) {
