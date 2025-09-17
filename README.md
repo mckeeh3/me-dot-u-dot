@@ -60,6 +60,15 @@ The application leverages Akka SDK components for scalable, event-driven archite
 - Integrates with LLM providers
 - Uses structured tools for game analysis, learning updates, and move selection
 
+**Akka Agent Tools:**
+
+- `GetGameStateTool` - Retrieves a compact view of the current board, players, scores, and move history
+- `MakeMoveTool` - Submits the agent's selected move to the game entity after validation
+- `GetYourPlaybookTool` - Returns the latest playbook instructions for the requesting agent
+- `UpdateYourPlaybookTool` - Overwrites the agent's playbook with a revised instruction set
+- `GetYourSystemPromptTool` - Provides the persisted system prompt when preparing an update
+- `UpdateYourSystemPromptTool` - Persists a new system prompt / role definition for the agent
+
 **Views:**
 
 - `DotGameView` - Queries for game states and history
