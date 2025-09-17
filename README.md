@@ -48,33 +48,38 @@ The application leverages Akka SDK components for scalable, event-driven archite
 **Event Sourced Entities:**
 
 - `DotGameEntity` - Manages game state, moves, and scoring through event sourcing
+- `PlaybookEntity` - Stores the latest agent playbook instructions
 - `PlaybookJournalEntity` - Tracks the evolution of agent playbooks over time
+- `AgentRoleEntity` - Persists the agent system prompt / role definition
+- `AgentRoleJournalEntity` - Archives historical agent role revisions
 - `PlayerEntity` - Handles player profiles and statistics
 
 **Akka Agents:**
 
-- `GameAgent` - The core AI agent that makes game decisions and learns from experience
+- `DotGameAgent` - The core AI agent that makes game decisions and learns from experience
 - Integrates with LLM providers
-- Uses structured tools for game analysis and move selection
+- Uses structured tools for game analysis, learning updates, and move selection
 
 **Views:**
 
 - `DotGameView` - Queries for game states and history
 - `PlaybookJournalView` - Provides access to agent learning progression
+- `AgentRoleJournalView` - Exposes system prompt revisions for inspection
 - `PlayerView` - Manages player data and statistics
 
 **Consumers:**
 
 - `DotGameToAgentConsumer` - Bridges game events to agent learning systems
-- `PlaybookToPlaybookJournalConsumer` - Archives agent learning evolution
+- `PlaybookToPlaybookJournalConsumer` - Archives agent playbook evolution
+- `AgentRoleToAgentRoleJournalConsumer` - Archives system prompt / role evolution
 
 ### Agent Learning Flow
 
 1. `DotGameEntity` processes moves and emits game events
 2. `DotGameToAgentConsumer` translates events into agent context
-3. `GameAgent` reasons about the game state using its playbook
-4. Agent updates its playbook with new insights and strategies
-5. `PlaybookJournalEntity` records the learning progression for analysis
+3. `DotGameAgent` reasons about the game state using mandatory tools
+4. Agent updates its playbook or system prompt with new insights and strategies
+5. `PlaybookJournalEntity` and `AgentRoleJournalEntity` record the learning progression for analysis
 
 ## 🔍 Observing Agent Learning
 
@@ -88,6 +93,16 @@ The playbook journal provides a unique window into agent cognition:
 - **Comparative analysis** - Compare learning patterns between different agents
 
 Access agent learning progression through the web interface's "View Journal" feature for any AI player.
+
+### Agent Role Journal System
+
+The agent role journal complements the playbook history by recording every version of the system prompt that governs an agent's behaviour:
+
+- **System prompt lineage** - Track how role guidance evolves alongside tactics
+- **Diff-friendly** - The dedicated UI highlights additions/removals between revisions
+- **Cross-reference** - Compare role changes with playbook updates to understand their combined effect on performance
+
+View historical agent roles via `/agent-role.html`, which mirrors the playbook journal experience.
 
 ## 🛠️ Tech Stack
 
@@ -108,7 +123,7 @@ Access agent learning progression through the web interface's "View Journal" fea
 
 - **LLM Integration** - OpenAI GPT-4o (pluggable architecture for other providers)
 - **Structured Prompting** - Engineered system prompts for optimal learning
-- **Tool Integration** - Agents use tools for game analysis and decision support
+- **Tool Integration** - Agents use tools for game analysis, decision support, move execution, and maintaining playbooks/system prompts
 
 ## 🚀 Installation & Setup
 
