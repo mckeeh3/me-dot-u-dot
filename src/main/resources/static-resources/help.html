@@ -21,6 +21,7 @@
             <div id="nav-menu" class="dd-menu">
               <div class="dd-item" onclick="window.location.href='/'">Game</div>
               <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+              <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
               <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
               <div class="dd-item current">Help</div>
             </div>
@@ -133,6 +134,21 @@
       </section>
 
       <section class="help-section">
+        <h2>Agent Role Viewer</h2>
+        <p>
+          The agent role viewer exposes the versioned system prompts that shape each agent's core behavior. While the playbook captures tactical knowledge, the system prompt defines the persistent
+          role and guardrails the agent follows when interacting with the game and tools.
+        </p>
+        <h3>Using the Viewer</h3>
+        <ul>
+          <li>Select an agent to inspect the historical system prompts attached to that identity.</li>
+          <li>Move between revisions to see how the agent's role definition evolved over time.</li>
+          <li>The diff toggle highlights changes between consecutive prompts to surface meaningful adjustments quickly.</li>
+          <li>Use this history to compare playbook updates with role refinements and understand their combined impact on gameplay.</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
         <h2>Leader Board</h2>
         <p>
           The leader board provides a comprehensive view of player performance and game history. It displays the top players ranked by their number of games won, offering detailed insights into
@@ -183,7 +199,7 @@
         <h3>Navigation Tips</h3>
         <ul>
           <li>The page automatically selects the top-ranked player and their most recent game when first loaded.</li>
-          <li>Use the hamburger menu to navigate between the Leader Board, Game, Playbook Viewer, and Help pages.</li>
+          <li>Use the hamburger menu to navigate between the Game, Playbook Viewer, Agent Role Viewer, Leader Board, and Help pages.</li>
           <li>Click on any row in the rankings or game history tables to view detailed information.</li>
           <li>The selected player and game are highlighted for easy reference.</li>
         </ul>

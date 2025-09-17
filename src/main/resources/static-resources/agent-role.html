@@ -6,13 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Me-Dot-U-Dot Playbook Viewer</title>
+    <title>Me-Dot-U-Dot Agent Role Viewer</title>
     <link rel="stylesheet" href="/css/common.css" />
     <link rel="stylesheet" href="/css/journal-viewer.css" />
-    <link rel="stylesheet" href="/css/playbook.css" />
-    <style>
-      /* Any page-specific overrides can go here */
-    </style>
+    <link rel="stylesheet" href="/css/agent-role.css" />
   </head>
   <body>
     <!-- Navigation Menu -->
@@ -23,17 +20,16 @@
         </button>
         <div id="nav-menu" class="dd-menu">
           <div class="dd-item" onclick="window.location.href='/'">Game</div>
-          <div class="dd-item current">Playbook Viewer</div>
-          <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+          <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+          <div class="dd-item current">Agent Role Viewer</div>
           <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
           <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
         </div>
       </div>
     </div>
 
-    <!-- Player Selection -->
+    <!-- Agent Selection -->
     <div class="agent-selection">
-      <!-- <label>Select Agent:</label> -->
       <div class="dd-container agent-selection-dd-container">
         <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Agent</button>
         <div class="dd-menu" id="player-dd-menu"></div>
@@ -41,9 +37,9 @@
     </div>
 
     <!-- Journal Viewer -->
-    <div class="journal-viewer-in-playbook">
+    <div class="journal-viewer-in-agent-role">
       <div class="journal-header">
-        <h3>Agent Playbook Journal</h3>
+        <h3>Agent Role Journal</h3>
       </div>
 
       <div class="journal-content">
@@ -63,8 +59,8 @@
         </div>
 
         <div class="journal-instructions-container">
-          <div class="journal-instructions-label">Instructions:</div>
-          <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
+          <div class="journal-instructions-label">System Prompt:</div>
+          <div id="journalInstructions" class="journal-instructions">Select an agent to view their agent role journal.</div>
         </div>
       </div>
 
@@ -76,7 +72,7 @@
     </div>
 
     <script src="/js/common.js"></script>
-    <script src="/js/playbook.js"></script>
+    <script src="/js/agent-role.js"></script>
     <script src="/js/diff.js"></script>
   </body>
 </html>
