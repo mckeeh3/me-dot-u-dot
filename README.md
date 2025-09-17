@@ -25,6 +25,7 @@ The game distinguishes between the **agent implementation** and the **agent play
   - an **agent role/system prompt** (`AgentRoleEntity`) that frames long-term behaviour and tool discipline.
 - When a turn begins, `DotGameToAgentConsumer` launches `DotGameAgent` on behalf of the specific agent player. The agent player’s model must call the provided tools to read game state, consult its playbook, and optionally revise both the playbook and system prompt after acting.
 - Because playbook and role updates are scoped per agent ID, two agent players running on the same underlying LLM remain independent learners.
+- Every agent player starts from the shared default system prompt, but that prompt is meant to evolve; fetch it, edit it, and resubmit improved versions as you learn.
 
 Agent players are also distinguished by their chosen LLM model. The player record captures both the agent type (always `DotGameAgent` today) and the specific model identifier (for example, `gpt-5-mini` versus `gemini-2.5-pro`). Running multiple agent players side by side lets you probe how different providers handle the same gameplay loop and self-learning workflow. Observations so far include:
 
