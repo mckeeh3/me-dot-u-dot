@@ -29,6 +29,7 @@ public class AgentRoleToAgentRoleJournalConsumer extends Consumer {
     return switch (event) {
       case AgentRole.Event.AgentRoleCreated e -> onEvent(e);
       case AgentRole.Event.AgentRoleUpdated e -> onEvent(e);
+      case AgentRole.Event.AgentRoleReset e -> onEvent(e);
       default -> {
         log.debug("Unknown event: {}", event);
         yield effects().done();
@@ -65,6 +66,25 @@ public class AgentRoleToAgentRoleJournalConsumer extends Consumer {
         sequence,
         event.systemPrompt(),
         event.updatedAt());
+
+    componentClient
+        .forEventSourcedEntity(journalId)
+        .method(AgentRoleJournalEntity::createAgentRoleJournal)
+        .invoke(command);
+
+    return effects().done();
+  }
+
+  Effect onEvent(AgentRole.Event.AgentRoleReset event) {
+    var agentId = event.agentId();
+    var sequence = messageContext().metadata().asCloudEvent().sequence().orElse(Instant.now().toEpochMilli());
+    var journalId = agentId + ":" + sequence;
+
+    var command = new AgentRoleJournal.Command.CreateAgentRoleJournal(
+        agentId,
+        sequence,
+        event.systemPrompt(),
+        event.resetAt());
 
     componentClient
         .forEventSourcedEntity(journalId)

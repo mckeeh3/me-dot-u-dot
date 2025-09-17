@@ -3,8 +3,11 @@ package com.example.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.application.AgentRoleEntity;
 import com.example.application.AgentRoleJournalView;
+import com.example.domain.AgentRole;
 
+import akka.Done;
 import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Post;
@@ -50,6 +53,17 @@ public class AgentRoleEndpoint {
 
     return componentClient.forView()
         .method(AgentRoleJournalView::getByAgentIdAndSequence)
+        .invoke(request);
+  }
+
+  // this is intended to be used when the initial system prompt is changed, allowing for updating an agent player's system
+  // prompt
+  @Post("/reset-agent-role")
+  public Done resetAgentRole(AgentRole.Command.ResetAgentRole request) {
+    log.info("Reset agent role: {}", request);
+
+    return componentClient.forEventSourcedEntity(request.agentId())
+        .method(AgentRoleEntity::resetAgentRole)
         .invoke(request);
   }
 }

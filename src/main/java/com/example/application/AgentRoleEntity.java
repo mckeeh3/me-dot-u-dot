@@ -34,6 +34,14 @@ public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRo
         .thenReply(newState -> done());
   }
 
+  public Effect<Done> resetAgentRole(AgentRole.Command.ResetAgentRole command) {
+    log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
+
+    return effects()
+        .persistAll(currentState().onCommand(command).stream().toList())
+        .thenReply(newState -> done());
+  }
+
   public Effect<AgentRole.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
@@ -56,6 +64,7 @@ public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRo
     return switch (event) {
       case AgentRole.Event.AgentRoleCreated e -> currentState().onEvent(e);
       case AgentRole.Event.AgentRoleUpdated e -> currentState().onEvent(e);
+      case AgentRole.Event.AgentRoleReset e -> currentState().onEvent(e);
     };
   }
 }

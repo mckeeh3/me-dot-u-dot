@@ -27,29 +27,55 @@ public interface AgentRole {
       if (!isEmpty()) {
         return Optional.empty();
       }
-      if (systemPrompt.isEmpty()) { // TODO this is a temp fix
-        return Optional.of(new Event.AgentRoleUpdated(command.agentId, AgentRole.initialSystemPrompt(), Instant.now()));
-      }
 
-      return Optional.of(new Event.AgentRoleCreated(command.agentId, AgentRole.initialSystemPrompt(), Instant.now()));
+      return Optional.of(new Event.AgentRoleCreated(
+          command.agentId,
+          AgentRole.initialSystemPrompt(),
+          Instant.now()));
     }
 
     // ============================================================
     // Command UpdateAgentRole
     // ============================================================
     public Optional<Event> onCommand(Command.UpdateAgentRole command) {
-      return Optional.of(new Event.AgentRoleUpdated(command.agentId, command.systemPrompt, Instant.now()));
+      return Optional.of(new Event.AgentRoleUpdated(
+          command.agentId,
+          command.systemPrompt,
+          Instant.now()));
+    }
+
+    // ============================================================
+    // Command ResetAgentRole
+    // ============================================================
+    public Optional<Event> onCommand(Command.ResetAgentRole command) {
+      return Optional.of(new Event.AgentRoleReset(
+          command.agentId,
+          AgentRole.initialSystemPrompt(),
+          Instant.now()));
     }
 
     // ============================================================
     // Event handlers
     // ============================================================
     public State onEvent(Event.AgentRoleCreated event) {
-      return new State(event.agentId, event.systemPrompt, event.createdAt);
+      return new State(
+          event.agentId,
+          event.systemPrompt,
+          event.createdAt);
     }
 
     public State onEvent(Event.AgentRoleUpdated event) {
-      return new State(event.agentId, event.systemPrompt, event.updatedAt);
+      return new State(
+          event.agentId,
+          event.systemPrompt,
+          event.updatedAt);
+    }
+
+    public State onEvent(Event.AgentRoleReset event) {
+      return new State(
+          event.agentId,
+          event.systemPrompt,
+          event.resetAt);
     }
   }
 
@@ -57,6 +83,8 @@ public interface AgentRole {
     record CreateAgentRole(String agentId) implements Command {}
 
     record UpdateAgentRole(String agentId, String systemPrompt) implements Command {}
+
+    record ResetAgentRole(String agentId) implements Command {}
   }
 
   public sealed interface Event {
@@ -66,6 +94,9 @@ public interface AgentRole {
 
     @TypeName("agent-role-updated")
     record AgentRoleUpdated(String agentId, String systemPrompt, Instant updatedAt) implements Event {}
+
+    @TypeName("agent-role-reset")
+    record AgentRoleReset(String agentId, String systemPrompt, Instant resetAt) implements Event {}
   }
 
   // Defines the initial default system prompt for the agent role.
@@ -77,11 +108,11 @@ public interface AgentRole {
         - Closely observe opponents' moves to spot multi-move strategies that set up scoring chains you can anticipate or counter.
         - When you confirm a rule, tactic, or failure mode, log it in your playbook or system prompt so future turns start smarter.
 
-        What is an Agent Player?
-        - Every agent player is identified by a unique agent ID.
-        - That agent player owns its own system prompt, playbook, and chosen model; nothing is shared across agent players.
+        You are an Agent Player
+        - You are identified by a unique agent ID.
+        - You own your own system prompt, playbook, and chosen model; nothing is shared across agent players.
         - Personality and behavior emerge from the combination of the model (e.g., GPT-5, Gemini-2.5-flash), the evolving system prompt, and the evolving playbook.
-        - You speak only for your agent player—treat your memories and instructions as private to your agent player, and refine them to strengthen your own performance.
+        - You speak only for yourself—treat your memories and instructions as private to yourself, and refine them to strengthen your own performance.
 
         Objectives:
         - Win the current and future games.
