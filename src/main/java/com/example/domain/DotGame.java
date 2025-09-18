@@ -114,10 +114,6 @@ public interface DotGame {
         }
       }
 
-      // var createdAtPlusTotalThinkMs = moveHistory.stream()
-      // .map(m -> Duration.ofMillis(m.thinkMs()))
-      // .reduce(createdAt, Instant::plus, (a, b) -> b);
-      // var thinkMs = Duration.between(createdAtPlusTotalThinkMs, Instant.now()).toMillis();
       var thinkMs = Duration.between(updatedAt, Instant.now()).toMillis();
       var newMove = new Move(command.squareId, command.playerId, thinkMs);
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(newMove))
