@@ -5,9 +5,16 @@ let leaderBoardData = [];
 let selectedPlayerId = null;
 let selectedGameId = null;
 let playerGamesData = [];
+let replayState = {
+  gameState: null,
+  moveHistory: [],
+  index: 0,
+  players: {},
+};
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
+  setupReplayControls();
   await loadLeaderBoard();
 });
 
@@ -57,6 +64,28 @@ function renderLeaderBoard() {
 
     tbody.appendChild(row);
   });
+}
+
+function setupReplayControls() {
+  const firstBtn = $('replayFirstBtn');
+  const prevBtn = $('replayPrevBtn');
+  const nextBtn = $('replayNextBtn');
+  const lastBtn = $('replayLastBtn');
+
+  if (firstBtn) {
+    firstBtn.addEventListener('click', () => setReplayIndex(0));
+  }
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => setReplayIndex(replayState.index - 1));
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => setReplayIndex(replayState.index + 1));
+  }
+  if (lastBtn) {
+    lastBtn.addEventListener('click', () => setReplayIndex(replayState.moveHistory.length));
+  }
+
+  updateReplayUI();
 }
 
 // Select a player and load their games
@@ -181,15 +210,32 @@ function updateSelectedGameUI() {
 // Load game details and render game board
 async function loadGameDetails(gameId) {
   try {
-    const response = await fetch(`/game/get-state/${gameId}`);
+    const [stateResponse, historyResponse] = await Promise.all([
+      fetch(`/game/get-state/${gameId}`),
+      fetch(`/game/get-game-move-history-tool/${gameId}`),
+    ]);
 
-    if (response.ok) {
-      const { gameState } = await response.json();
-      renderGameInfo(gameState);
-      renderGameBoard(gameState);
-    } else {
+    if (!stateResponse.ok || !historyResponse.ok) {
       console.error('Failed to load game details');
+      return;
     }
+
+    const statePayload = await stateResponse.json();
+    const historyPayload = await historyResponse.json();
+
+    const gameState = statePayload.gameState;
+    const moveHistory = historyPayload.moves || [];
+
+    renderGameInfo(gameState);
+
+    replayState = {
+      gameState,
+      moveHistory,
+      index: moveHistory.length,
+      players: buildPlayerMeta(gameState),
+    };
+
+    updateReplayUI();
   } catch (error) {
     console.error('Error loading game details:', error);
   }
@@ -274,90 +320,253 @@ function calculateMoveThinkTime(thinkMs) {
   return minutes > 0 ? `${minutes}m${seconds}s` : `${seconds}s`;
 }
 
-function calculateMoveCounts(gameState) {
-  let p1MoveCount = 0;
-  let p2MoveCount = 0;
-  let gameMoveCount = 0;
+function buildPlayerMeta(gameState) {
+  const p1 = gameState.player1Status.player;
+  const p2 = gameState.player2Status.player;
 
-  const enhancedMoves = gameState.moveHistory.map((move) => {
-    gameMoveCount++;
-
-    if (move.playerId === gameState.player1Status.player.id) {
-      p1MoveCount++;
-    } else if (move.playerId === gameState.player2Status.player.id) {
-      p2MoveCount++;
-    }
-
-    return {
-      squareId: move.squareId,
-      playerId: move.playerId,
-      p1Moves: p1MoveCount,
-      p2Moves: p2MoveCount,
-      gameMoves: gameMoveCount,
-      p1ThinkMs: calculateMoveThinkTime(move.thinkMs),
-      p2ThinkMs: calculateMoveThinkTime(move.thinkMs),
-    };
-  });
-
-  return enhancedMoves;
+  return {
+    [p1.id]: {
+      name: p1.name,
+      type: p1.type,
+      cssClass: 'player1',
+    },
+    [p2.id]: {
+      name: p2.name,
+      type: p2.type,
+      cssClass: 'player2',
+    },
+  };
 }
 
-// Render game board
-function renderGameBoard(gameState) {
-  const board = $('gameBoard');
-  board.innerHTML = '';
+function setReplayIndex(index) {
+  if (!replayState.gameState) {
+    return;
+  }
+
+  const total = replayState.moveHistory.length;
+  const clamped = Math.max(0, Math.min(index, total));
+  replayState.index = clamped;
+  updateReplayUI();
+}
+
+function updateReplayUI() {
+  const snapshot = buildReplaySnapshot(replayState.index);
+  updateReplayButtons(snapshot);
+  updateReplayStatus(snapshot);
+  renderGameBoardAtIndex(snapshot);
+  renderMoveDetails(snapshot);
+}
+
+function buildReplaySnapshot(index) {
+  if (!replayState.gameState) {
+    return {
+      totalMoves: 0,
+      index: 0,
+      occupancy: new Map(),
+      perPlayer: {},
+      currentMove: null,
+      scoringSquares: [],
+    };
+  }
+
+  const totalMoves = replayState.moveHistory.length;
+  const clamped = Math.max(0, Math.min(index, totalMoves));
+  const occupancy = new Map();
+  const perPlayer = {};
+
+  Object.keys(replayState.players).forEach((playerId) => {
+    perPlayer[playerId] = { moves: 0, score: 0 };
+  });
+
+  let currentMove = null;
+  let scoringSquares = [];
+
+  for (let i = 0; i < clamped; i++) {
+    const move = replayState.moveHistory[i];
+    const playerStats = perPlayer[move.playerId] || { moves: 0, score: 0 };
+
+    playerStats.moves += 1;
+    playerStats.score += move.moveScore || 0;
+    perPlayer[move.playerId] = playerStats;
+
+    occupancy.set(move.squareId, {
+      playerId: move.playerId,
+      gameMove: i + 1,
+      playerMove: playerStats.moves,
+      thinkTime: calculateMoveThinkTime(move.thinkMs),
+      moveScore: move.moveScore || 0,
+    });
+
+    if (i === clamped - 1) {
+      currentMove = move;
+      const ids = (move.scoringMoves || []).flatMap((sm) => sm.scoringSquareIds || []);
+      scoringSquares = ids.includes(move.squareId) ? ids : [move.squareId, ...ids];
+    }
+  }
+
+  return {
+    totalMoves,
+    index: clamped,
+    occupancy,
+    perPlayer,
+    currentMove,
+    scoringSquares,
+  };
+}
+
+function updateReplayButtons(snapshot) {
+  const total = snapshot.totalMoves;
+  const index = snapshot.index;
+  const disabled = total === 0;
+
+  const firstBtn = $('replayFirstBtn');
+  const prevBtn = $('replayPrevBtn');
+  const nextBtn = $('replayNextBtn');
+  const lastBtn = $('replayLastBtn');
+
+  if (firstBtn) firstBtn.disabled = disabled || index === 0;
+  if (prevBtn) prevBtn.disabled = disabled || index === 0;
+  if (nextBtn) nextBtn.disabled = disabled || index === total;
+  if (lastBtn) lastBtn.disabled = disabled || index === total;
+}
+
+function updateReplayStatus(snapshot) {
+  const statusEl = $('replayStatus');
+  if (!statusEl) return;
+
+  const total = snapshot.totalMoves;
+  const index = snapshot.index;
+
+  if (total === 0) {
+    statusEl.textContent = replayState.gameState ? 'No moves recorded' : 'Move 0 / 0';
+    return;
+  }
+
+  if (index === 0) {
+    statusEl.textContent = `Move 0 / ${total} (start)`;
+    return;
+  }
+
+  const move = snapshot.currentMove;
+  const playerMeta = move ? replayState.players[move.playerId] : null;
+  const playerLabel = playerMeta ? playerMeta.name : move?.playerId || '';
+  statusEl.textContent = `Move ${index} / ${total} – ${playerLabel} (${move?.squareId || ''})`;
+}
+
+function renderGameBoardAtIndex(snapshot) {
+  const boardEl = $('gameBoard');
+  if (!boardEl) return;
+
+  boardEl.innerHTML = '';
+
+  if (!replayState.gameState) {
+    return;
+  }
 
   const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
-  const size = levelSizeMap[gameState.board.level] || 5;
+  const size = levelSizeMap[replayState.gameState.board.level] || 5;
 
-  board.style.setProperty('--size', size);
-  board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  boardEl.style.setProperty('--size', size);
+  boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
-  const squares = gameState.board.squares || [];
-  const byId = new Map(squares.map((d) => [d.squareId, d]));
-  const lastMoveId = gameState.moveHistory?.length ? gameState.moveHistory[gameState.moveHistory.length - 1].squareIdId : null;
-  const moveCounts = calculateMoveCounts(gameState);
+  const scoringSquares = new Set(snapshot.scoringSquares || []);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
-      const square = byId.get(id);
 
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.dataset.squareId = id;
 
-      if (square && square.playerId) {
-        const playerId = square.playerId;
-        const isPlayer1 = playerId === gameState.player1Status.player.id;
-        const cls = isPlayer1 ? 'player1' : 'player2';
-        cell.classList.add(cls);
+      const moveData = snapshot.occupancy.get(id);
 
-        // Find the move data for this cell
-        const moveData = moveCounts.find((move) => move.squareId === id);
+      if (moveData) {
+        const playerMeta = replayState.players[moveData.playerId];
+        if (playerMeta?.cssClass) {
+          cell.classList.add(playerMeta.cssClass);
+        }
 
-        // Create 3-layer structure
         cell.innerHTML = `
           <div class="cell-layer cell-layer-top">
             <span class="cell-id">${id}</span>
-            <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
+            <span class="game-move-count">${moveData.gameMove}</span>
           </div>
           <div class="cell-layer cell-layer-middle">
             <span class="player-square">●</span>
           </div>
           <div class="cell-layer cell-layer-bottom">
-            <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>
-            <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
+            <span class="player-think-time">${moveData.thinkTime || ''}</span>
+            <span class="player-move-count">${moveData.playerMove}</span>
+          </div>
+        `;
+      } else {
+        cell.innerHTML = `
+          <div class="cell-layer cell-layer-top">
+            <span class="cell-id"></span>
+            <span class="game-move-count"></span>
+          </div>
+          <div class="cell-layer cell-layer-middle">
+            <span class="player-square"></span>
+          </div>
+          <div class="cell-layer cell-layer-bottom">
+            <span class="player-think-time"></span>
+            <span class="player-move-count"></span>
           </div>
         `;
       }
 
-      if (lastMoveId && id === lastMoveId) {
-        cell.classList.add('last-move');
+      if (snapshot.currentMove && snapshot.currentMove.squareId === id) {
+        cell.classList.add('current-move');
       }
 
-      board.appendChild(cell);
+      if (scoringSquares.has(id)) {
+        cell.classList.add('scoring-square');
+      }
+
+      boardEl.appendChild(cell);
     }
   }
+}
+
+function renderMoveDetails(snapshot) {
+  const detailsEl = $('moveDetails');
+  if (!detailsEl) return;
+
+  if (!replayState.gameState) {
+    detailsEl.textContent = 'Select a game to review its moves.';
+    return;
+  }
+
+  if (snapshot.totalMoves === 0) {
+    detailsEl.textContent = 'No moves were recorded for this game.';
+    return;
+  }
+
+  if (snapshot.index === 0) {
+    detailsEl.textContent = 'Game start. Use the controls above to step through each move.';
+    return;
+  }
+
+  const move = snapshot.currentMove;
+  const playerMeta = replayState.players[move.playerId];
+  const playerName = playerMeta ? playerMeta.name : move.playerId;
+  const moveScore = move.moveScore || 0;
+  const thinkDisplay = calculateMoveThinkTime(move.thinkMs);
+  const scoringList = (move.scoringMoves || []).flatMap((sm) => sm.scoringSquareIds || []);
+  const scoringText = scoringList.length ? scoringList.join(', ') : 'None';
+
+  const perPlayerSummary = Object.entries(replayState.players)
+    .map(([playerId, meta]) => {
+      const stats = snapshot.perPlayer[playerId] || { score: 0, moves: 0 };
+      return `${meta.name}: ${stats.score} pts, ${stats.moves} moves`;
+    })
+    .join(' • ');
+
+  detailsEl.innerHTML = `
+    <div><strong>Move ${snapshot.index}:</strong> ${playerName} played <strong>${move.squareId}</strong> ${thinkDisplay ? `after ${thinkDisplay}` : ''}.</div>
+    <div>Points this move: <strong>${moveScore}</strong> • Scoring squares: <strong>${scoringText}</strong>.</div>
+    <div>${perPlayerSummary}</div>
+  `;
 }
