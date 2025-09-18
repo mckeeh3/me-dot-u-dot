@@ -42,7 +42,7 @@ public class GetGameMoveHistoryTool {
     }
   }
 
-  record Move(String squareId, String playerId, long thinkMs, List<ScoringMove> scoringMoves) {
+  record Move(String squareId, String playerId, long thinkMs, int moveScore, List<ScoringMove> scoringMoves) {
     static Move from(DotGame.Move move, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
       var p1ScoringMoves = player1ScoringMoves.scoringMoves()
           .stream()
@@ -54,7 +54,9 @@ public class GetGameMoveHistoryTool {
           .map(ScoringMove::from).toList();
       var scoringMoves = Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList();
 
-      return new Move(move.squareId(), move.playerId(), move.thinkMs(), scoringMoves);
+      var newMoveScore = scoringMoves.stream().map(sm -> sm.score()).reduce(0, Integer::sum);
+
+      return new Move(move.squareId(), move.playerId(), move.thinkMs(), newMoveScore, scoringMoves);
     }
   }
 
