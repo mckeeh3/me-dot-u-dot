@@ -107,7 +107,7 @@ public class DotGameView extends View {
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
-          event.timestamp(),
+          event.updatedAt(),
           event.status().toString(),
           rowState().level(),
           player1.player().id(),
@@ -131,7 +131,7 @@ public class DotGameView extends View {
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
-          event.timestamp(),
+          event.updatedAt(),
           event.status().toString(),
           rowState().level(),
           rowState().player1Id(),
@@ -152,13 +152,13 @@ public class DotGameView extends View {
     }
 
     DotGameRow onEvent(DotGame.Event.MoveForfeited event) {
-      var newCurrentPlayerId = event.currentPlayer().map(ps -> ps.player().id()).orElse("");
-      var newCurrentPlayerName = event.currentPlayer().map(ps -> ps.player().name()).orElse("");
+      var newCurrentPlayerId = event.currentPlayerStatus().map(ps -> ps.player().id()).orElse("");
+      var newCurrentPlayerName = event.currentPlayerStatus().map(ps -> ps.player().name()).orElse("");
 
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
-          event.timestamp(),
+          event.updatedAt(),
           rowState().status(),
           rowState().level(),
           rowState().player1Id(),

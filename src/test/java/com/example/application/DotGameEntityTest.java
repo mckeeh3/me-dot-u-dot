@@ -175,8 +175,8 @@ public class DotGameEntityTest {
     assertEquals(1, result.getAllEvents().size());
     var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
     assertEquals(gameId, event.gameId());
-    assertTrue(event.currentPlayer().isPresent());
-    assertEquals(player2, event.currentPlayer().get().player());
+    assertTrue(event.currentPlayerStatus().isPresent());
+    assertEquals(player2, event.currentPlayerStatus().get().player());
   }
 
   @Test

@@ -108,10 +108,10 @@ public class DotGameToAgentConsumer extends Consumer {
   }
 
   Effect onEvent(DotGame.Event.MoveForfeited event) {
-    var currentPlayer = event.currentPlayer();
+    var currentPlayer = event.currentPlayerStatus();
 
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var agentPlayer = event.currentPlayer().get();
+      var agentPlayer = event.currentPlayerStatus().get();
       var sessionId = event.gameId() + "-" + agentPlayer.player().id();
 
       var prompt = new DotGameAgent.MakeMovePrompt(

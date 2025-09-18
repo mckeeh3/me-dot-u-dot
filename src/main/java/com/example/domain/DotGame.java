@@ -23,17 +23,28 @@ public interface DotGame {
 
   public record State(
       String gameId,
-      Instant createdAt,
       Status status,
-      Board board,
+      Instant createdAt,
+      Instant updatedAt,
+      Optional<Instant> finishedAt,
       PlayerStatus player1Status,
       PlayerStatus player2Status,
       Optional<PlayerStatus> currentPlayer,
       List<Move> moveHistory,
-      Optional<Instant> finishedAt) {
+      Board board) {
 
     public static State empty() {
-      return new State("", Instant.now(), Status.empty, Board.empty(), PlayerStatus.empty(), PlayerStatus.empty(), Optional.empty(), List.of(), Optional.empty());
+      return new State(
+          "",
+          Status.empty,
+          Instant.now(),
+          Instant.now(),
+          Optional.empty(),
+          PlayerStatus.empty(),
+          PlayerStatus.empty(),
+          Optional.empty(),
+          List.of(),
+          Board.empty());
     }
 
     public boolean isEmpty() {
@@ -51,15 +62,16 @@ public interface DotGame {
       return Optional.of(
           new Event.GameCreated(
               command.gameId,
-              Instant.now(),
-              Board.of(command.level),
               Status.in_progress,
+              Instant.now(),
+              Instant.now(),
+              Optional.empty(),
               new PlayerStatus(command.player1, 0, 0, false),
               new PlayerStatus(command.player2, 0, 0, false),
               Optional.of(new PlayerStatus(command.player1, 0, 0, false)),
-              command.level,
               List.of(),
-              Optional.empty()));
+              command.level,
+              Board.of(command.level)));
     }
 
     // ============================================================
@@ -102,10 +114,11 @@ public interface DotGame {
         }
       }
 
-      var createdAtPlusTotalThinkMs = moveHistory.stream()
-          .map(m -> Duration.ofMillis(m.thinkMs()))
-          .reduce(createdAt, Instant::plus, (a, b) -> b);
-      var thinkMs = Duration.between(createdAtPlusTotalThinkMs, Instant.now()).toMillis();
+      // var createdAtPlusTotalThinkMs = moveHistory.stream()
+      // .map(m -> Duration.ofMillis(m.thinkMs()))
+      // .reduce(createdAt, Instant::plus, (a, b) -> b);
+      // var thinkMs = Duration.between(createdAtPlusTotalThinkMs, Instant.now()).toMillis();
+      var thinkMs = Duration.between(updatedAt, Instant.now()).toMillis();
       var newMove = new Move(command.squareId, command.playerId, thinkMs);
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(newMove))
           .toList();
@@ -114,17 +127,17 @@ public interface DotGame {
 
       var madeMoveEvent = new Event.MoveMade(
           gameId,
-          newBoard,
           newStatus,
+          Instant.now(),
           newPlayer1Status,
           newPlayer2Status,
           newCurrentPlayer,
           newMoveHistory,
-          Instant.now());
+          newBoard);
 
       if (newStatus != Status.in_progress) {
-        var eventGameFinished = new Event.GameFinished(gameId, Optional.of(Instant.now()));
-        var eventGameResults = new Event.GameResults(gameId, newStatus, newPlayer1Status, newPlayer2Status, Instant.now());
+        var eventGameFinished = new Event.GameFinished(gameId, newStatus, Instant.now(), Optional.of(Instant.now()));
+        var eventGameResults = new Event.GameResults(gameId, newStatus, Instant.now(), newPlayer1Status, newPlayer2Status);
 
         return List.of(madeMoveEvent, eventGameFinished, eventGameResults);
       }
@@ -138,9 +151,9 @@ public interface DotGame {
       return List.of(new Event.MoveForfeited(
           gameId,
           status,
+          Instant.now(),
           newCurrentPlayer,
-          message,
-          Instant.now()));
+          message));
     }
 
     // ============================================================
@@ -161,9 +174,9 @@ public interface DotGame {
       return Optional.of(new Event.MoveForfeited(
           gameId,
           status,
+          Instant.now(),
           newCurrentPlayer,
-          command.message,
-          Instant.now()));
+          command.message));
     }
 
     // ============================================================
@@ -177,9 +190,11 @@ public interface DotGame {
       return Optional.of(new Event.GameCanceled(
           gameId,
           Status.canceled,
+          Instant.now(),
+          Optional.of(Instant.now()),
           player1Status,
           player2Status,
-          Instant.now()));
+          Optional.empty()));
     }
 
     // ============================================================
@@ -188,67 +203,72 @@ public interface DotGame {
     public State onEvent(Event.GameCreated event) {
       return new State(
           event.gameId,
-          event.createdAt,
           event.status,
-          event.board,
+          event.createdAt,
+          event.updatedAt,
+          event.finishedAt,
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,
           event.moveHistory,
-          event.finishedAt);
+          event.board);
     }
 
     public State onEvent(Event.MoveMade event) {
       return new State(
           gameId,
-          createdAt,
           event.status,
-          event.board,
+          createdAt,
+          event.updatedAt,
+          finishedAt,
           event.player1Status,
           event.player2Status,
           event.currentPlayerStatus,
           event.moveHistory,
-          finishedAt);
+          event.board);
     }
 
     public State onEvent(Event.GameCanceled event) {
       return new State(
           gameId,
-          createdAt,
           event.status,
-          board,
+          createdAt,
+          event.updatedAt,
+          event.finishedAt,
           player1Status,
           player2Status,
-          Optional.empty(),
+          event.currentPlayerStatus,
           moveHistory,
-          finishedAt);
+          board);
 
     }
 
     public State onEvent(Event.MoveForfeited event) {
       return new State(
           gameId,
-          createdAt,
           status,
-          board,
+          createdAt,
+          event.updatedAt,
+          finishedAt,
           player1Status,
           player2Status,
-          event.currentPlayer,
+          event.currentPlayerStatus,
           moveHistory,
-          finishedAt);
+          board);
     }
 
     public State onEvent(Event.GameFinished event) {
       return new State(
           gameId,
-          createdAt,
           status,
-          board,
+          createdAt,
+          event.updatedAt,
+          event.finishedAt,
           player1Status,
           player2Status,
           Optional.empty(),
           moveHistory,
-          event.finishedAt);
+          board);
     }
 
     public State onEvent(Event.GameResults event) {
@@ -346,55 +366,60 @@ public interface DotGame {
     @TypeName("game-created")
     public record GameCreated(
         String gameId,
-        Instant createdAt,
-        Board board,
         Status status,
+        Instant createdAt,
+        Instant updatedAt,
+        Optional<Instant> finishedAt,
         PlayerStatus player1Status,
         PlayerStatus player2Status,
         Optional<PlayerStatus> currentPlayerStatus,
-        Board.Level level,
         List<Move> moveHistory,
-        Optional<Instant> finishedAt) implements Event {}
+        Board.Level level,
+        Board board) implements Event {}
 
     @TypeName("move-made")
     public record MoveMade(
         String gameId,
-        Board board,
         Status status,
+        Instant updatedAt,
         PlayerStatus player1Status,
         PlayerStatus player2Status,
         Optional<PlayerStatus> currentPlayerStatus,
         List<Move> moveHistory,
-        Instant timestamp) implements Event {}
+        Board board) implements Event {}
 
     @TypeName("game-canceled")
     public record GameCanceled(
         String gameId,
         Status status,
+        Instant updatedAt,
+        Optional<Instant> finishedAt,
         PlayerStatus player1Status,
         PlayerStatus player2Status,
-        Instant timestamp) implements Event {}
+        Optional<PlayerStatus> currentPlayerStatus) implements Event {}
 
     @TypeName("move-forfeited")
     public record MoveForfeited(
         String gameId,
         Status status,
-        Optional<PlayerStatus> currentPlayer,
-        String message,
-        Instant timestamp) implements Event {}
+        Instant updatedAt,
+        Optional<PlayerStatus> currentPlayerStatus,
+        String message) implements Event {}
 
     @TypeName("game-finished")
     public record GameFinished(
         String gameId,
+        Status status,
+        Instant updatedAt,
         Optional<Instant> finishedAt) implements Event {}
 
     @TypeName("game-results")
     public record GameResults(
         String gameId,
         Status status,
+        Instant updatedAt,
         PlayerStatus player1Status,
-        PlayerStatus player2Status,
-        Instant timestamp) implements Event {}
+        PlayerStatus player2Status) implements Event {}
   }
 
   // ============================================================
