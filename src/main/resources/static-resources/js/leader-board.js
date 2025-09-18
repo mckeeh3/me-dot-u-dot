@@ -558,8 +558,17 @@ function renderMoveDetails(snapshot) {
   const playerName = playerMeta ? playerMeta.name : move.playerId;
   const moveScore = move.moveScore || 0;
   const thinkDisplay = calculateMoveThinkTime(move.thinkMs);
-  const scoringList = (move.scoringMoves || []).flatMap((sm) => sm.scoringSquareIds || []);
-  const scoringText = scoringList.length ? scoringList.join(', ') : 'None';
+  const scoringMoves = move.scoringMoves || [];
+  let scoringText = 'None';
+  if (scoringMoves.length > 0) {
+    if (scoringMoves.length === 1) {
+      scoringText = (scoringMoves[0].scoringSquareIds || []).join(', ');
+    } else {
+      scoringText = scoringMoves
+        .map((sm) => `(${(sm.scoringSquareIds || []).join(', ')})`)
+        .join(', ');
+    }
+  }
 
   detailsEl.innerHTML = `
     <div><strong>Move ${snapshot.index}:</strong> ${playerName} played <strong>${move.squareId}</strong> ${thinkDisplay ? `after ${thinkDisplay}` : ''}.</div>
