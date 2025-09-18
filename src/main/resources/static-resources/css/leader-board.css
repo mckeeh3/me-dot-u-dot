@@ -318,7 +318,7 @@
   color: var(--text);
   font-size: 0.95rem;
   line-height: 1.5;
-  min-height: 72px;
+  min-height: 3.3em;
 }
 
 .move-details strong {

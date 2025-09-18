@@ -226,8 +226,6 @@ async function loadGameDetails(gameId) {
     const gameState = statePayload.gameState;
     const moveHistory = historyPayload.moves || [];
 
-    renderGameInfo(gameState);
-
     replayState = {
       gameState,
       moveHistory,
@@ -242,7 +240,7 @@ async function loadGameDetails(gameId) {
 }
 
 // Render game information
-function renderGameInfo(gameState) {
+function renderGameInfo(gameState, perPlayerStats = {}) {
   const gameInfo = $('gameInfo');
 
   const p1 = gameState.player1Status;
@@ -258,6 +256,9 @@ function renderGameInfo(gameState) {
     p2IsWinner = p2.score > p1.score;
   }
 
+  const p1ReplayStats = perPlayerStats[p1.player.id] || { score: p1.score, moves: p1.moves };
+  const p2ReplayStats = perPlayerStats[p2.player.id] || { score: p2.score, moves: p2.moves };
+
   gameInfo.innerHTML = `
         <div class="game-summary">
             <h3>Game: ${gameState.gameId}</h3>
@@ -265,14 +266,14 @@ function renderGameInfo(gameState) {
                 <div class="player player1-bg">
                     <span class="player-avatar">${p1.player.type === 'agent' ? '🤖' : '👤'}</span>
                     <span class="player1-name">${p1IsWinner ? '🏆 ' : ''}${p1.player.name}</span>
-                    <span class="player-score">Score: ${p1.score}</span>
-                    <span class="player-moves">Moves: ${p1.moves}</span>
+                    <span class="player-score">Score: ${p1ReplayStats.score}</span>
+                    <span class="player-moves">Moves: ${p1ReplayStats.moves}</span>
                 </div>
                 <div class="player player2-bg">
                     <span class="player-avatar">${p2.player.type === 'agent' ? '🤖' : '👤'}</span>
                     <span class="player2-name">${p2IsWinner ? '🏆 ' : ''}${p2.player.name}</span>
-                    <span class="player-score">Score: ${p2.score}</span>
-                    <span class="player-moves">Moves: ${p2.moves}</span>
+                    <span class="player-score">Score: ${p2ReplayStats.score}</span>
+                    <span class="player-moves">Moves: ${p2ReplayStats.moves}</span>
                 </div>
             </div>
             <div class="game-meta">
@@ -355,6 +356,9 @@ function updateReplayUI() {
   updateReplayStatus(snapshot);
   renderGameBoardAtIndex(snapshot);
   renderMoveDetails(snapshot);
+  if (replayState.gameState) {
+    renderGameInfo(replayState.gameState, snapshot.perPlayer);
+  }
 }
 
 function buildReplaySnapshot(index) {
@@ -557,16 +561,8 @@ function renderMoveDetails(snapshot) {
   const scoringList = (move.scoringMoves || []).flatMap((sm) => sm.scoringSquareIds || []);
   const scoringText = scoringList.length ? scoringList.join(', ') : 'None';
 
-  const perPlayerSummary = Object.entries(replayState.players)
-    .map(([playerId, meta]) => {
-      const stats = snapshot.perPlayer[playerId] || { score: 0, moves: 0 };
-      return `${meta.name}: ${stats.score} pts, ${stats.moves} moves`;
-    })
-    .join(' • ');
-
   detailsEl.innerHTML = `
     <div><strong>Move ${snapshot.index}:</strong> ${playerName} played <strong>${move.squareId}</strong> ${thinkDisplay ? `after ${thinkDisplay}` : ''}.</div>
     <div>Points this move: <strong>${moveScore}</strong> • Scoring squares: <strong>${scoringText}</strong>.</div>
-    <div>${perPlayerSummary}</div>
   `;
 }
