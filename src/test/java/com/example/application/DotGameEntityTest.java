@@ -49,7 +49,7 @@ public class DotGameEntityTest {
     assertTrue(state.moveHistory().isEmpty());
 
     // Verify the board was properly initialized
-    assertEquals(25, state.board().dots().size()); // 5x5 board
+    assertEquals(25, state.board().squares().size()); // 5x5 board
   }
 
   @Test
@@ -64,8 +64,8 @@ public class DotGameEntityTest {
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
     // Then make a move
-    var dotId = "C3";
-    var result = makeMove(testKit, gameId, "player1", dotId);
+    var squareId = "C3";
+    var result = makeMove(testKit, gameId, "player1", squareId);
 
     assertTrue(result.isReply());
     assertEquals(testKit.getState(), result.getReply());
@@ -77,10 +77,10 @@ public class DotGameEntityTest {
     assertEquals(player2Status, event.currentPlayerStatus().get()); // Should be player2's turn
     assertEquals(1, event.moveHistory().size());
 
-    // Verify the dot was placed in the board
-    var placedDot = event.board().dotAt(dotId);
-    assertTrue(placedDot.isPresent());
-    assertEquals(player1, placedDot.get().player().get());
+    // Verify the square was placed in the board
+    var placedSquare = event.board().squareAt(squareId);
+    assertTrue(placedSquare.isPresent());
+    assertEquals(player1.id(), placedSquare.get().playerId().get());
 
     var state = testKit.getState();
     assertEquals(gameId, state.gameId());
@@ -89,18 +89,18 @@ public class DotGameEntityTest {
     assertEquals(player2Status, state.currentPlayer().get()); // Should be player2's turn
     assertEquals(1, state.moveHistory().size());
 
-    // Verify the dot was placed
-    var statePlacedDot = state.board().dotAt(dotId);
-    assertTrue(statePlacedDot.isPresent());
-    assertEquals(player1, statePlacedDot.get().player().get());
+    // Verify the square was placed in the board
+    var statePlacedSquare = state.board().squareAt(squareId);
+    assertTrue(statePlacedSquare.isPresent());
+    assertEquals(player1.id(), statePlacedSquare.get().playerId().get());
   }
 
   @Test
   void testMakeMoveOnEmptyGame() {
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-789";
-    var dotId = "C3";
-    var result = makeMove(testKit, gameId, "player1", dotId);
+    var squareId = "C3";
+    var result = makeMove(testKit, gameId, "player1", squareId);
 
     assertTrue(result.isReply());
     assertEquals(testKit.getState(), result.getReply());
@@ -120,8 +120,8 @@ public class DotGameEntityTest {
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
     // Player2 tries to move out of turn
-    var dotId = "C3";
-    var result = makeMove(testKit, gameId, "player2", dotId);
+    var squareId = "C3";
+    var result = makeMove(testKit, gameId, "player2", squareId);
 
     assertTrue(result.isReply());
     assertEquals(testKit.getState(), result.getReply());
@@ -141,16 +141,16 @@ public class DotGameEntityTest {
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
     // Player1 makes first move
-    var dotId = "C3";
-    makeMove(testKit, gameId, "player1", dotId);
+    var squareId = "C3";
+    makeMove(testKit, gameId, "player1", squareId);
 
-    // Player2 tries to move on the same dot
-    var result = makeMove(testKit, gameId, "player2", dotId);
+    // Player2 tries to move on the same square
+    var result = makeMove(testKit, gameId, "player2", squareId);
 
     assertTrue(result.isReply());
     assertEquals(testKit.getState(), result.getReply());
 
-    // Should not emit any events since the dot is already occupied
+    // Should not emit any events since the square is already occupied
     assertEquals(0, result.getAllEvents().size());
   }
 
@@ -165,8 +165,8 @@ public class DotGameEntityTest {
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
     // Player1 tries to move on invalid coordinates
-    var invalidDotId = "Z99";
-    var result = makeMove(testKit, gameId, "player1", invalidDotId);
+    var invalidSquareId = "Z99";
+    var result = makeMove(testKit, gameId, "player1", invalidSquareId);
 
     assertTrue(result.isReply());
     assertEquals(testKit.getState(), result.getReply());
@@ -206,15 +206,15 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.in_progress, state.status());
     assertEquals(3, state.moveHistory().size());
 
-    // Verify all dots were placed correctly
-    assertTrue(state.board().dotAt("C3").isPresent());
-    assertEquals(player1, state.board().dotAt("C3").get().player().get());
+    // Verify all squares were placed correctly
+    assertTrue(state.board().squareAt("C3").isPresent());
+    assertEquals(player1.id(), state.board().squareAt("C3").get().playerId().get());
 
-    assertTrue(state.board().dotAt("D3").isPresent());
-    assertEquals(player2, state.board().dotAt("D3").get().player().get());
+    assertTrue(state.board().squareAt("D3").isPresent());
+    assertEquals(player2.id(), state.board().squareAt("D3").get().playerId().get());
 
-    assertTrue(state.board().dotAt("C4").isPresent());
-    assertEquals(player1, state.board().dotAt("C4").get().player().get());
+    assertTrue(state.board().squareAt("C4").isPresent());
+    assertEquals(player1.id(), state.board().squareAt("C4").get().playerId().get());
   }
 
   @Test
@@ -242,10 +242,10 @@ public class DotGameEntityTest {
 
     // Verify board state
     var board = state.board();
-    assertTrue(board.dotAt("C3").isPresent());
-    assertTrue(board.dotAt("D3").isPresent());
-    assertTrue(board.dotAt("C4").isPresent());
-    assertTrue(board.dotAt("D4").isPresent());
+    assertTrue(board.squareAt("C3").isPresent());
+    assertTrue(board.squareAt("D3").isPresent());
+    assertTrue(board.squareAt("C4").isPresent());
+    assertTrue(board.squareAt("D4").isPresent());
 
     // Verify current player (should be player1's turn after 4 moves)
     assertTrue(state.currentPlayer().isPresent());
@@ -309,7 +309,7 @@ public class DotGameEntityTest {
     assertEquals(1, scoringMoves.get(0).score());
 
     var expectedMoves = List.of("C1", "C2", "C3");
-    assertEquals(expectedMoves, scoringMoves.get(0).scoringDots());
+    assertEquals(expectedMoves, scoringMoves.get(0).scoringSquares());
   }
 
   @Test
@@ -345,7 +345,7 @@ public class DotGameEntityTest {
     assertEquals(1, scoringMoves.get(0).score());
     assertEquals(1, scoringMoves.get(1).score());
 
-    var expectedMoves = scoringMoves.get(0).scoringDots();
+    var expectedMoves = scoringMoves.get(0).scoringSquares();
 
     assertTrue(expectedMoves.contains("A1"));
     assertTrue(expectedMoves.contains("A2"));
@@ -357,7 +357,7 @@ public class DotGameEntityTest {
     assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.get(0).type());
     assertEquals(1, scoringMoves.get(0).score());
 
-    expectedMoves = scoringMoves.get(0).scoringDots();
+    expectedMoves = scoringMoves.get(0).scoringSquares();
 
     assertTrue(expectedMoves.contains("G3"));
     assertTrue(expectedMoves.contains("F4"));
@@ -399,7 +399,7 @@ public class DotGameEntityTest {
       assertEquals(gameId, event.gameId());
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(9, event.moveHistory().size());
-      assertEquals("A5", event.moveHistory().get(event.moveHistory().size() - 1).dotId());
+      assertEquals("A5", event.moveHistory().get(event.moveHistory().size() - 1).squareId());
       assertEquals("player1", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
@@ -472,7 +472,7 @@ public class DotGameEntityTest {
       assertEquals(gameId, event.gameId());
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(10, event.moveHistory().size());
-      assertEquals("B5", event.moveHistory().get(event.moveHistory().size() - 1).dotId());
+      assertEquals("B5", event.moveHistory().get(event.moveHistory().size() - 1).squareId());
       assertEquals("player2", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
@@ -610,8 +610,8 @@ public class DotGameEntityTest {
     return testKit.method(DotGameEntity::createGame).invoke(command);
   }
 
-  static EventSourcedResult<DotGame.State> makeMove(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, String playerId, String dotId) {
-    var command = new DotGame.Command.MakeMove(gameId, playerId, dotId);
+  static EventSourcedResult<DotGame.State> makeMove(EventSourcedTestKit<DotGame.State, DotGame.Event, DotGameEntity> testKit, String gameId, String playerId, String squareId) {
+    var command = new DotGame.Command.MakeMove(gameId, playerId, squareId);
     return testKit.method(DotGameEntity::makeMove).invoke(command);
   }
 }

@@ -98,8 +98,8 @@ public class GetGameStateTool {
   }
 
   record Square(String squareId, int row, int column) {
-    static Square from(DotGame.Dot dot) {
-      return new Square(dot.id(), dot.row(), dot.col());
+    static Square from(DotGame.Square dot) {
+      return new Square(dot.squareId(), dot.row(), dot.col());
     }
   }
 
@@ -107,8 +107,8 @@ public class GetGameStateTool {
     static BoardInfo from(DotGame.Board board) {
       return new BoardInfo(
           board.level().name(),
-          Square.from(board.dots().get(0)),
-          Square.from(board.dots().get(board.dots().size() - 1)));
+          Square.from(board.squares().get(0)),
+          Square.from(board.squares().get(board.squares().size() - 1)));
     }
   }
 
@@ -132,17 +132,17 @@ public class GetGameStateTool {
 
   record EmptySquares(List<String> emptySquareIds) {
     static EmptySquares from(DotGame.Board board) {
-      return new EmptySquares(board.dots()
+      return new EmptySquares(board.squares()
           .stream()
-          .filter(d -> d.player().isEmpty())
-          .map(DotGame.Dot::id)
+          .filter(d -> d.playerId().isEmpty())
+          .map(DotGame.Square::squareId)
           .toList());
     }
   }
 
   record Move(String squareId, String playerId) {
     static Move from(DotGame.Move move) {
-      return new Move(move.dotId(), move.playerId());
+      return new Move(move.squareId(), move.playerId());
     }
   }
 
@@ -154,7 +154,7 @@ public class GetGameStateTool {
 
   record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
     static ScoringMove from(DotGame.ScoringMove scoringMove) {
-      return new ScoringMove(scoringMove.move().id(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringDots());
+      return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
     }
   }
 

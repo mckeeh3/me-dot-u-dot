@@ -70,14 +70,14 @@ public interface DotGame {
         return List.of(); // No state change tells the agent to try again
       }
 
-      var dotOptional = board.dotAt(command.dotId);
-      if (dotOptional.isEmpty()) {
-        var message = "Invalid board position: %s".formatted(command.dotId);
+      var squareOptional = board.squareAt(command.squareId);
+      if (squareOptional.isEmpty()) {
+        var message = "Invalid board position: %s".formatted(command.squareId);
         return forfeitMove(command.playerId, message); // invalid board position
       }
 
-      var dot = dotOptional.get();
-      if (dot.isOccupied()) {
+      var square = squareOptional.get();
+      if (square.isOccupied()) {
         return List.of(); // No state change tells the agent to try again
       }
 
@@ -85,14 +85,10 @@ public interface DotGame {
         return List.of(); // No state change tells the agent to try again
       }
 
-      var newBoard = board.withDot(command.dotId, currentPlayer.get().player());
+      var newBoard = board.withSquare(command.squareId, currentPlayer.get().player());
 
-      var newPlayer1Status = isPlayer1Turn() ? player1Status.makeMove(command.dotId, board.level(), moveHistory) : player1Status;
-      // newPlayer1Status = isPlayer1Turn() ? newPlayer1Status.incrementScore(newBoard.scoreDotAt(command.dotId)) :
-      // newPlayer1Status;
-      var newPlayer2Status = isPlayer2Turn() ? player2Status.makeMove(command.dotId, board.level(), moveHistory) : player2Status;
-      // newPlayer2Status = isPlayer2Turn() ? newPlayer2Status.incrementScore(newBoard.scoreDotAt(command.dotId)) :
-      // newPlayer2Status;
+      var newPlayer1Status = isPlayer1Turn() ? player1Status.makeMove(command.squareId, board.level(), moveHistory) : player1Status;
+      var newPlayer2Status = isPlayer2Turn() ? player2Status.makeMove(command.squareId, board.level(), moveHistory) : player2Status;
 
       var newStatus = gameStatus(newBoard, newPlayer1Status, newPlayer2Status);
 
@@ -110,7 +106,7 @@ public interface DotGame {
           .map(m -> Duration.ofMillis(m.thinkMs()))
           .reduce(createdAt, Instant::plus, (a, b) -> b);
       var thinkMs = Duration.between(createdAtPlusTotalThinkMs, Instant.now()).toMillis();
-      var newMove = new Move(command.dotId, command.playerId, thinkMs);
+      var newMove = new Move(command.squareId, command.playerId, thinkMs);
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(newMove))
           .toList();
 
@@ -269,7 +265,7 @@ public interface DotGame {
         return Status.won_by_player;
       }
 
-      if (board.dots.stream().allMatch(Dot::isOccupied)) {
+      if (board.squares.stream().allMatch(Square::isOccupied)) {
         return Status.draw;
       }
 
@@ -330,7 +326,7 @@ public interface DotGame {
     public record MakeMove(
         String gameId,
         String playerId,
-        String dotId) implements Command {}
+        String squareId) implements Command {}
 
     public record ForfeitMove(
         String gameId,
@@ -443,8 +439,8 @@ public interface DotGame {
       return new PlayerStatus(player, moves, score + scoreIncrement, isWinner, scoringMoves);
     }
 
-    PlayerStatus makeMove(String dotId, Board.Level level, List<Move> moveHistory) {
-      var move = new Dot(dotId, Optional.of(player));
+    PlayerStatus makeMove(String squareId, Board.Level level, List<Move> moveHistory) {
+      var move = new Square(squareId, player);
       var newScoringMoves = scoringMoves.scoreMove(move, level, moveHistory);
       return new PlayerStatus(player, moves + 1, newScoringMoves.totalScore(), isWinner, newScoringMoves);
     }
@@ -459,31 +455,35 @@ public interface DotGame {
   }
 
   // ============================================================
-  // Dot in the board
+  // Square in the board
   // ============================================================
-  public record Dot(String id, Optional<Player> player) {
+  public record Square(String squareId, Optional<String> playerId) {
+    public Square(String squareId, Player player) {
+      this(squareId, Optional.of(player.id()));
+    }
+
     boolean isOccupied() {
-      return player.isPresent();
+      return playerId.isPresent();
     }
 
     boolean isEmpty() {
       return !isOccupied();
     }
 
-    public Dot(String id) {
+    public Square(String id) {
       this(id, Optional.empty());
     }
 
-    Dot withPlayer(Player player) {
-      return new Dot(id, Optional.of(player));
+    Square withPlayer(Player player) {
+      return new Square(squareId, player);
     }
 
     public int row() {
-      return id.charAt(0) - 'A' + 1;
+      return squareId.charAt(0) - 'A' + 1;
     }
 
     public int col() {
-      return Integer.parseInt(id.substring(1));
+      return Integer.parseInt(squareId.substring(1));
     }
   }
 
@@ -497,7 +497,7 @@ public interface DotGame {
     adjacent
   }
 
-  public record ScoringMove(Dot move, ScoringMoveType type, int score, List<String> scoringDots) {}
+  public record ScoringMove(Square move, ScoringMoveType type, int score, List<String> scoringSquares) {}
 
   public record ScoringMoves(String playerId, List<ScoringMove> scoringMoves) {
     static ScoringMoves empty() {
@@ -518,8 +518,8 @@ public interface DotGame {
       return new ScoringMoves(playerId, Stream.concat(this.scoringMoves.stream(), scoringMoves.stream()).toList());
     }
 
-    ScoringMoves scoreMove(Dot move, Board.Level level, List<Move> moveHistory) {
-      if (!playerId.equals((move.player().orElse(Player.empty()).id()))) {
+    ScoringMoves scoreMove(Square move, Board.Level level, List<Move> moveHistory) {
+      if (!playerId.equals((move.playerId().orElse(Player.empty().id())))) {
         return this;
       }
 
@@ -532,12 +532,12 @@ public interface DotGame {
     // ============================================================
     // ScoreMoveHorizontal
     // ============================================================
-    List<ScoringMove> scoreMoveHorizontal(Dot move, Board.Level level, List<Move> moveHistory) {
+    List<ScoringMove> scoreMoveHorizontal(Square move, Board.Level level, List<Move> moveHistory) {
       var row = move.row();
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId)))
           .toList()
           .stream()
           .filter(m -> m.playerId().equals(playerId))
@@ -558,8 +558,8 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> m.dotId()).toList();
-            return new ScoringMove(move, ScoringMoveType.horizontal, score, scoringDots);
+            var scoringSquares = g.stream().map(m -> m.squareId()).toList();
+            return new ScoringMove(move, ScoringMoveType.horizontal, score, scoringSquares);
           })
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
@@ -570,12 +570,12 @@ public interface DotGame {
     // ============================================================
     // ScoreMoveVertical
     // ============================================================
-    List<ScoringMove> scoreMoveVertical(Dot move, Board.Level level, List<Move> moveHistory) {
+    List<ScoringMove> scoreMoveVertical(Square move, Board.Level level, List<Move> moveHistory) {
       var col = move.col();
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId)))
           .toList()
           .stream()
           .filter(m -> m.playerId().equals(playerId))
@@ -596,8 +596,8 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> m.dotId()).toList();
-            return new ScoringMove(move, ScoringMoveType.vertical, score, scoringDots);
+            var scoringSquares = g.stream().map(m -> m.squareId()).toList();
+            return new ScoringMove(move, ScoringMoveType.vertical, score, scoringSquares);
           })
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
@@ -613,17 +613,17 @@ public interface DotGame {
     // ============================================================
     // ScoreMoveDiagonal
     // ============================================================
-    List<ScoringMove> scoreMoveDiagonal(Dot move, Board.Level level, List<Move> moveHistory) {
+    List<ScoringMove> scoreMoveDiagonal(Square move, Board.Level level, List<Move> moveHistory) {
       var downRight = scoreMoveDiagonal(DiagonalDirection.downRight, move, level, moveHistory);
       var downLeft = scoreMoveDiagonal(DiagonalDirection.downLeft, move, level, moveHistory);
       return Stream.concat(downRight.stream(), downLeft.stream()).toList();
     }
 
-    List<ScoringMove> scoreMoveDiagonal(DiagonalDirection direction, Dot move, Board.Level level, List<Move> moveHistory) {
+    List<ScoringMove> scoreMoveDiagonal(DiagonalDirection direction, Square move, Board.Level level, List<Move> moveHistory) {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId)))
           .toList()
           .stream()
           .filter(m -> m.playerId().equals(playerId))
@@ -644,8 +644,8 @@ public interface DotGame {
       var scoringMoves = groups.stream()
           .map(g -> {
             var score = scoreLine(move, level, g);
-            var scoringDots = g.stream().map(m -> m.dotId()).toList();
-            return new ScoringMove(move, ScoringMoveType.diagonal, score, scoringDots);
+            var scoringSquares = g.stream().map(m -> m.squareId()).toList();
+            return new ScoringMove(move, ScoringMoveType.diagonal, score, scoringSquares);
           })
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
@@ -653,7 +653,7 @@ public interface DotGame {
       return scoringMoves;
     }
 
-    static boolean isDiagonal(DiagonalDirection direction, Dot move, Move otherMove) {
+    static boolean isDiagonal(DiagonalDirection direction, Square move, Move otherMove) {
       boolean isOnDiagonal = Math.abs(move.row() - otherMove.row()) == Math.abs(move.col() - otherMove.col());
       if (!isOnDiagonal) {
         return false;
@@ -679,16 +679,16 @@ public interface DotGame {
     // ============================================================
     // ScoreMoveAdjacent
     // ============================================================
-    List<ScoringMove> scoreMoveAdjacent(Dot move, Board.Level level, List<Move> moveHistory) {
+    List<ScoringMove> scoreMoveAdjacent(Square move, Board.Level level, List<Move> moveHistory) {
       var groups = new ArrayList<List<Move>>();
       var group = new ArrayList<Move>();
 
-      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.id(), playerId)))
+      Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId)))
           .toList()
           .stream()
           .filter(m -> m.playerId().equals(playerId))
           .filter(m -> isAdjacent(move, m))
-          .sorted(Comparator.comparing(Move::dotId))
+          .sorted(Comparator.comparing(Move::squareId))
           .toList()
           .forEach(m -> {
             group.add(m);
@@ -697,10 +697,10 @@ public interface DotGame {
 
       var scoringMoves = groups.stream()
           .map(g -> {
-            var adjacentDotsToScore = Math.min(8, level.concurrentDotsToScore());
-            var score = g.size() > adjacentDotsToScore ? g.size() - adjacentDotsToScore : 0;
-            var scoringDots = g.stream().map(m -> m.dotId()).toList();
-            return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringDots);
+            var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
+            var score = g.size() > adjacentSquaresToScore ? g.size() - adjacentSquaresToScore : 0;
+            var scoringSquares = g.stream().map(m -> m.squareId()).toList();
+            return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringSquares);
           })
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
@@ -708,7 +708,7 @@ public interface DotGame {
       return scoringMoves;
     }
 
-    static boolean isAdjacent(Dot move, Move otherMove) {
+    static boolean isAdjacent(Square move, Move otherMove) {
       return move.row() == otherMove.row() && Math.abs(move.col() - otherMove.col()) == 1
           || move.col() == otherMove.col() && Math.abs(move.row() - otherMove.row()) == 1
           || Math.abs(move.row() - otherMove.row()) == 1 && Math.abs(move.col() - otherMove.col()) == 1;
@@ -717,29 +717,29 @@ public interface DotGame {
     // ============================================================
     // ScoreLine
     // ============================================================
-    static int scoreLine(Dot move, Board.Level level, List<Move> moves) {
+    static int scoreLine(Square move, Board.Level level, List<Move> moves) {
       // check if line is too short
-      if (moves.size() < level.concurrentDotsToScore()) {
+      if (moves.size() < level.concurrentSquaresToScore()) {
         return 0;
       }
 
       // check if move is contained in the line
-      if (moves.stream().filter(m -> m.dotId().equals(move.id())).count() != 1) {
+      if (moves.stream().filter(m -> m.squareId().equals(move.squareId())).count() != 1) {
         return 0;
       }
 
       // check if move is at start or end of the line
-      boolean isMoveAtStartOrEnd = moves.get(0).dotId().equals(move.id()) || moves.get(moves.size() - 1).dotId().equals(move.id());
+      boolean isMoveAtStartOrEnd = moves.get(0).squareId().equals(move.squareId()) || moves.get(moves.size() - 1).squareId().equals(move.squareId());
       if (isMoveAtStartOrEnd) {
         return 1;
       }
 
-      // check if line is longer than the concurrent dots to score
-      if (moves.size() > level.concurrentDotsToScore()) {
-        return moves.size() - level.concurrentDotsToScore() + 1;
+      // check if line is longer than the concurrent squares to score
+      if (moves.size() > level.concurrentSquaresToScore()) {
+        return moves.size() - level.concurrentSquaresToScore() + 1;
       }
 
-      // line is exactly the concurrent dots to score
+      // line is exactly the concurrent squares to score
       return 1;
     }
   }
@@ -747,7 +747,7 @@ public interface DotGame {
   // ============================================================
   // Board in the game
   // ============================================================
-  public record Board(Level level, List<Dot> dots) {
+  public record Board(Level level, List<Square> squares) {
     static Board empty() {
       return new Board(Level.one, List.of());
     }
@@ -777,12 +777,12 @@ public interface DotGame {
         };
       }
 
-      public int lineDotsToScore() {
+      public int lineSquaresToScore() {
         return getSize() / 2 + 1;
       }
 
-      public int concurrentDotsToScore() {
-        return Math.min(8, lineDotsToScore());
+      public int concurrentSquaresToScore() {
+        return Math.min(8, lineSquaresToScore());
       }
     }
 
@@ -795,35 +795,35 @@ public interface DotGame {
               .mapToObj(col -> {
                 char rowChar = (char) ('A' + row);
                 int colNum = col + 1;
-                return new Dot(rowChar + String.valueOf(colNum));
+                return new Square(rowChar + String.valueOf(colNum));
               }))
           .toList());
     }
 
-    public Optional<Dot> dotAt(String id) {
-      return dots.stream()
-          .filter(dot -> dot.id().equals(id))
+    public Optional<Square> squareAt(String id) {
+      return squares.stream()
+          .filter(square -> square.squareId().equals(id))
           .findFirst();
     }
 
-    Board withDot(String id, Player player) {
-      return new Board(level, dots.stream()
-          .map(dot -> dot.id().equals(id) ? dot.withPlayer(player) : dot)
+    Board withSquare(String id, Player player) {
+      return new Board(level, squares.stream()
+          .map(square -> square.squareId().equals(id) ? square.withPlayer(player) : square)
           .toList());
     }
   }
 
-  public record Move(String dotId, String playerId, long thinkMs) {
-    public Move(String dotId, String playerId) {
-      this(dotId, playerId, 0);
+  public record Move(String squareId, String playerId, long thinkMs) {
+    public Move(String squareId, String playerId) {
+      this(squareId, playerId, 0);
     }
 
     int row() {
-      return dotId.charAt(0) - 'A' + 1;
+      return squareId.charAt(0) - 'A' + 1;
     }
 
     int col() {
-      return Integer.parseInt(dotId.substring(1));
+      return Integer.parseInt(squareId.substring(1));
     }
   }
 }

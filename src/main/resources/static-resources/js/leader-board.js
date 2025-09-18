@@ -289,7 +289,7 @@ function calculateMoveCounts(gameState) {
     }
 
     return {
-      dotId: move.dotId,
+      squareId: move.squareId,
       playerId: move.playerId,
       p1Moves: p1MoveCount,
       p2Moves: p2MoveCount,
@@ -313,29 +313,29 @@ function renderGameBoard(gameState) {
   board.style.setProperty('--size', size);
   board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
-  const dots = gameState.board.dots || [];
-  const byId = new Map(dots.map((d) => [d.id, d]));
-  const lastMoveId = gameState.moveHistory?.length ? gameState.moveHistory[gameState.moveHistory.length - 1].dotId : null;
+  const squares = gameState.board.squares || [];
+  const byId = new Map(squares.map((d) => [d.squareId, d]));
+  const lastMoveId = gameState.moveHistory?.length ? gameState.moveHistory[gameState.moveHistory.length - 1].squareIdId : null;
   const moveCounts = calculateMoveCounts(gameState);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
-      const dot = byId.get(id);
+      const square = byId.get(id);
 
       const cell = document.createElement('div');
       cell.className = 'cell';
-      cell.dataset.dotId = id;
+      cell.dataset.squareId = id;
 
-      if (dot && dot.player && dot.player.id) {
-        const playerId = dot.player.id;
+      if (square && square.playerId) {
+        const playerId = square.playerId;
         const isPlayer1 = playerId === gameState.player1Status.player.id;
         const cls = isPlayer1 ? 'player1' : 'player2';
         cell.classList.add(cls);
 
         // Find the move data for this cell
-        const moveData = moveCounts.find((move) => move.dotId === id);
+        const moveData = moveCounts.find((move) => move.squareId === id);
 
         // Create 3-layer structure
         cell.innerHTML = `
@@ -344,7 +344,7 @@ function renderGameBoard(gameState) {
             <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
           </div>
           <div class="cell-layer cell-layer-middle">
-            <span class="player-dot">●</span>
+            <span class="player-square">●</span>
           </div>
           <div class="cell-layer cell-layer-bottom">
             <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>

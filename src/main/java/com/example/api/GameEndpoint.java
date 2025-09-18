@@ -55,7 +55,7 @@ public class GameEndpoint {
   public GameResponse makeMove(MakeMove request) {
     log.info("Make move: {}", request);
 
-    var command = new DotGame.Command.MakeMove(request.gameId, request.playerId, request.dotId);
+    var command = new DotGame.Command.MakeMove(request.gameId, request.playerId, request.squareId);
 
     var gameState = componentClient
         .forEventSourcedEntity(request.gameId)
@@ -152,7 +152,7 @@ public class GameEndpoint {
 
   public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}
 
-  public record MakeMove(String gameId, String playerId, String dotId) {}
+  public record MakeMove(String gameId, String playerId, String squareId) {}
 
   public record CancelGame(String gameId) {}
 

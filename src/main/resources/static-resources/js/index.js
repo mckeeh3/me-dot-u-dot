@@ -302,7 +302,7 @@ function calculateMoveThinkTime(thinkMs) {
 function calculateMoveCounts(gameState) {
   if (!gameState)
     return {
-      dotId: '',
+      squareId: '',
       playerId: '',
       p1Moves: 0,
       p2Moves: 0,
@@ -325,7 +325,7 @@ function calculateMoveCounts(gameState) {
     }
 
     return {
-      dotId: move.dotId,
+      squareId: move.squareId,
       playerId: move.playerId,
       p1Moves: p1MoveCount,
       p2Moves: p2MoveCount,
@@ -344,27 +344,27 @@ function renderGameBoard() {
 
   const size = currentSize();
   board.style.setProperty('--size', size);
-  const dotSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
-  const dotPx = dotSizeBySize[size] || 14;
-  board.style.setProperty('--dot-size', `${dotPx}px`);
+  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
+  const squarePx = squareSizeBySize[size] || 14;
+  board.style.setProperty('--square-size', `${squarePx}px`);
 
-  const dots = state.game ? state.game.board.dots : [];
-  const byId = new Map(dots.map((d) => [d.id, d]));
-  const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].dotId : null;
+  const squares = state.game ? state.game.board.squares : [];
+  const byId = new Map(squares.map((d) => [d.squareId, d]));
+  const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].squareId : null;
   const moveCounts = calculateMoveCounts(state.game);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
-      const dot = byId.get(id);
+      const square = byId.get(id);
 
       const cell = document.createElement('div');
       cell.className = 'cell';
-      cell.dataset.dotId = id;
+      cell.dataset.squareId = id;
 
-      if (dot && dot.player && dot.player.id) {
-        const playerId = dot.player.id;
+      if (square && square.playerId) {
+        const playerId = square.playerId;
         const isPlayer1 = playerId === state.game.player1Status.player.id;
         const cls = isPlayer1 ? 'player1' : 'player2';
         cell.classList.add(cls);
@@ -373,7 +373,7 @@ function renderGameBoard() {
         // cell.textContent = '●';
 
         // Find the move data for this cell
-        const moveData = moveCounts.find((move) => move.dotId === id);
+        const moveData = moveCounts.find((move) => move.squareId === id);
 
         // Create 3-layer structure
         cell.innerHTML = `
@@ -382,7 +382,7 @@ function renderGameBoard() {
             <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
           </div>
           <div class="cell-layer cell-layer-middle">
-            <span class="player-dot">●</span>
+            <span class="player-square">●</span>
           </div>
           <div class="cell-layer cell-layer-bottom">
             <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>
@@ -397,7 +397,7 @@ function renderGameBoard() {
 
       const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
       const isInProgress = state.game && state.game.status === 'in_progress';
-      const isOccupied = !!(dot && dot.player && dot.player.id);
+      const isOccupied = !!(square && square.playerId);
       if (!isAgentsTurn && isInProgress && !isOccupied) {
         cell.addEventListener('click', () => onCellClick(id));
       } else {
@@ -414,9 +414,9 @@ function renderPreviewBoard(level) {
   const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
   const size = levelSizeMap[level] || 5;
   board.style.setProperty('--size', size);
-  const dotSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
-  const dotPx = dotSizeBySize[size] || 14;
-  board.style.setProperty('--dot-size', `${dotPx}px`);
+  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
+  const squarePx = squareSizeBySize[size] || 14;
+  board.style.setProperty('--square-size', `${squarePx}px`);
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
@@ -424,7 +424,7 @@ function renderPreviewBoard(level) {
       const id = rowChar + (c + 1);
       const cell = document.createElement('div');
       cell.className = 'cell';
-      cell.dataset.dotId = id;
+      cell.dataset.squareId = id;
       cell.style.pointerEvents = 'none'; // Preview board is not interactive
       board.appendChild(cell);
     }
@@ -571,12 +571,12 @@ async function fetchAiModels() {
   }
 }
 
-async function onCellClick(dotId) {
+async function onCellClick(squareId) {
   if (!state.game || state.game.status !== 'in_progress') return;
   const current = state.game.currentPlayer?.player?.id;
   if (!current) return;
 
-  const req = { gameId: state.game.gameId, playerId: current, dotId };
+  const req = { gameId: state.game.gameId, playerId: current, squareId };
   const res = await fetch('/game/make-move', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
