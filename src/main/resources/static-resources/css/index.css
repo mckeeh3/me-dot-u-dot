@@ -607,6 +607,11 @@ body {
   animation: neonPulse 1.2s ease-out 1;
 }
 
+.cell.scoring-square {
+  box-shadow: 0 0 12px rgba(255, 193, 7, 0.7);
+  border-color: rgba(255, 193, 7, 0.8);
+}
+
 /* Cell layer styles for player moves */
 .cell-layer {
   display: flex;

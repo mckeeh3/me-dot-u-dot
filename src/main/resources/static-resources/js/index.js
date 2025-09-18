@@ -351,6 +351,7 @@ function renderGameBoard() {
   const squares = state.game ? state.game.board.squares : [];
   const byId = new Map(squares.map((d) => [d.squareId, d]));
   const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].squareId : null;
+  const scoringSquaresForLastMove = lastMoveId ? new Set(getScoringSquaresForMove(lastMoveId)) : new Set();
   const moveCounts = calculateMoveCounts(state.game);
 
   for (let r = 0; r < size; r++) {
@@ -395,6 +396,10 @@ function renderGameBoard() {
         cell.classList.add('last-move');
       }
 
+      if (scoringSquaresForLastMove.has(id)) {
+        cell.classList.add('scoring-square');
+      }
+
       const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
       const isInProgress = state.game && state.game.status === 'in_progress';
       const isOccupied = !!(square && square.playerId);
@@ -406,6 +411,33 @@ function renderGameBoard() {
       board.appendChild(cell);
     }
   }
+}
+
+function getScoringSquaresForMove(squareId) {
+  if (!state.game || !squareId) {
+    return [];
+  }
+
+  const result = new Set();
+  const players = [state.game.player1Status, state.game.player2Status];
+
+  players.forEach((playerStatus) => {
+    const scoringContainer = playerStatus?.scoringMoves;
+    const scoringMoves = scoringContainer?.scoringMoves || scoringContainer || [];
+    if (!Array.isArray(scoringMoves)) {
+      return;
+    }
+
+    scoringMoves.forEach((scoringMove) => {
+      if (!scoringMove) return;
+      const moveSquareId = scoringMove.move?.squareId || scoringMove.moveSquareId || scoringMove.move?.id;
+      if (moveSquareId === squareId) {
+        (scoringMove.scoringSquares || []).forEach((sq) => result.add(sq));
+      }
+    });
+  });
+
+  return Array.from(result);
 }
 
 function renderPreviewBoard(level) {
