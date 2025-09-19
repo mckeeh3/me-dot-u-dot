@@ -559,14 +559,49 @@ function renderMoveDetails(snapshot) {
   const moveScore = move.moveScore || 0;
   const thinkDisplay = calculateMoveThinkTime(move.thinkMs);
   const scoringMoves = move.scoringMoves || [];
+  const scoringMoveTypePrefix = (type) => {
+    if (!type) return '';
+    switch (type.toLowerCase()) {
+      case 'horizontal':
+        return 'H';
+      case 'vertical':
+        return 'V';
+      case 'diagonal':
+        return 'D';
+      case 'adjacent':
+        return 'A';
+      default:
+        return type.charAt(0).toUpperCase();
+    }
+  };
+
+  const formatScoringMove = (scoringMove) => {
+    const squares = (scoringMove.scoringSquareIds || []).join(', ');
+    const prefix = scoringMoveTypePrefix(scoringMove.type);
+    const score = scoringMove.score;
+
+    let typeAndSquares = squares;
+    if (prefix && squares) {
+      typeAndSquares = `${prefix}-${squares}`;
+    } else if (prefix) {
+      typeAndSquares = prefix;
+    }
+
+    const scorePart = score === undefined || score === null ? '' : `${score}`;
+    if (!scorePart) {
+      return typeAndSquares;
+    }
+
+    return typeAndSquares ? `${scorePart}|${typeAndSquares}` : scorePart;
+  };
+
   let scoringText = 'None';
   if (scoringMoves.length > 0) {
-    if (scoringMoves.length === 1) {
-      scoringText = (scoringMoves[0].scoringSquareIds || []).join(', ');
+    const formattedMoves = scoringMoves.map(formatScoringMove);
+    if (formattedMoves.length === 1) {
+      scoringText = formattedMoves[0];
     } else {
-      scoringText = scoringMoves
-        .map((sm) => `(${(sm.scoringSquareIds || []).join(', ')})`)
-        .join(', ');
+      scoringText = formattedMoves.map((moveText) => `(${moveText})`).join(', ');
     }
   }
 
