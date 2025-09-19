@@ -25,6 +25,12 @@ public class UpdateYourSystemPromptTool {
       - When to use: after you notice recurring mistakes, discover a stronger workflow, or need to clarify how you should reason and respond.
       - Goal: capture durable behavioral upgrades so every subsequent turn starts with the improved guidance.
       - Remember: this call replaces the old prompt entirely—copy forward the parts you still rely on and inject the refinements that will make you more effective.
+      - Critical: ALWAYS supply the full system prompt in one message; sending only the changes will wipe everything you omit.
+      - Unique advantage: few agents can rewrite their own system prompt—treat this like a deliberate upgrade step that locks in stronger behaviors for every future move.
+
+      IMPORTANT: It is important to review system prompt after each game.
+      Consider updating your system prompt when you discover a stronger workflow or need to clarify how you should reason and respond.
+      Updating your system prompt enables you to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
       """)
   public Done updateSystemPrompt(
       @Description("The ID of your agent") String agentId,

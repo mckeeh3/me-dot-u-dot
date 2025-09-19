@@ -33,7 +33,8 @@ public class DotGameAgent extends Agent {
         new MakeMoveTool(componentClient),
         new UpdateYourPlaybookTool(componentClient),
         new GetYourSystemPromptTool(componentClient),
-        new UpdateYourSystemPromptTool(componentClient));
+        new UpdateYourSystemPromptTool(componentClient),
+        new GetGameMoveHistoryTool(componentClient));
   }
 
   public Effect<String> makeMove(MakeMovePrompt prompt) {
@@ -143,6 +144,9 @@ public class DotGameAgent extends Agent {
           Your Name is %s.
           Here's the current game Id: %s.
 
+          IMPORTANT: Do your post game review and analysis.
+          Use the GetGameMoveHistoryTool to get the move history for the game.
+          Use the insights you gather here with your playbook and system prompt updates—this data helps you choose which tactics to memorialise in the playbook and which behavioral adjustments belong in the system prompt.
           You can optionally update your playbook and system prompt via the provided tools to capture your learnings  and experience
           from this game to improve your performance in future games.
           """.formatted(agentId, agentName, gameId).stripIndent();

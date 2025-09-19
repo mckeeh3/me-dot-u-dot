@@ -25,6 +25,11 @@ public class UpdateYourPlaybookTool {
       - When to use: after a turn or game when you have a concrete lesson, new pattern, or clarified move sequence worth memorialising.
       - Goal: turn raw observations into actionable guidance that future turns can follow without re-deriving the insight.
       - Remember: the playbook differs from the system prompt—the playbook focuses on situational tactics, while the system prompt governs your overall role. This call replaces the playbook entirely, so bring forward the advice that still works and revise the parts that should change.
+      - Critical: ALWAYS provide the fully updated playbook text on every call—partial snippets or diffs will overwrite the prior content and erase everything you omit.
+
+      IMPORTANT: It is important to review and update your playbook after each game to capture your learnings and experience from the game to improve your performance in future games.
+      Also, after interesting moves, such as scoring moves, you should consider updating your playbook to capture the move and the reason why it was successful.
+      If you don't update your playbook, you will not be able to improve your performance in future games. When you do update it, carry forward the proven guidance and only rewrite the specific sections that should evolve.
       """)
   public Done updatePlaybook(
       @Description("The ID of your agent") String agentId,
