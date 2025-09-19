@@ -210,10 +210,7 @@ function updateSelectedGameUI() {
 // Load game details and render game board
 async function loadGameDetails(gameId) {
   try {
-    const [stateResponse, historyResponse] = await Promise.all([
-      fetch(`/game/get-state/${gameId}`),
-      fetch(`/game/get-game-move-history-tool/${gameId}`),
-    ]);
+    const [stateResponse, historyResponse] = await Promise.all([fetch(`/game/get-state/${gameId}`), fetch(`/game/get-game-move-history-tool/${gameId}`)]);
 
     if (!stateResponse.ok || !historyResponse.ok) {
       console.error('Failed to load game details');
@@ -472,6 +469,9 @@ function renderGameBoardAtIndex(snapshot) {
 
   boardEl.style.setProperty('--size', size);
   boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
+  const squarePx = squareSizeBySize[size] || 14;
+  boardEl.style.setProperty('--square-size', `${squarePx}px`);
 
   const scoringSquares = new Set(snapshot.scoringSquares || []);
 
