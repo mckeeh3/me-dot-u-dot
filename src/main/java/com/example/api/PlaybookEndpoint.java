@@ -22,7 +22,7 @@ public class PlaybookEndpoint {
 
   @Post("/get-journal-by-agent-id-down")
   public PlaybookJournalView.Journals getJournalByAgentIdDown(PlaybookJournalView.GetByAgentIdDownRequest request) {
-    log.info("Get journal down by agent id: {}", request);
+    log.debug("Get journal down by agent id: {}", request);
 
     var queryRequest = new PlaybookJournalView.GetByAgentIdDownRequest(request.agentId(), request.sequenceId());
 
@@ -34,7 +34,7 @@ public class PlaybookEndpoint {
 
   @Post("/get-journal-by-agent-id-up")
   public PlaybookJournalView.Journals getJournalByAgentIdUp(PlaybookJournalView.GetByAgentIdUpRequest request) {
-    log.info("Get journal up by agent id: {}", request);
+    log.debug("Get journal up by agent id: {}", request);
 
     var queryRequest = new PlaybookJournalView.GetByAgentIdUpRequest(request.agentId(), request.sequenceId());
 
@@ -46,7 +46,7 @@ public class PlaybookEndpoint {
 
   @Post("/get-journal-by-agent-id-and-sequence")
   public PlaybookJournalView.Journals getJournalByAgentIdAndSequence(PlaybookJournalView.GetByAgentIdAndSequenceRequest request) {
-    log.info("Get journal by agent id and sequence: {}", request);
+    log.debug("Get journal by agent id and sequence: {}", request);
 
     return componentClient.forView()
         .method(PlaybookJournalView::getByAgentIdAndSequence)

@@ -27,7 +27,7 @@ public class PlayerEndpoint {
 
   @Post("/create-player")
   public Done createPlayer(Player.Command.CreatePlayer command) {
-    log.info("Create player: {}", command);
+    log.debug("Create player: {}", command);
 
     return componentClient.forKeyValueEntity(command.id())
         .method(PlayerEntity::createPlayer)
@@ -36,7 +36,7 @@ public class PlayerEndpoint {
 
   @Post("/update-player")
   public Done updatePlayer(Player.Command.UpdatePlayer command) {
-    log.info("Update player: {}", command);
+    log.debug("Update player: {}", command);
 
     return componentClient.forKeyValueEntity(command.id())
         .method(PlayerEntity::updatePlayer)
@@ -45,7 +45,7 @@ public class PlayerEndpoint {
 
   @Get("/get-player/{id}")
   public Player.State getPlayer(String id) {
-    log.info("Get player: {}", id);
+    log.debug("Get player: {}", id);
 
     return componentClient.forKeyValueEntity(id)
         .method(PlayerEntity::getState)
@@ -54,7 +54,7 @@ public class PlayerEndpoint {
 
   @Get("/get-players")
   public Players getPlayers() {
-    log.info("Get players");
+    log.debug("Get players");
 
     return componentClient.forView()
         .method(PlayerView::getAllNames)

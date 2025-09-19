@@ -25,7 +25,7 @@ public class PlayerGamesEndpoint {
 
   @Post("/get-leader-board")
   public PlayerGamesView.LeaderBoard getLeaderBoard(PlayerGamesView.GetLeaderBoard request) {
-    log.info("Get leader board");
+    log.debug("Get leader board");
 
     return componentClient.forView()
         .method(PlayerGamesView::getLeaderBoard)
@@ -34,7 +34,7 @@ public class PlayerGamesEndpoint {
 
   @Get("/get-player/{playerId}")
   public PlayerGames.State getPlayerGames(String playerId) {
-    log.info("Get player games: {}", playerId);
+    log.debug("Get player games: {}", playerId);
 
     return componentClient.forEventSourcedEntity(playerId)
         .method(PlayerGamesEntity::getState)

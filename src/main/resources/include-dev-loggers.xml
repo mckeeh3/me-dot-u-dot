@@ -28,13 +28,17 @@
     <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="INFO">
         <appender-ref ref="FILE" />
     </logger>
-    
+
     <!-- Use DEBUG level for Kalix runtime agent -->
     <logger name="kalix.runtime.agent" level="INFO">
         <appender-ref ref="FILE" />
     </logger>
 
     <logger name="com.example" level="DEBUG">
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <logger name="com.example.application.SessionMemoryConsumer" level="info">
         <appender-ref ref="FILE" />
     </logger>
 </included>

@@ -15,7 +15,7 @@ public class SessionMemoryConsumer extends Consumer {
 
   public Effect onSessionMemoryEvent(SessionMemoryEntity.Event event) {
     var sessionId = messageContext().eventSubject().get();
-    log.info("EntityId: {}\n_Event: {}", sessionId, event);
+    log.debug("EntityId: {}\n_Event: {}", sessionId, event);
 
     return effects().done();
   }

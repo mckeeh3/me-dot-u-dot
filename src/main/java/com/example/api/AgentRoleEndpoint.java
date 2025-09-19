@@ -25,7 +25,7 @@ public class AgentRoleEndpoint {
 
   @Post("/get-journal-by-agent-id-down")
   public AgentRoleJournalView.Journals getJournalByAgentIdDown(AgentRoleJournalView.GetByAgentIdDownRequest request) {
-    log.info("Get journal down by agent id: {}", request);
+    log.debug("Get journal down by agent id: {}", request);
 
     var queryRequest = new AgentRoleJournalView.GetByAgentIdDownRequest(request.agentId(), request.sequenceId());
 
@@ -37,7 +37,7 @@ public class AgentRoleEndpoint {
 
   @Post("/get-journal-by-agent-id-up")
   public AgentRoleJournalView.Journals getJournalByAgentIdUp(AgentRoleJournalView.GetByAgentIdUpRequest request) {
-    log.info("Get journal up by agent id: {}", request);
+    log.debug("Get journal up by agent id: {}", request);
 
     var queryRequest = new AgentRoleJournalView.GetByAgentIdUpRequest(request.agentId(), request.sequenceId());
 
@@ -49,7 +49,7 @@ public class AgentRoleEndpoint {
 
   @Post("/get-journal-by-agent-id-and-sequence")
   public AgentRoleJournalView.Journals getJournalByAgentIdAndSequence(AgentRoleJournalView.GetByAgentIdAndSequenceRequest request) {
-    log.info("Get journal by agent id and sequence: {}", request);
+    log.debug("Get journal by agent id and sequence: {}", request);
 
     return componentClient.forView()
         .method(AgentRoleJournalView::getByAgentIdAndSequence)
@@ -60,7 +60,7 @@ public class AgentRoleEndpoint {
   // prompt
   @Post("/reset-agent-role")
   public Done resetAgentRole(AgentRole.Command.ResetAgentRole request) {
-    log.info("Reset agent role: {}", request);
+    log.debug("Reset agent role: {}", request);
 
     return componentClient.forEventSourcedEntity(request.agentId())
         .method(AgentRoleEntity::resetAgentRole)

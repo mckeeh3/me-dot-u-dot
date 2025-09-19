@@ -40,7 +40,7 @@ public class GameEndpoint {
 
   @Post("/create-game")
   public GameResponse createGame(CreateGame request) {
-    log.info("Create game: {}", request);
+    log.debug("Create game: {}", request);
 
     var command = new DotGame.Command.CreateGame(request.gameId, request.player1, request.player2, request.level);
 
@@ -54,7 +54,7 @@ public class GameEndpoint {
 
   @Post("/make-move")
   public GameResponse makeMove(MakeMove request) {
-    log.info("Make move: {}", request);
+    log.debug("Make move: {}", request);
 
     var command = new DotGame.Command.MakeMove(request.gameId, request.playerId, request.squareId);
 
@@ -68,7 +68,7 @@ public class GameEndpoint {
 
   @Post("/cancel-game")
   public GameResponse cancelGame(CancelGame request) {
-    log.info("Cancel game: {}", request);
+    log.debug("Cancel game: {}", request);
 
     var command = new DotGame.Command.CancelGame(request.gameId);
 
@@ -82,7 +82,7 @@ public class GameEndpoint {
 
   @Get("/get-move-stream-by-game-id/{gameId}")
   public HttpResponse getMoveStreamByGameId(String gameId) {
-    log.info("Get move stream by game id: {}", gameId);
+    log.debug("Get move stream by game id: {}", gameId);
 
     var request = new GetMoveStreamByGameIdRequest(gameId);
     var gameState = componentClient
@@ -95,7 +95,7 @@ public class GameEndpoint {
 
   @Get("/get-state/{gameId}")
   public GameResponse getState(String gameId) {
-    log.info("Get state for game: {}", gameId);
+    log.debug("Get state for game: {}", gameId);
 
     var gameState = componentClient
         .forEventSourcedEntity(gameId)
@@ -107,7 +107,7 @@ public class GameEndpoint {
 
   @Get("/get-current-in-progress-game")
   public String getCurrentInProgressGame() {
-    log.info("Get current in progress game");
+    log.debug("Get current in progress game");
 
     try {
       var dotGameRow = componentClient
@@ -126,7 +126,7 @@ public class GameEndpoint {
 
   @Post("/get-games-by-player-id-paged")
   public DotGameView.GamesPage getGamesByPlayerIdPaged(DotGameView.GetGamesByPlayerIdPagedRequest request) {
-    log.info("Get games by player id paged: {}", request);
+    log.debug("Get games by player id paged: {}", request);
 
     return componentClient
         .forView()
@@ -147,13 +147,13 @@ public class GameEndpoint {
 
   @Get("/get-game-state-tool/{gameId}")
   public GetGameStateTool.CompactGameState getGameStateTool(String gameId) {
-    log.info("Get game state tool: {}", gameId);
+    log.debug("Get game state tool: {}", gameId);
     return new GetGameStateTool(componentClient).getGameState(gameId);
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
   public GetGameMoveHistoryTool.MoveHistory getGameMoveHistoryTool(String gameId) {
-    log.info("Get game move history tool: {}", gameId);
+    log.debug("Get game move history tool: {}", gameId);
     return new GetGameMoveHistoryTool(componentClient).getGameMoveHistory(gameId);
   }
 
