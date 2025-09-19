@@ -216,3 +216,57 @@ This platform enables research into:
 
 ---
 *The game mechanics are intentionally undocumented - agents must discover the rules through play, just as the learning algorithms intended.*
+
+## Codebase structure and key concepts description (Codex generated)
+
+### Project overview
+
+* **me-dot-u-dot** is an event-driven research platform where LLM-powered agents learn to play a grid-based game by iteratively updating their own playbooks and system prompts, letting you compare models and observe their learning trajectories.
+
+### Repository layout
+
+* Java sources follow a clean separation into `domain` models, `application` logic (entities, consumers, tools, views), and `api` HTTP endpoints, while static web assets and configuration live under `src/main/resources/static-resources` and `application.conf` respectively. Shell helpers in the repo root aid manual testing.
+
+### Domain layer (game and memories)
+
+* `DotGame` defines the authoritative game state, commands, events, scoring logic, and board representation used by the rest of the system.
+* Player- and agent-specific memory is modeled separately: `Playbook` stores per-agent tactical instructions, `AgentRole` captures the editable system prompt, and both have corresponding journal records that archive every revision for later inspection.
+* Additional domain models handle player identities (`Player`), aggregated player statistics (`PlayerGames`), and utility hashing (`Murmur1`).
+
+### Application layer (entities, agent orchestration, tools)
+
+* Event-sourced entities (`DotGameEntity`, `PlaybookEntity`, `AgentRoleEntity`, `PlaybookJournalEntity`, `AgentRoleJournalEntity`, `PlayerGamesEntity`) and a key-value `PlayerEntity` wrap the domain logic with Akka SDK persistence semantics.
+* `DotGameAgent` is the Akka Agent that drives LLM interactions, wiring together the available tools, selecting a model from configuration, and handling recoverable vs. fatal errors during move execution.
+* Consumers stream entity events into agent sessions or archival stores: `DotGameToAgentConsumer` orchestrates turn-by-turn prompting, while `PlaybookToPlaybookJournalConsumer` and `AgentRoleToAgentRoleJournalConsumer` record every playbook/system prompt change with ordered sequence IDs; a `SessionMemoryConsumer` logs Akka session-memory events.
+* Tool classes (`GetGameStateTool`, `MakeMoveTool`, `GetYourPlaybookTool`, `UpdateYourPlaybookTool`, `GetYourSystemPromptTool`, `UpdateYourSystemPromptTool`, `GetGameMoveHistoryTool`) expose structured, documented capabilities the LLM must call each turn.
+
+### Query views and analytics
+
+* Read models (`DotGameView`, `PlaybookJournalView`, `AgentRoleJournalView`, `PlayerView`, `PlayerGamesView`) project event streams into SQL-addressable tables for move streams, journal navigation, player listings, and leader-board statistics.
+
+### HTTP API surface
+
+* REST endpoints under `/game`, `/player`, `/playbook`, `/agent-role`, and `/player-games` expose commands and queries for gameplay, player management, journals, and leader boards, while `StaticContentEndpoint` serves the SPA assets.
+
+### Frontend experience
+
+* The main game UI (`index.html` + `js/index.js`) guides players through setup, renders the board, streams moves via SSE, and coordinates timers and sounds using utilities in `js/common.js`. Supporting pages (`playbook.html`, `agent-role.html`, `leader-board.html`, etc.) reuse shared components to browse journals and standings.
+
+### Configuration & build
+
+* Runtime wiring lives in `application.conf`, which documents the naming convention for agent models and ships reference configs for OpenAI, Google Gemini, Anthropic, and local Ollama providers; API keys are expected via environment variables.
+* Maven coordinates in `pom.xml` inherit from the Akka Java SDK parent, and README outlines local run instructions with `mvn compile exec:java` and the necessary toolchain versions.
+
+### Testing & developer tooling
+
+* A JUnit-based integration test scaffold (`IntegrationTest`) is ready for end-to-end scenarios, and repository guidelines emphasize running `mvn test`/`mvn clean verify` plus adhering to the provided style conventions. Command-line scripts (`cancel-game.sh`, `agent-role-reset.sh`, `get-games-by-player.sh`, `leader-board.sh`) offer quick API probes during development.
+
+### Suggested next steps for newcomers
+
+* **Trace an agent turn**: Follow a `DotGame.Event.MoveMade` through `DotGameToAgentConsumer` into `DotGameAgent.makeMove`, inspecting how tool calls and retries work before diving into model configuration.
+* **Instrument the journals**: Explore `PlaybookJournalView` and `AgentRoleJournalView` queries, then open the corresponding HTML/JS pages to understand how the UI paginates through revisions.
+* **Enhance test coverage**: Use the integration test skeleton to script realistic game flows, leveraging the shell helpers to mirror HTTP traffic while you build assertions around the Akka entities and views.
+* **Review configuration management**: Familiarize yourself with the agent model naming conventions and environment variable expectations in `application.conf` before adding new providers or tuning parameters.
+* **Study frontend orchestration**: Read through `js/index.js` and `js/common.js` to see how the SPA consumes REST/SSE endpoints; this context is invaluable when adding new controls or diagnostics to the dashboard.
+
+By iterating through these areas you'll quickly gain confidence in how the Akka backend, LLM agents, and frontend experience collaborate to support self-improving gameplay.
