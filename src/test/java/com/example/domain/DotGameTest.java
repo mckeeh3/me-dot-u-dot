@@ -49,7 +49,7 @@ public class DotGameTest {
         .create(player1)
         .scoreMove(move, DotGame.Board.Level.one, moveHistory);
 
-    assertEquals(7, scoringMoves.totalScore());
+    assertEquals(8, scoringMoves.totalScore());
     assertEquals(3, scoringMoves.scoringMoves().size());
 
     var horizontalScoringMove = scoringMoves.scoringMoves().get(0);
@@ -59,7 +59,7 @@ public class DotGameTest {
     assertEquals(3, verticalScoringMove.score());
 
     var adjacentScoringMove = scoringMoves.scoringMoves().get(2);
-    assertEquals(1, adjacentScoringMove.score());
+    assertEquals(2, adjacentScoringMove.score());
   }
 
   @Test
@@ -85,7 +85,7 @@ public class DotGameTest {
         .create(player1)
         .scoreMove(move, DotGame.Board.Level.one, moveHistory);
 
-    assertEquals(7, scoringMoves.totalScore());
+    assertEquals(8, scoringMoves.totalScore());
     assertEquals(3, scoringMoves.scoringMoves().size());
 
     var diagonalScoringMove1 = scoringMoves.scoringMoves().get(0);
@@ -95,7 +95,7 @@ public class DotGameTest {
     assertEquals(3, diagonalScoringMove2.score());
 
     var adjacentScoringMove = scoringMoves.scoringMoves().get(2);
-    assertEquals(1, adjacentScoringMove.score());
+    assertEquals(2, adjacentScoringMove.score());
   }
 
   @Test
@@ -107,11 +107,11 @@ public class DotGameTest {
     // D | __ | __ | a1 | a1 | __ |
     // E | __ | __ | __ | __ | __ |
     var moveHistory = moveHistory(player1, player2, List.of(
-        "C3", "B3", //
-        "C5", "C4", //
-        "A5", "C2", //
-        "B5", "D3", //
-        "B4", "D4", //
+        "C3", "B3",
+        "C5", "C4",
+        "A5", "C2",
+        "B5", "D3",
+        "B4", "D4",
         "A1", "B2"));
     var move = new DotGame.Square("A3", player1);
 
@@ -128,23 +128,47 @@ public class DotGameTest {
 
   @Test
   void testScoreMove_Level1_CenterDot_OneHorizontalLine() {
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p2 | __ | p1 | p2 | p2 |
+    // B | __ | __ | p1 | __ | __ |
+    // C | p1 | p1 | p1 | p2 | __ |
+    // D | __ | __ | p1 | __ | __ |
+    // E | __ | __ | __ | __ | __ |
     var moveHistory = moveHistory(player1, player2, List.of(
-        "A3", "A1", //
-        "B3", "A3", //
-        "C2", "A4", //
-        "C1", "A5", //
-        "C5", "C4"));
+        "A3", "A1",
+        "B3", "A2",
+        "C2", "A4",
+        "C1", "A5",
+        "D4", "C4"));
     var move = new DotGame.Square("C3", player1);
 
     var scoringMoves = DotGame.ScoringMoves
         .create(player1)
         .scoreMove(move, DotGame.Board.Level.one, moveHistory);
 
-    assertEquals(2, scoringMoves.scoringMoves().size());
+    assertEquals(3, scoringMoves.scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
 
-    var expectedMoves = List.of("C1", "C2", "C3");
-    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringSquares());
+    {
+      var expectedMoves = List.of("C1", "C2", "C3");
+      assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringSquares());
+      assertEquals(1, scoringMoves.scoringMoves().get(0).score());
+      assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
+    }
+
+    {
+      var expectedMoves = List.of("A3", "B3", "C3");
+      assertEquals(expectedMoves, scoringMoves.scoringMoves().get(1).scoringSquares());
+      assertEquals(1, scoringMoves.scoringMoves().get(1).score());
+      assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(1).type());
+    }
+
+    {
+      var expectedMoves = List.of("B3", "C2", "C3", "D4");
+      assertEquals(expectedMoves, scoringMoves.scoringMoves().get(2).scoringSquares());
+      assertEquals(2, scoringMoves.scoringMoves().get(2).score());
+      assertEquals(DotGame.ScoringMoveType.adjacent, scoringMoves.scoringMoves().get(2).type());
+    }
   }
 
   @Test
@@ -328,26 +352,77 @@ public class DotGameTest {
     var scoringMoves = DotGame.ScoringMoves
         .create(player1);
 
-    var moveHistory = moveHistory(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3"));
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p2 | __ | p2 | __ | p2 |
+    // B | __ | __ | p1 | __ | __ |
+    // C | __ | p1 | __ | p1 | __ |
+    // D | __ | __ | p1 | p1 | __ |
+    // E | p2 | __ | p2 | __ | __ |
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "B2", "A1",
+        "B3", "A3",
+        "D3", "A5",
+        "D4", "E1",
+        "C2", "E3"));
     var move = new DotGame.Square("C4", player1);
 
     scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.one, moveHistory);
-    assertEquals(0, scoringMoves.totalScore());
+    assertEquals(2, scoringMoves.totalScore());
 
-    moveHistory = moveHistory(player1, player2, List.of("B2", "A1", "B3", "A3", "D3", "A5", "D4", "E1", "C2", "E3", "C4", "E5"));
+    // _____ 1 __ 2 __ 3 __ 4 __ 5
+    // A | p2 | __ | p2 | __ | p2 |
+    // B | __ | p1 | p1 | __ | __ |
+    // C | __ | p1 | p1 | p1 | __ |
+    // D | __ | __ | p1 | p1 | __ |
+    // E | p2 | __ | p2 | __ | p2 |
+    moveHistory = moveHistory(player1, player2, List.of(
+        "B2", "A1",
+        "B3", "A3",
+        "D3", "A5",
+        "D4", "E1",
+        "C2", "E3",
+        "C4", "E5"));
     move = new DotGame.Square("C3", player1);
 
     scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.one, moveHistory);
 
-    assertEquals(4, scoringMoves.scoringMoves().size());
-    assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(0).type());
-    assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(1).type());
-    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(2).type());
-    assertEquals(DotGame.ScoringMoveType.adjacent, scoringMoves.scoringMoves().get(3).type());
-    var expectedMoves = List.of("B2", "B3", "C2", "C4", "D3", "D4");
-    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(3).scoringSquares());
+    assertEquals(5, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.adjacent, scoringMoves.scoringMoves().get(0).type());
+    assertEquals(2, scoringMoves.scoringMoves().get(0).score());
+    assertEquals(DotGame.ScoringMoveType.horizontal, scoringMoves.scoringMoves().get(1).type());
+    assertEquals(1, scoringMoves.scoringMoves().get(1).score());
+    assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(2).type());
+    assertEquals(1, scoringMoves.scoringMoves().get(2).score());
+    assertEquals(DotGame.ScoringMoveType.diagonal, scoringMoves.scoringMoves().get(3).type());
+    assertEquals(1, scoringMoves.scoringMoves().get(3).score());
+    assertEquals(DotGame.ScoringMoveType.adjacent, scoringMoves.scoringMoves().get(4).type());
+    assertEquals(4, scoringMoves.scoringMoves().get(4).score());
+    var expectedMoves = List.of("B2", "B3", "C2", "C3", "C4", "D3", "D4");
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(4).scoringSquares());
 
-    assertEquals(6, scoringMoves.totalScore()); // 1 + 1 + 1 + 3, one for each line, and 3 for the adjacent squares
+    assertEquals(9, scoringMoves.totalScore()); // 1 + 1 + 1 + 3, one for each line, and 3 for the adjacent squares
+  }
+
+  @Test
+  void testAdjacentLevelNine() {
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player1);
+
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "A1", "A4",
+        "A2", "A5",
+        "A3", "A6",
+        "B1", "B4",
+        "B3", "B6",
+        "C1", "C4",
+        "C2", "C5",
+        "C3", "C6"));
+    var move = new DotGame.Square("B2", player1);
+
+    scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.nine, moveHistory);
+    assertEquals(2, scoringMoves.totalScore());
+
+    assertEquals(2, scoringMoves.totalScore());
   }
 
   static DotGame.Square square(String id, DotGame.Player player) {

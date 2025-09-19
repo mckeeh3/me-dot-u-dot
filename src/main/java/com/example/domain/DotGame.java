@@ -718,8 +718,9 @@ public interface DotGame {
 
       var scoringMoves = groups.stream()
           .map(g -> {
-            var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
-            var score = g.size() > adjacentSquaresToScore ? g.size() - adjacentSquaresToScore : 0;
+            // var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
+            // var score = g.size() > adjacentSquaresToScore ? g.size() - adjacentSquaresToScore : 0;
+            var score = scoreAdjacent(level, g);
             var scoringSquares = g.stream().map(m -> m.squareId()).toList();
             return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringSquares);
           })
@@ -730,9 +731,15 @@ public interface DotGame {
     }
 
     static boolean isAdjacent(Square move, Move otherMove) {
-      return move.row() == otherMove.row() && Math.abs(move.col() - otherMove.col()) == 1
-          || move.col() == otherMove.col() && Math.abs(move.row() - otherMove.row()) == 1
-          || Math.abs(move.row() - otherMove.row()) == 1 && Math.abs(move.col() - otherMove.col()) == 1;
+      return move.row() == otherMove.row() && move.col() == otherMove.col() // same square
+          || move.row() == otherMove.row() && Math.abs(move.col() - otherMove.col()) == 1 // left or right
+          || move.col() == otherMove.col() && Math.abs(move.row() - otherMove.row()) == 1 // up or down
+          || Math.abs(move.row() - otherMove.row()) == 1 && Math.abs(move.col() - otherMove.col()) == 1; // diagonal
+    }
+
+    static int scoreAdjacent(Board.Level level, List<Move> moves) {
+      var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
+      return moves.size() - 1 >= adjacentSquaresToScore ? Math.max(2, moves.size() - adjacentSquaresToScore) : 0;
     }
 
     // ============================================================
