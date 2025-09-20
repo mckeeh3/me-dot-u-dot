@@ -45,6 +45,15 @@
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
 }
 
+.journal-header-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
+}
+
 .journal-exit {
   font-size: 20px !important;
   width: 40px !important;
