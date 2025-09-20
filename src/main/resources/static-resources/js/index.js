@@ -4,6 +4,16 @@ let state = {
   p2: null,
 };
 
+function setPlayerPanelMode(which, mode) {
+  const panelBody = document.querySelector(`[data-player="${which}"] .player-panel-body`);
+  if (!panelBody) return;
+  if (mode === 'stats') {
+    panelBody.classList.add('player-panel-body--stats');
+  } else {
+    panelBody.classList.remove('player-panel-body--stats');
+  }
+}
+
 function currentSize() {
   if (!state.game) return 5;
   const level = state.game.board.level; // enum name string
@@ -34,6 +44,8 @@ function startNewGameWizard() {
   $('p1Stats').style.display = 'none';
   $('p2Setup').style.display = 'none';
   $('p2Stats').style.display = 'none';
+  setPlayerPanelMode('p1', 'setup');
+  setPlayerPanelMode('p2', 'setup');
 
   // Hide level selection and show control message
   $('levelSelection').style.display = 'none';
@@ -204,6 +216,8 @@ function renderGameInfo() {
     $('p1Stats').style.display = 'flex';
     $('p2Setup').style.display = 'none';
     $('p2Stats').style.display = 'flex';
+    setPlayerPanelMode('p1', 'stats');
+    setPlayerPanelMode('p2', 'stats');
 
     // Update player stats
     updatePlayerStats('p1', p1);
@@ -240,6 +254,8 @@ function renderGameInfo() {
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
     $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins! - Duration ${gameDuration}`;
+    setPlayerPanelMode('p1', 'stats');
+    setPlayerPanelMode('p2', 'stats');
   } else if (state.game.status === 'draw') {
     // Stop timers when game ends
     stopTimer();
@@ -255,6 +271,8 @@ function renderGameInfo() {
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
     $('controlMessage').textContent = `🤝 It's a draw! - Duration ${gameDuration}`;
+    setPlayerPanelMode('p1', 'stats');
+    setPlayerPanelMode('p2', 'stats');
   } else if (state.game.status === 'canceled') {
     // Stop timers when game ends
     stopTimer();
@@ -270,6 +288,8 @@ function renderGameInfo() {
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
     $('controlMessage').textContent = `❌ Game canceled - Duration ${gameDuration}`;
+    setPlayerPanelMode('p1', 'stats');
+    setPlayerPanelMode('p2', 'stats');
   }
 }
 
@@ -752,6 +772,8 @@ function applyPlayerSelection(which, player) {
     // Update control message and show Player 2 setup
     setControlMessage('Select or create Player 2');
     $('p2Setup').style.display = 'block';
+    setPlayerPanelMode('p1', 'setup');
+    setPlayerPanelMode('p2', 'setup');
     // Refresh P2 menu to exclude the selected P1 player
     populatePlayerMenu('p2');
   } else {
@@ -778,6 +800,7 @@ function applyPlayerSelection(which, player) {
     // Show level selection in control bar
     $('controlMessage').style.display = 'none';
     $('levelSelection').style.display = 'flex';
+    setPlayerPanelMode('p2', 'setup');
     updateBeginButtonState();
     // Show default preview board (level one)
     renderPreviewBoard('one');

@@ -36,6 +36,15 @@ body {
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 1.5vw, 1.5rem);
+  min-width: 0;
+}
+
+.app-header-left {
+  justify-content: flex-start;
+}
+
+.app-header-right {
+  justify-content: flex-end;
 }
 
 .app-header-center {
