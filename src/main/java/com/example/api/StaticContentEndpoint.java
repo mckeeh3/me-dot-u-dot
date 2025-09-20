@@ -39,11 +39,6 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("playbook.html");
   }
 
-  @Get("/css/playbook.css")
-  public HttpResponse servePlaybookCss() {
-    return HttpResponses.staticResource("css/playbook.css");
-  }
-
   @Get("/js/playbook.js")
   public HttpResponse servePlaybookJs() {
     return HttpResponses.staticResource("js/playbook.js");
@@ -74,6 +69,16 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("js/common.js");
   }
 
+  @Get("/css/common-new.css")
+  public HttpResponse serveCommonNewCss() {
+    return HttpResponses.staticResource("css/common-new.css");
+  }
+
+  @Get("/js/common-new.js")
+  public HttpResponse serveCommonNewJs() {
+    return HttpResponses.staticResource("js/common-new.js");
+  }
+
   @Get("/help.html")
   public HttpResponse serveHelpHtml() {
     return HttpResponses.staticResource("help.html");
@@ -102,6 +107,11 @@ public class StaticContentEndpoint {
   @Get("/js/leader-board.js")
   public HttpResponse serveLeaderBoardJs() {
     return HttpResponses.staticResource("js/leader-board.js");
+  }
+
+  @Get("/js/journal-viewer.js")
+  public HttpResponse serveJournalViewerJs() {
+    return HttpResponses.staticResource("js/journal-viewer.js");
   }
 
   @Get("/css/journal-viewer.css")

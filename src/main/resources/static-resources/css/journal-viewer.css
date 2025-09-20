@@ -124,6 +124,7 @@
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .nav-btn {
@@ -198,4 +199,178 @@
 
 .diff-checkbox-label:hover {
   color: var(--neon-cyan);
+}
+
+/*
+ * Shared journal layout (list + detail panels)
+ */
+.journal-main {
+  min-height: 0;
+}
+
+.journal-list-panel,
+.journal-detail-panel {
+  gap: clamp(0.75rem, 1vw, 1.3rem);
+}
+
+.journal-list-table-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.journal-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(15, 21, 38, 0.92);
+  border-radius: var(--layout-border-radius, 16px);
+  overflow: hidden;
+  font-size: clamp(0.85rem, 0.9vw, 1rem);
+}
+
+.journal-list-table thead th {
+  text-align: left;
+  padding: clamp(0.6rem, 1vw, 0.9rem) clamp(0.9rem, 1.4vw, 1.2rem);
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--text);
+  font-size: clamp(0.85rem, 0.95vw, 1.05rem);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+}
+
+.journal-list-table tbody td {
+  padding: clamp(0.55rem, 0.9vw, 0.85rem) clamp(0.9rem, 1.3vw, 1.2rem);
+  color: var(--text);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  vertical-align: middle;
+}
+
+.journal-list-table tbody tr {
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.journal-list-table tbody tr:hover {
+  background: rgba(0, 229, 255, 0.18);
+}
+
+.journal-list-table tbody tr.selected {
+  background: rgba(0, 229, 255, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.45);
+}
+
+.journal-list-table .agent-name-cell {
+  font-size: clamp(0.95rem, 1.1vw, 1.2rem);
+  font-weight: 600;
+}
+
+.journal-list-table .agent-model-cell {
+  color: var(--muted);
+}
+
+.journal-list-table .agent-id-cell {
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: clamp(0.8rem, 0.9vw, 0.95rem);
+}
+
+.journal-list-empty-row td {
+  text-align: center;
+  color: var(--muted);
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  font-size: clamp(0.85rem, 0.95vw, 1rem);
+}
+
+.journal-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.9rem, 1.1vw, 1.3rem);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.journal-detail-body .journal-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.8rem, 1vw, 1.2rem);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.journal-detail-body .journal-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 1vw, 1.1rem);
+}
+
+.journal-detail-body .journal-field {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.35rem, 0.6vw, 0.75rem);
+  font-size: clamp(0.85rem, 0.95vw, 1rem);
+}
+
+.journal-detail-body .journal-label {
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.journal-detail-body .journal-value {
+  color: var(--neon-cyan);
+  font-weight: 600;
+}
+
+.journal-detail-body .journal-instructions-container {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 0.8vw, 1rem);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.journal-detail-body .journal-instructions {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  padding: clamp(0.9rem, 1.2vw, 1.3rem);
+  font-size: clamp(0.92rem, 1.05vw, 1.15rem);
+  line-height: 1.6;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.journal-detail-panel .journal-navigation {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8rem, 1.1vw, 1.2rem);
+  justify-content: flex-start;
+  margin-top: clamp(0.6rem, 0.9vw, 1rem);
+}
+
+.journal-detail-panel .nav-btn {
+  width: clamp(2.6rem, 3vw, 3.2rem);
+  height: clamp(2.6rem, 3vw, 3.2rem);
+  font-size: clamp(1rem, 1.2vw, 1.4rem);
+}
+
+.journal-detail-panel .diff-checkbox-label {
+  font-size: clamp(0.85rem, 0.95vw, 1rem);
+  gap: clamp(0.35rem, 0.5vw, 0.65rem);
+  height: auto;
+}
+
+.journal-detail-panel .diff-checkbox-label input[type='checkbox'] {
+  width: clamp(0.85rem, 0.9vw, 1rem);
+  height: clamp(0.85rem, 0.9vw, 1rem);
+}
+
+@media (max-width: 900px) {
+  .journal-main {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
 }

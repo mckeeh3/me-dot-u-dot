@@ -8,74 +8,98 @@
     <meta http-equiv="Expires" content="0" />
     <title>Me-Dot-U-Dot Playbook Viewer</title>
     <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
     <link rel="stylesheet" href="/css/journal-viewer.css" />
-    <link rel="stylesheet" href="/css/playbook.css" />
     <style>
       /* Any page-specific overrides can go here */
     </style>
   </head>
   <body>
-    <!-- Navigation Menu -->
-    <div class="nav-menu">
-      <div class="dd" id="nav">
-        <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
-          <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-        </button>
-        <div id="nav-menu" class="dd-menu">
-          <div class="dd-item" onclick="window.location.href='/'">Game</div>
-          <div class="dd-item current">Playbook Viewer</div>
-          <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
-          <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
-          <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Player Selection -->
-    <div class="agent-selection">
-      <!-- <label>Select Agent:</label> -->
-      <div class="dd-container agent-selection-dd-container">
-        <button type="button" class="dd-toggle" onclick="ddToggle('player-dd')" id="player-dd-btn">Select Agent</button>
-        <div class="dd-menu" id="player-dd-menu"></div>
-      </div>
-    </div>
-
-    <!-- Journal Viewer -->
-    <div class="journal-viewer-in-playbook">
-      <div class="journal-header">
-        <h3>Agent Playbook Journal</h3>
-      </div>
-
-      <div class="journal-content">
-        <div class="journal-info">
-          <div class="journal-field">
-            <span class="journal-label">Agent ID:</span>
-            <span id="journalAgentId" class="journal-value">-</span>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item" onclick="window.location.href='/'">Game</div>
+                <div class="dd-item current">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
+                <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+              </div>
+            </div>
           </div>
-          <div class="journal-field">
-            <span class="journal-label">Sequence ID:</span>
-            <span id="journalSequenceId" class="journal-value">-</span>
-          </div>
-          <div class="journal-field">
-            <span class="journal-label">Updated At:</span>
-            <span id="journalUpdatedAt" class="journal-value">-</span>
-          </div>
+          <h1 class="app-header-title">Playbook Viewer</h1>
         </div>
+      </header>
 
-        <div class="journal-instructions-container">
-          <div class="journal-instructions-label">Instructions:</div>
-          <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
-        </div>
-      </div>
+      <main class="app-main journal-main">
+        <aside class="app-panel journal-list-panel">
+          <div class="app-panel-header">
+            <h2 class="app-panel-title">Agent Players</h2>
+          </div>
+          <div class="app-panel-body journal-list-table-container">
+            <table class="journal-list-table">
+              <thead>
+                <tr>
+                  <th scope="col">Agent Player</th>
+                  <th scope="col">Model</th>
+                  <th scope="col">Agent ID</th>
+                </tr>
+              </thead>
+              <tbody id="agentListBody">
+                <tr class="journal-list-empty-row">
+                  <td colspan="3">Loading agent players…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
 
-      <div class="journal-navigation">
-        <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
-        <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
-        <label class="diff-checkbox-label"> <input type="checkbox" id="showDiffCheckbox" onchange="toggleDiff()" /> Show diff </label>
-      </div>
+        <section class="app-panel journal-detail-panel">
+          <div class="app-panel-header">
+            <h2 class="app-panel-title">Agent Playbook Journal</h2>
+          </div>
+
+          <div class="app-panel-body journal-detail-body">
+            <div class="journal-content">
+              <div class="journal-info">
+                <div class="journal-field">
+                  <span class="journal-label">Agent:</span>
+                  <span id="journalAgentId" class="journal-value">-</span>
+                </div>
+                <div class="journal-field">
+                  <span class="journal-label">Sequence ID:</span>
+                  <span id="journalSequenceId" class="journal-value">-</span>
+                </div>
+                <div class="journal-field">
+                  <span class="journal-label">Updated At:</span>
+                  <span id="journalUpdatedAt" class="journal-value">-</span>
+                </div>
+              </div>
+
+              <div class="journal-instructions-container">
+                <div class="journal-instructions-label">Instructions:</div>
+                <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="journal-navigation">
+            <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
+            <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
+            <label class="diff-checkbox-label"> <input type="checkbox" id="showDiffCheckbox" onchange="toggleDiff()" /> Show diff </label>
+          </div>
+        </section>
+      </main>
     </div>
 
     <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
+    <script src="/js/journal-viewer.js"></script>
     <script src="/js/playbook.js"></script>
     <script src="/js/diff.js"></script>
   </body>

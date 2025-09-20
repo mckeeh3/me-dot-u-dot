@@ -70,18 +70,30 @@ async function loadLatestJournalEntry() {
       journalState.isViewing = true;
       journalState.currentSequenceId = data.journals[0].sequenceId;
       displayJournalEntry();
-      enableNavigationButtons();
+      JournalViewer.setNavigationButtonsEnabled({
+        upButtonId: 'journalUpBtn',
+        downButtonId: 'journalDownBtn',
+        enabled: true,
+      });
     } else {
       $('journalAgentId').textContent = journalState.currentAgentId;
       $('journalSequenceId').textContent = '-';
       $('journalUpdatedAt').textContent = '-';
       $('journalInstructions').textContent = 'No agent role journal entries found for this agent.';
-      disableNavigationButtons();
+      JournalViewer.setNavigationButtonsEnabled({
+        upButtonId: 'journalUpBtn',
+        downButtonId: 'journalDownBtn',
+        enabled: false,
+      });
     }
   } catch (error) {
     console.error('Error loading journal entry:', error);
     $('journalInstructions').textContent = 'Error loading journal entry.';
-    disableNavigationButtons();
+    JournalViewer.setNavigationButtonsEnabled({
+      upButtonId: 'journalUpBtn',
+      downButtonId: 'journalDownBtn',
+      enabled: false,
+    });
   }
 }
 
@@ -136,10 +148,6 @@ async function fetchJournalEntry(direction) {
 
 function displayJournalEntry() {
   const entry = journalState.currentEntry;
-  const journalViewer = document.querySelector('.journal-viewer');
-  if (journalViewer) {
-    journalViewer.style.display = 'flex';
-  }
 
   const agentIdEl = $('journalAgentId');
   const seqIdEl = $('journalSequenceId');
@@ -152,44 +160,13 @@ function displayJournalEntry() {
   if (seqIdEl) seqIdEl.textContent = entry.sequenceId;
   if (updatedAtEl) updatedAtEl.textContent = updatedAt;
 
-  diffJournalEntry(instructionsEl);
-}
-
-function diffJournalEntry(instructionsEl) {
-  const diffFragment = document.createDocumentFragment();
-  if (journalState.showDiff) {
-    const oldPrompt = journalState?.previousEntry?.systemPrompt || '';
-    const newPrompt = journalState?.currentEntry?.systemPrompt || '';
-    const diff = Diff.diffWords(oldPrompt, newPrompt);
-
-    diff.forEach((part) => {
-      const diffSpan = document.createElement('span');
-      const color = part.added ? 'green' : part.removed ? 'red' : 'lightgrey';
-      diffSpan.style.color = color;
-      diffSpan.appendChild(document.createTextNode(part.value));
-      diffFragment.appendChild(diffSpan);
-    });
-  } else {
-    const promptSpan = document.createElement('span');
-    promptSpan.textContent = journalState?.currentEntry?.systemPrompt || 'No system prompt available.';
-    diffFragment.appendChild(promptSpan);
-  }
-
-  while (instructionsEl.firstChild) {
-    instructionsEl.removeChild(instructionsEl.firstChild);
-  }
-
-  instructionsEl.appendChild(diffFragment);
-}
-
-function enableNavigationButtons() {
-  $('journalUpBtn').disabled = false;
-  $('journalDownBtn').disabled = false;
-}
-
-function disableNavigationButtons() {
-  $('journalUpBtn').disabled = true;
-  $('journalDownBtn').disabled = true;
+  JournalViewer.renderTextDiff({
+    targetElement: instructionsEl,
+    previousText: journalState?.previousEntry?.systemPrompt || '',
+    currentText: journalState?.currentEntry?.systemPrompt || '',
+    showDiff: journalState.showDiff,
+    emptyMessage: 'No system prompt available.',
+  });
 }
 
 function toggleDiff() {
