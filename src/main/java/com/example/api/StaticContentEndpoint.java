@@ -49,11 +49,6 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("agent-role.html");
   }
 
-  @Get("/css/agent-role.css")
-  public HttpResponse serveAgentRoleCss() {
-    return HttpResponses.staticResource("css/agent-role.css");
-  }
-
   @Get("/js/agent-role.js")
   public HttpResponse serveAgentRoleJs() {
     return HttpResponses.staticResource("js/agent-role.js");

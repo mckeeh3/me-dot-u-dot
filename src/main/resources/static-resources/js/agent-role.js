@@ -3,60 +3,130 @@ const journalState = {
   isViewing: false,
   currentAgentId: null,
   currentSequenceId: Number.MAX_SAFE_INTEGER,
+  currentAgentMeta: null,
   showDiff: false,
 };
 
-async function populatePlayerMenu() {
-  const menu = $('player-dd-menu');
-  const btn = $('player-dd-btn');
-  menu.innerHTML = '';
+const agentListState = {
+  agents: [],
+};
+
+async function loadAgentList() {
+  const body = $('agentListBody');
+  if (!body) return;
+
+  body.innerHTML = `
+    <tr class="journal-list-empty-row">
+      <td colspan="2">Loading agent players…</td>
+    </tr>
+  `;
 
   try {
     const response = await fetchJson('/player/get-players');
     const players = response.players || [];
 
-    const agentPlayers = players.filter((p) => p.type.toLowerCase() === 'agent');
+    const agentPlayers = players.filter((p) => p.type?.toLowerCase() === 'agent');
+    agentPlayers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
-    if (!agentPlayers.length) {
-      const empty = document.createElement('div');
-      empty.className = 'dd-item';
-      empty.textContent = 'No agent players available';
-      menu.appendChild(empty);
-      btn.textContent = '— Select a player —';
-      return;
-    }
-
-    agentPlayers.forEach((p) => {
-      const item = document.createElement('div');
-      item.className = 'dd-item';
-      item.textContent = `${p.name} (${p.model || 'No model'})`;
-      item.onclick = (e) => {
-        e.stopPropagation();
-        btn.textContent = item.textContent;
-        btn.dataset.playerId = p.id;
-        const menuEl = $('player-dd-menu');
-        if (menuEl) {
-          menuEl.style.display = 'none';
-        }
-        document.removeEventListener('click', dropdownHandlers['player-dd']);
-        delete dropdownHandlers['player-dd'];
-        selectPlayer(p.id);
-      };
-      menu.appendChild(item);
-    });
+    agentListState.agents = agentPlayers;
+    renderAgentList();
   } catch (error) {
     console.error('Error fetching players:', error);
-    const item = document.createElement('div');
-    item.className = 'dd-item';
-    item.textContent = 'Error loading players';
-    item.style.opacity = '0.5';
-    menu.appendChild(item);
+    body.innerHTML = `
+      <tr class="journal-list-empty-row">
+        <td colspan="2">Error loading agent players.</td>
+      </tr>
+    `;
   }
 }
 
-async function selectPlayer(agentId) {
+// Backward compatibility: older entry points may still call populatePlayerMenu.
+async function populatePlayerMenu() {
+  await loadAgentList();
+}
+
+function renderAgentList() {
+  const body = $('agentListBody');
+  if (!body) return;
+
+  body.innerHTML = '';
+
+  if (!agentListState.agents.length) {
+    body.innerHTML = `
+      <tr class="journal-list-empty-row">
+        <td colspan="2">No agent players available yet.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  agentListState.agents.forEach((agent) => {
+    const row = document.createElement('tr');
+    row.className = 'journal-list-row';
+    row.dataset.agentId = agent.id;
+
+    const nameCell = document.createElement('td');
+    nameCell.className = 'agent-name-cell';
+    nameCell.textContent = agent.name || agent.id;
+
+    const modelCell = document.createElement('td');
+    modelCell.className = 'agent-model-cell';
+    modelCell.textContent = agent.model || 'Model not set';
+
+    row.append(nameCell, modelCell);
+
+    if (journalState.currentAgentId === agent.id) {
+      row.classList.add('selected');
+    }
+
+    row.addEventListener('click', () => {
+      selectPlayer(agent);
+    });
+
+    body.appendChild(row);
+  });
+}
+
+function updateSelectedAgentUI(agentId) {
+  document.querySelectorAll('.journal-list-table tbody tr').forEach((row) => {
+    row.classList.toggle('selected', row.dataset.agentId === agentId);
+  });
+}
+
+function formatAgentDisplay(agentId) {
+  if (!agentId) return '-';
+
+  const meta = journalState.currentAgentMeta;
+  if (meta && meta.id === agentId) {
+    const name = (meta.name || '').trim();
+    if (name && name !== agentId) {
+      return `${name} (${agentId})`;
+    }
+  }
+
+  return agentId;
+}
+
+async function selectPlayer(agent) {
+  const agentId = typeof agent === 'string' ? agent : agent?.id;
+  if (!agentId) return;
+
+  const agentMeta =
+    typeof agent === 'object' && agent
+      ? agent
+      : agentListState.agents.find((candidate) => candidate.id === agentId) || null;
+
+  journalState.currentAgentMeta = agentMeta;
+
+  if (journalState.currentAgentId === agentId) {
+    updateSelectedAgentUI(agentId);
+    return;
+  }
+
   journalState.currentAgentId = agentId;
   journalState.currentSequenceId = Number.MAX_SAFE_INTEGER;
+
+  updateSelectedAgentUI(agentId);
   await loadLatestJournalEntry();
 }
 
@@ -76,7 +146,7 @@ async function loadLatestJournalEntry() {
         enabled: true,
       });
     } else {
-      $('journalAgentId').textContent = journalState.currentAgentId;
+      $('journalAgentId').textContent = formatAgentDisplay(journalState.currentAgentId);
       $('journalSequenceId').textContent = '-';
       $('journalUpdatedAt').textContent = '-';
       $('journalInstructions').textContent = 'No agent role journal entries found for this agent.';
@@ -88,6 +158,7 @@ async function loadLatestJournalEntry() {
     }
   } catch (error) {
     console.error('Error loading journal entry:', error);
+    $('journalAgentId').textContent = formatAgentDisplay(journalState.currentAgentId);
     $('journalInstructions').textContent = 'Error loading journal entry.';
     JournalViewer.setNavigationButtonsEnabled({
       upButtonId: 'journalUpBtn',
@@ -156,7 +227,7 @@ function displayJournalEntry() {
 
   const updatedAt = formatDateTime(entry.updatedAt);
 
-  if (agentIdEl) agentIdEl.textContent = entry.agentId;
+  if (agentIdEl) agentIdEl.textContent = formatAgentDisplay(entry.agentId);
   if (seqIdEl) seqIdEl.textContent = entry.sequenceId;
   if (updatedAtEl) updatedAtEl.textContent = updatedAt;
 
@@ -179,5 +250,5 @@ function toggleDiff() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  populatePlayerMenu();
+  loadAgentList();
 });
