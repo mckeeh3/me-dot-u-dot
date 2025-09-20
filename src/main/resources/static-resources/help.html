@@ -8,36 +8,39 @@
     <meta http-equiv="Expires" content="0" />
     <title>Help - Me-Dot-U-Dot</title>
     <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
     <link rel="stylesheet" href="/css/help.css" />
   </head>
   <body>
-    <div class="control-bar">
-      <div class="control-left">
-        <div class="nav-menu">
-          <div class="dd" id="nav">
-            <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
-              <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-            </button>
-            <div id="nav-menu" class="dd-menu">
-              <div class="dd-item" onclick="window.location.href='/'">Game</div>
-              <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
-              <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
-              <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
-              <div class="dd-item current">Help</div>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item" onclick="window.location.href='/'">Game</div>
+                <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
+                <div class="dd-item current">Help</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="control-center">
-        <div id="controlMessage">Me Dot U Dot Help</div>
-      </div>
-      <div class="control-right"></div>
-    </div>
+        <div class="app-header-center">
+          <h1 class="app-header-title help-header-title">Me Dot U Dot Help</h1>
+        </div>
+        <div class="app-header-right"></div>
+      </header>
 
-    <main class="help-container">
-      <section class="help-section">
-        <h2>About this App</h2>
-        <p>
+      <main class="app-main help-main">
+        <div class="help-container">
+          <section class="help-section">
+            <h2>About this App</h2>
+            <p>
           Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The core focus is observing how specific agents with their
           unique models evolve and improve their gameplay strategies over time through experience. Each agent maintains a playbook journal that captures its learning progression, allowing you to track
           how different models adapt, develop tactics, and refine their decision-making processes.
@@ -204,9 +207,12 @@
           <li>The selected player and game are highlighted for easy reference.</li>
         </ul>
       </section>
-    </main>
+        </div>
+      </main>
+    </div>
 
     <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
     <script src="/js/help.js"></script>
   </body>
 </html>

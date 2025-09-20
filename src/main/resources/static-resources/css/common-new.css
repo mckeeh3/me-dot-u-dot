@@ -38,6 +38,15 @@ body {
   gap: clamp(0.75rem, 1.5vw, 1.5rem);
 }
 
+.app-header-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1vw, 1rem);
+}
+
 .app-header .nav-menu {
   position: relative;
   top: auto;

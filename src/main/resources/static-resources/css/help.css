@@ -1,49 +1,12 @@
-/* Help page layout matching app style */
+/* Help page layout using shared app shell */
 
-/* Control Bar - Exact replica of index.css styles */
-.control-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background: linear-gradient(180deg, rgba(22, 28, 50, 0.95), rgba(12, 16, 30, 0.95));
-  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  min-height: 60px;
+.help-main {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2.75rem);
 }
 
-.control-left,
-.control-right {
-  flex: 0 0 120px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.control-left {
-  justify-content: flex-start;
-}
-
-.control-right {
-  justify-content: flex-end;
-}
-
-.control-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.control-center div {
-  text-align: center;
-}
-
-#controlMessage {
-  font-size: 24px;
-  font-weight: bold;
+.help-header-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
   -webkit-background-clip: text;
   background-clip: text;
@@ -52,19 +15,19 @@
 }
 
 .help-container {
-  padding: 20px;
   max-width: 1100px;
-  margin: 20px auto;
+  margin: 0 auto;
+  padding: clamp(1.2rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 2rem);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: clamp(1.2rem, 3vw, 2rem);
 }
 
 .help-section {
   background: linear-gradient(180deg, rgba(22, 28, 50, 0.8), rgba(12, 16, 30, 0.9));
   border: 1px solid rgba(0, 229, 255, 0.3);
   border-radius: 12px;
-  padding: 16px 20px;
+  padding: clamp(1rem, 2vw, 1.5rem);
 }
 
 .help-section h2 {
