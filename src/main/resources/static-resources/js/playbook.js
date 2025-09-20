@@ -17,7 +17,7 @@ async function loadAgentList() {
 
   body.innerHTML = `
     <tr class="journal-list-empty-row">
-      <td colspan="3">Loading agent players…</td>
+      <td colspan="2">Loading agent players…</td>
     </tr>
   `;
 
@@ -34,7 +34,7 @@ async function loadAgentList() {
     console.error('Error fetching players:', error);
     body.innerHTML = `
       <tr class="journal-list-empty-row">
-        <td colspan="3">Error loading agent players.</td>
+        <td colspan="2">Error loading agent players.</td>
       </tr>
     `;
   }
@@ -54,7 +54,7 @@ function renderAgentList() {
   if (!agentListState.agents.length) {
     body.innerHTML = `
       <tr class="journal-list-empty-row">
-        <td colspan="3">No agent players available yet.</td>
+        <td colspan="2">No agent players available yet.</td>
       </tr>
     `;
     return;
@@ -73,11 +73,7 @@ function renderAgentList() {
     modelCell.className = 'agent-model-cell';
     modelCell.textContent = agent.model || 'Model not set';
 
-    const idCell = document.createElement('td');
-    idCell.className = 'agent-id-cell';
-    idCell.textContent = agent.id;
-
-    row.append(nameCell, modelCell, idCell);
+    row.append(nameCell, modelCell);
 
     if (journalState.currentAgentId === agent.id) {
       row.classList.add('selected');

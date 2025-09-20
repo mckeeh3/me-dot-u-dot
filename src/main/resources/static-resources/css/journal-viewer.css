@@ -255,23 +255,17 @@
 }
 
 .journal-list-table tbody tr.selected {
-  background: rgba(0, 229, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.45);
 }
 
 .journal-list-table .agent-name-cell {
-  font-size: clamp(0.95rem, 1.1vw, 1.2rem);
+  font-size: clamp(0.9rem, 0.5vw, 1rem);
   font-weight: 600;
 }
 
 .journal-list-table .agent-model-cell {
   color: var(--muted);
-}
-
-.journal-list-table .agent-id-cell {
-  color: var(--muted);
-  font-family: 'IBM Plex Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  font-size: clamp(0.8rem, 0.9vw, 0.95rem);
 }
 
 .journal-list-empty-row td {
@@ -347,8 +341,8 @@
 .journal-detail-panel .journal-navigation {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(0.8rem, 1.1vw, 1.2rem);
-  justify-content: flex-start;
   margin-top: clamp(0.6rem, 0.9vw, 1rem);
 }
 

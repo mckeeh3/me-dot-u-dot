@@ -58,7 +58,7 @@ body {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: clamp(240px, 22vw, 320px) minmax(0, 1fr);
+  grid-template-columns: clamp(240px, 25vw, 500px) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   gap: var(--layout-gap);
   padding: 0 var(--layout-padding) var(--layout-padding);
@@ -71,7 +71,7 @@ body {
   border: 1px solid rgba(0, 229, 255, 0.28);
   border-radius: var(--layout-border-radius);
   box-shadow: var(--layout-panel-shadow);
-  padding: clamp(1rem, 1.8vw, 2.25rem);
+  padding: clamp(1rem, 1.8vw, 2rem);
   display: flex;
   flex-direction: column;
   gap: clamp(0.75rem, 1vw, 1.25rem);
