@@ -117,8 +117,8 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding-right: clamp(0.25rem, 0.6vw, 0.75rem);
+  /* overflow: hidden;
+  padding-right: clamp(0.25rem, 0.6vw, 0.75rem); */
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 229, 255, 0.45) rgba(255, 255, 255, 0.08);
 }

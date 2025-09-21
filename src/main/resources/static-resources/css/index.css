@@ -82,6 +82,8 @@ body {
 
 .icon-btn.icon-btn--reset .icon-symbol {
   color: #ff4d4d;
+  font-size: 3rem;
+  font-weight: bold;
 }
 
 .icon-btn:hover .icon-symbol {
@@ -306,7 +308,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: clamp(0.75rem, 1.2vw, 1rem);
-  width: clamp(240px, 26vw, 320px);
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -316,6 +319,7 @@ body {
   background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  /* width: 100%; */
 }
 
 .stat-label {
