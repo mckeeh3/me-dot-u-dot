@@ -1,5 +1,5 @@
 :root {
-  --board-max-size: min(62vw, 45rem);
+  --board-max-size: min(62vw, 90rem);
   --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
   --game-gap-md: min(1.5rem, calc(0.85rem + 0.9vw));
   --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw));
