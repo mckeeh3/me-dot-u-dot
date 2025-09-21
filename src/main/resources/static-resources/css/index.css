@@ -1,5 +1,11 @@
 :root {
-  --board-max-size: clamp(340px, 62vw, 720px);
+  --board-max-size: min(62vw, 45rem);
+  --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
+  --game-gap-md: min(1.5rem, calc(0.85rem + 0.9vw));
+  --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw));
+  --game-font-lg: min(2rem, calc(1.2rem + 1vw));
+  --game-font-md: min(1.2rem, calc(0.95rem + 0.4vw));
+  --game-font-sm: min(0.95rem, calc(0.8rem + 0.3vw));
 }
 
 body {
@@ -8,7 +14,6 @@ body {
   padding: 0;
   background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
   color: var(--text);
-  font-size: 18px;
   line-height: 1.5;
 }
 
@@ -16,12 +21,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: clamp(0.75rem, 1.5vw, 1.5rem);
+  gap: var(--game-gap-sm);
   min-width: 0;
 }
 
 .game-control-message {
-  font-size: clamp(1.1rem, 2.4vw, 2rem);
+  font-size: var(--game-font-lg);
   font-weight: 600;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
   -webkit-background-clip: text;
@@ -35,31 +40,31 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.8rem, 1.6vw, 1.5rem);
+  gap: var(--game-gap-sm);
   flex-wrap: wrap;
 }
 
 .level-selection .level-label {
-  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  font-size: var(--game-font-md);
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
 }
 
 .level-selection .dd {
-  min-width: clamp(130px, 16vw, 180px);
+  min-width: min(18vw, 12rem);
 }
 
 .level-selection .btn-primary {
-  padding: 8px 18px;
-  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  padding: 0.55rem 1.1rem;
+  font-size: var(--game-font-sm);
 }
 
 .icon-btn {
-  width: clamp(2.6rem, 3.2vw, 3rem);
-  height: clamp(2.6rem, 3.2vw, 3rem);
+  width: min(3rem, calc(2.4rem + 0.6vw));
+  height: min(3rem, calc(2.4rem + 0.6vw));
   border-radius: 50%;
-  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+  font-size: min(1.8rem, calc(1.2rem + 0.5vw));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -82,7 +87,7 @@ body {
 
 .icon-btn.icon-btn--reset .icon-symbol {
   color: #ff4d4d;
-  font-size: 3rem;
+  font-size: min(3rem, calc(2.2rem + 0.8vw));
   font-weight: bold;
 }
 
@@ -91,18 +96,18 @@ body {
 }
 
 .game-main {
-  grid-template-columns: clamp(200px, 18vw, 420px) minmax(420px, 1.4fr) clamp(200px, 18vw, 420px);
+  grid-template-columns: clamp(200px, 18vw, 460px) minmax(26rem, 1.4fr) clamp(200px, 18vw, 460px);
   grid-template-areas: 'player1 board player2';
-  gap: clamp(1rem, 2.4vw, 2rem);
+  gap: var(--game-gap-lg);
   align-items: stretch;
-  padding: clamp(1rem, 2.2vw, 2.2rem);
+  padding: var(--game-gap-lg);
 }
 
 .player-panel {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 1vw, 1.2rem);
+  gap: var(--game-gap-md);
 }
 
 .player-panel .app-panel-body {
@@ -110,7 +115,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 1.4vw, 1.5rem);
+  gap: var(--game-gap-md);
 }
 
 .player-panel--p1 {
@@ -142,7 +147,7 @@ body {
 .player-panel-body {
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 1.4vw, 1.6rem);
+  gap: var(--game-gap-md);
   justify-content: flex-start;
 }
 
@@ -153,14 +158,14 @@ body {
 .player-setup {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.9rem, 1.2vw, 1.4rem);
+  gap: var(--game-gap-sm);
 }
 
 .player-select-section,
 .player-create-section {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.6rem, 1vw, 0.9rem);
+  gap: var(--game-gap-sm);
 }
 
 .player-select-section .dd,
@@ -174,10 +179,10 @@ body {
 .player-create-section input {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 10px 14px;
+  border-radius: 0.625rem;
+  padding: 0.7rem 0.95rem;
   color: var(--text);
-  font-size: 16px;
+  font-size: 1rem;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -193,8 +198,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.625rem;
   border: 1px solid rgba(0, 229, 255, 0.4);
   background: linear-gradient(135deg, rgba(0, 229, 255, 0.22), rgba(138, 43, 226, 0.18));
   color: var(--neon-cyan);
@@ -234,16 +239,16 @@ body {
 }
 
 .journal-btn {
-  margin-top: 8px;
+  margin-top: 0.5rem;
   align-self: stretch;
-  padding: 11px 16px;
+  padding: 0.7rem 1rem;
 }
 
 .or-divider {
   text-align: center;
   color: var(--muted);
-  font-size: 14px;
-  margin: 4px 0;
+  font-size: 0.85rem;
+  margin: 0.4rem 0;
   position: relative;
 }
 
@@ -261,17 +266,17 @@ body {
 .or-divider::after {
   content: 'OR';
   background: rgba(15, 21, 38, 0.92);
-  padding: 0 12px;
+  padding: 0 0.75rem;
   position: relative;
   z-index: 2;
   letter-spacing: 0.12em;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .player-stats {
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 1.4vw, 1.6rem);
+  gap: var(--game-gap-md);
   align-items: center;
 }
 
@@ -280,8 +285,8 @@ body {
 }
 
 .avatar {
-  font-size: clamp(3.4rem, 6vw, 4.5rem);
-  margin-bottom: 10px;
+  font-size: min(4.5rem, calc(2.8rem + 2.2vw));
+  margin-bottom: 0.6rem;
   filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.3));
 }
 
@@ -294,12 +299,12 @@ body {
 }
 
 .player-name {
-  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-size: min(1.35rem, calc(1.05rem + 0.45vw));
   font-weight: 600;
 }
 
 .player-type {
-  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  font-size: var(--game-font-sm);
   color: var(--muted);
   letter-spacing: 0.1em;
 }
@@ -307,7 +312,7 @@ body {
 .player-stats-grid {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 1.2vw, 1rem);
+  gap: var(--game-gap-sm);
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
@@ -315,22 +320,21 @@ body {
 
 .stat-item {
   text-align: center;
-  padding: clamp(0.8rem, 1.2vw, 1.1rem);
+  padding: 0.75rem;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  border-radius: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  /* width: 100%; */
 }
 
 .stat-label {
-  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  font-size: var(--game-font-md);
   color: var(--muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .stat-value {
-  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-size: min(2rem, calc(1.4rem + 0.7vw));
   font-weight: 700;
   color: var(--neon-cyan);
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
@@ -360,7 +364,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: clamp(1rem, 2vw, 2rem);
+  padding: var(--game-gap-md);
 }
 
 .game-board-wrapper {
@@ -373,7 +377,7 @@ body {
 
 .game-board {
   display: grid;
-  gap: min(1.8vw, 14px);
+  gap: min(1.2rem, 1.8vw);
   width: min(var(--board-max-size), 95%);
   aspect-ratio: 1;
   grid-template-columns: repeat(var(--size, 5), 1fr);
@@ -383,7 +387,7 @@ body {
 .cell {
   aspect-ratio: 1 / 1;
   border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 10px;
+  border-radius: 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -492,7 +496,7 @@ body {
 
 #journalViewer {
   position: absolute;
-  inset: clamp(0.5rem, 1.5vw, 1.5rem);
+  inset: min(1.5rem, calc(0.75rem + 1vw));
   display: none;
   z-index: 5;
 }
@@ -513,17 +517,13 @@ body {
   }
 
   .board-panel .app-panel-body {
-    padding: clamp(0.8rem, 1.8vw, 1.4rem);
+    padding: min(1.5rem, calc(0.9rem + 1vw));
   }
 }
 
 @media (max-width: 720px) {
-  .player-stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  }
-
   .game-board {
-    gap: min(3vw, 12px);
+    gap: min(1.1rem, 3vw);
   }
 
   .level-selection {
