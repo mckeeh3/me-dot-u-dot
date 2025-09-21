@@ -1,9 +1,9 @@
 :root {
   --layout-gap: clamp(1rem, 2.5vw, 2rem);
   --layout-padding: clamp(1rem, 2vw, 2.5rem);
-  --layout-header-height: clamp(64px, 8vh, 96px);
-  --layout-border-radius: 16px;
-  --layout-panel-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  --layout-header-height: clamp(4rem, 8vh, 6rem);
+  --layout-border-radius: 1rem;
+  --layout-panel-shadow: 0 1.25rem 2.8125rem rgba(0, 0, 0, 0.35);
 }
 
 body {
@@ -84,7 +84,7 @@ body.app-shell-scroll {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: clamp(240px, 25vw, 500px) minmax(0, 1fr);
+  grid-template-columns: clamp(15rem, 25vw, 31.25rem) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   gap: var(--layout-gap);
   padding: 0 var(--layout-padding) var(--layout-padding);
@@ -131,22 +131,22 @@ body.app-shell-scroll {
 }
 
 .app-panel-body::-webkit-scrollbar {
-  width: 10px;
+  width: 0.625rem;
 }
 
 .app-panel-body::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border-radius: 999rem;
 }
 
 .app-panel-body::-webkit-scrollbar-thumb {
   background: rgba(0, 229, 255, 0.45);
-  border-radius: 999px;
+  border-radius: 999rem;
 }
 
 @media (max-width: 1024px) {
   .app-main {
-    grid-template-columns: clamp(220px, 32vw, 280px) minmax(0, 1fr);
+    grid-template-columns: clamp(13.75rem, 32vw, 17.5rem) minmax(0, 1fr);
   }
 }
 
