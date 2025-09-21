@@ -101,6 +101,7 @@ body {
   gap: var(--game-gap-lg);
   align-items: stretch;
   padding: var(--game-gap-lg);
+  padding-top: 0;
 }
 
 .player-panel {
