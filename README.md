@@ -23,14 +23,26 @@ The game distinguishes between the **agent implementation** and the **agent play
 - An **agent player** is a concrete player record (unique ID, display name, chosen LLM model). Each agent player owns persistent state:
   - a **playbook** (`PlaybookEntity`) that stores tactical instructions the model has authored, and
   - an **agent role/system prompt** (`AgentRoleEntity`) that frames long-term behavior and tool discipline.
-- When a turn begins, `DotGameToAgentConsumer` launches `DotGameAgent` on behalf of the specific agent player. The agent player’s model must call the provided tools to read game state, consult its playbook, and optionally revise both the playbook and system prompt after acting.
+  - both artifacts are unique per agent ID. Every agent player starts from the shared default system prompt and an empty playbook, but the prompt and playbook are expected to evolve as the model learns. Because the player
+  record permanently captures the chosen LLM model, once an agent player is created its model cannot be changed.
+- When a turn begins, `DotGameToAgentConsumer` launches `DotGameAgent` on behalf of the specific agent player. The agent player’s model must call the provided tools to read game state, consult both its
+  playbook and system prompt, make a move, and optionally revise either artifact afterwards. The available tools are:
+  - `GetGameStateTool`
+  - `GetYourPlaybookTool`
+  - `GetYourSystemPromptTool`
+  - `MakeMoveTool`
+  - `UpdateYourPlaybookTool`
+  - `UpdateYourSystemPromptTool`
+  - `GetGameMoveHistoryTool` (for post-game analysis prior to updating memories)
 - Because playbook and role updates are scoped per agent ID, two agent players running on the same underlying LLM remain independent learners.
-- Every agent player starts from the shared default system prompt, but that prompt is meant to evolve; fetch it, edit it, and resubmit improved versions as you learn.
+- Fetch the current playbook/system prompt before updating them, and always resubmit the full revised document when calling the update tools.
 
-Agent players are also distinguished by their chosen LLM model. The player record captures both the agent type (always `DotGameAgent` today) and the specific model identifier (for example, `gpt-5-mini` versus `gemini-2.5-pro`). Running multiple agent players side by side lets you probe how different providers handle the same gameplay loop and self-learning workflow. Observations so far include:
+Agent players are also distinguished by their chosen LLM model. The player record captures both the agent type (always `DotGameAgent` today) and the specific model identifier (for example, `gpt-5-mini` versus `gemini-2.5-pro`). Running multiple agent players side by side lets you probe how different providers handle the same gameplay loop and self-learning workflow.
+
+Observations so far include:
 
 - **Response latency** – Even fast models often require several seconds, and sometimes minutes, to gather tool outputs and decide on a move.
-- **Learning behavior** – Models vary in how aggressively they rewrite their playbooks and system prompts after each game, revealing different strategies for consolidating experience.
+- **Learning behavior** – Models vary in how aggressively they rewrite their playbooks and system prompts during and after each game, revealing different strategies for consolidating experience.
 - **Operational cost** – Because every turn invokes the same tool sequence, cost differences between models become directly comparable while they execute identical tasks.
 
 This separation—shared agent capabilities plus per-player memory and model choice—enables the core experiment of the app: agent players that continually adapt based on their own gameplay history while exposing how different LLMs behave under identical conditions.
@@ -47,6 +59,7 @@ Agents evolve through distinct phases:
 ### Memory & Learning Systems
 
 - **Playbook** - Core long-term memory containing learned strategies and insights
+- **Modifiable system prompt** - also, core long term memory that may be updated as decided by the model
 - **Session memory** - Short-term context for current game decisions
 - **Experience accumulation** - Each move and outcome contributes to the agent's knowledge base
 - **Reflective learning** - Agents analyze their performance to improve future play
@@ -56,9 +69,10 @@ Agents evolve through distinct phases:
 The agent's system prompt is critical for guiding learning quality:
 
 - Defines learning objectives and success metrics
-- Establishes reasoning patterns and decision-making frameworks  
+- Establishes reasoning patterns and decision-making frameworks
 - Shapes how agents interpret and store experiences
 - Influences the quality and direction of self-improvement
+- May be dynamically updated as part of the learning process
 
 ## 🏗️ Akka Integration
 
@@ -89,6 +103,7 @@ The application leverages Akka SDK components for scalable, event-driven archite
 - `UpdateYourPlaybookTool` - Overwrites the agent's playbook with a revised instruction set
 - `GetYourSystemPromptTool` - Provides the persisted system prompt when preparing an update
 - `UpdateYourSystemPromptTool` - Persists a new system prompt / role definition for the agent
+- `GetGameMoveHistoryTool` - Supplies enriched move timelines (including scoring sequences) for post-game analysis
 
 **Views:**
 

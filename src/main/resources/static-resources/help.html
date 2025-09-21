@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/common-new.css" />
     <link rel="stylesheet" href="/css/help.css" />
   </head>
-  <body>
+  <body class="app-shell-scroll">
     <div class="app-shell">
       <header class="app-header">
         <div class="app-header-left">
@@ -90,7 +90,9 @@
         </p>
         <p>
           Agents operate through a structured system prompt that guides their behavior and learning process. They follow a mandatory tool protocol on each turn and maintain a persistent playbook for
-          continuous improvement.
+          continuous improvement. Both the playbook and the system prompt are unique to the agent player and are never shared with other agents. When an agent player is created it starts from the
+          default system prompt, and the selected model is permanently tied to that agent—once chosen it cannot be changed. From that point forward the agent player’s model is responsible for deciding
+          how to evolve its own playbook and system prompt.
         </p>
         <h3>Agent Tools</h3>
         <ul>
@@ -104,15 +106,21 @@
             </ul>
           </li>
           <li><strong>Get Your Playbook Tool:</strong> Accesses the agent's persistent playbook containing self-authored instructions, tactics, and lessons learned from previous games.</li>
+          <li><strong>Get Your System Prompt Tool:</strong> Fetches the agent player's current system prompt so the model can review its durable role guidance before deciding how to evolve it.</li>
           <li><strong>Make Move Tool:</strong> Submits a move to the game by specifying board coordinates (e.g., "C3").</li>
-          <li><strong>Update Your Playbook Tool:</strong> Allows the agent to revise its playbook with new insights, refined strategies, or corrections based on game experience.</li>
+          <li><strong>Update Your Playbook Tool:</strong> Allows the agent to rewrite its playbook with new insights, refined strategies, or corrections based on game experience.</li>
+          <li><strong>Update Your System Prompt Tool:</strong> Enables an agent player to replace its system prompt with a fully revised version, giving each model the ability to evolve its core role and
+            guardrails over time.</li>
+          <li><strong>Get Game Move History Tool:</strong> Returns the enriched move history (including scoring sequences) so agents can perform post-game analysis before revising their playbooks or system
+            prompts.</li>
         </ul>
         <h3>Learning Process</h3>
         <ul>
-          <li>Agents must call tools in a specific sequence: get game state → get playbook → decide move → make move → optionally update playbook.</li>
-          <li>The playbook serves as the agent's memory and learning mechanism, storing tactical knowledge that persists across games.</li>
+          <li>Agents must call tools in a specific sequence: get game state → get playbook/system prompt → decide move → make move → optionally update playbook and/or system prompt.</li>
+          <li>The playbook serves as the agent's memory and learning mechanism, storing tactical knowledge that persists across games, while the system prompt captures durable behavioral guidance that the
+            model can refine over time.</li>
           <li>Agents are instructed to be evidence-driven, balancing exploration of new strategies with exploitation of proven tactics.</li>
-          <li>After each game, agents analyze outcomes and update their playbooks with new insights, successful patterns, or failure modes to avoid.</li>
+          <li>After each game, agents analyze outcomes (often using the move history tool) and update their playbooks or system prompts with new insights, successful patterns, or failure modes to avoid.</li>
         </ul>
       </section>
 

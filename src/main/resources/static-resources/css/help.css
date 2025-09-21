@@ -3,6 +3,8 @@
 .help-main {
   grid-template-columns: minmax(0, 1fr);
   padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2.75rem);
+  overflow: visible;
+  min-height: auto;
 }
 
 .help-header-title {
@@ -15,7 +17,7 @@
 }
 
 .help-container {
-  max-width: 1100px;
+  max-width: min(68rem, 92vw);
   margin: 0 auto;
   padding: clamp(1.2rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 2rem);
   display: flex;
@@ -26,12 +28,12 @@
 .help-section {
   background: linear-gradient(180deg, rgba(22, 28, 50, 0.8), rgba(12, 16, 30, 0.9));
   border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 12px;
+  border-radius: 0.75rem;
   padding: clamp(1rem, 2vw, 1.5rem);
 }
 
 .help-section h2 {
-  margin: 0 0 12px 0;
+  margin: 0 0 0.75rem 0;
   color: var(--neon-cyan);
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
 }
@@ -39,10 +41,10 @@
 .help-section p,
 .help-section li {
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .help-section ul {
   margin: 0;
-  padding-left: 18px;
+  padding-left: clamp(1.1rem, 2vw, 1.5rem);
 }

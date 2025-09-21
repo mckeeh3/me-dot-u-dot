@@ -11,6 +11,13 @@ body {
   height: 100vh;
 }
 
+body.app-shell-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
 .app-shell {
   min-height: 100vh;
   display: flex;
