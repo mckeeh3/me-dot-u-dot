@@ -231,7 +231,7 @@ body {
 .btn-secondary {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.18);
-  color: var(--text);
+  /* color: var(--text); */
 }
 
 .btn-primary:hover {
@@ -253,7 +253,7 @@ body {
 
 .btn-secondary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
 }
 
 .journal-btn {
@@ -463,14 +463,14 @@ body {
 .cell-id {
   font-weight: bold;
   color: var(--muted);
-  font-size: 0.7em;
+  font-size: 1.1em;
   padding-left: 0.5em;
 }
 
 .game-move-count {
   font-weight: bold;
   color: var(--neon-cyan);
-  font-size: 0.7em;
+  font-size: 0.9em;
   padding-right: 0.5em;
 }
 
@@ -481,14 +481,14 @@ body {
 .player-think-time {
   font-weight: bold;
   color: var(--text);
-  font-size: 0.7em;
+  font-size: 0.9em;
   padding-left: 0.5em;
 }
 
 .player-move-count {
   font-weight: bold;
   color: var(--muted);
-  font-size: 0.7em;
+  font-size: 0.9em;
   padding-right: 0.5em;
 }
 
