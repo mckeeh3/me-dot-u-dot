@@ -26,14 +26,31 @@ body {
 }
 
 .game-control-message {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--game-gap-sm);
   font-size: var(--game-font-lg);
   font-weight: 600;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
   text-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
   text-align: center;
+}
+
+.control-message-icons {
+  display: inline-flex;
+  align-items: center;
+}
+
+.control-message-icons:empty {
+  display: none;
+}
+
+.control-message-text {
+  display: inline-flex;
+  align-items: center;
+  color: transparent;
 }
 
 .level-selection {

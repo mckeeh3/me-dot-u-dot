@@ -29,8 +29,21 @@ function setStatus(msg) {
   // This function is no longer used with the new UI
 }
 
-function setControlMessage(msg) {
-  $('controlMessage').textContent = msg;
+function setControlMessage(icons = '', text = '') {
+  const container = $('controlMessage');
+  if (!container) return;
+
+  const iconSpan = container.querySelector('.control-message-icons');
+  const textSpan = container.querySelector('.control-message-text');
+
+  if (iconSpan) {
+    iconSpan.textContent = icons || '';
+    iconSpan.style.display = icons ? '' : 'none';
+  }
+
+  if (textSpan) {
+    textSpan.textContent = text || '';
+  }
 }
 
 function startNewGameWizard() {
@@ -56,7 +69,7 @@ function startNewGameWizard() {
   $('cancelBtn').style.display = 'none';
 
   // Set initial message
-  setControlMessage('Select your players');
+  setControlMessage('', 'Select your players');
 
   // Populate player dropdowns
   populatePlayerMenu('p1');
@@ -177,7 +190,7 @@ async function initializeUIforInProgressGame(gameId) {
 }
 
 async function initializeUIforNewGame() {
-  setControlMessage('🎮 Me-Dot-U-Dot');
+  setControlMessage('🎮', 'Me-Dot-U-Dot');
   populateTypeMenu('p1');
   populateTypeMenu('p2');
   populateLevelMenu();
@@ -209,7 +222,7 @@ function renderGameInfo() {
 
     // Update control center with turn info and game duration
     const gameDuration = formatTime(timerState.gameDurationSeconds);
-    $('controlMessage').textContent = `${currentType} ${turnName}'s turn - Duration ${gameDuration}`;
+    setControlMessage(currentType, `${turnName}'s turn - Duration ${gameDuration}`);
 
     // Show player stats and hide setup forms
     $('p1Setup').style.display = 'none';
@@ -253,7 +266,7 @@ function renderGameInfo() {
     updatePlayerStats('p2', p2);
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
-    $('controlMessage').textContent = `🎉 ${winnerType} ${winner.player.name} wins! - Duration ${gameDuration}`;
+    setControlMessage(`🎉 ${winnerType}`, `${winner.player.name} wins! - Duration ${gameDuration}`);
     setPlayerPanelMode('p1', 'stats');
     setPlayerPanelMode('p2', 'stats');
   } else if (state.game.status === 'draw') {
@@ -270,7 +283,7 @@ function renderGameInfo() {
     updatePlayerStats('p2', p2);
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
-    $('controlMessage').textContent = `🤝 It's a draw! - Duration ${gameDuration}`;
+    setControlMessage('🤝', `It's a draw! - Duration ${gameDuration}`);
     setPlayerPanelMode('p1', 'stats');
     setPlayerPanelMode('p2', 'stats');
   } else if (state.game.status === 'canceled') {
@@ -287,7 +300,7 @@ function renderGameInfo() {
     updatePlayerStats('p2', p2);
 
     const gameDuration = formatTime(timerState.gameDurationSeconds);
-    $('controlMessage').textContent = `❌ Game canceled - Duration ${gameDuration}`;
+    setControlMessage('❌', `Game canceled - Duration ${gameDuration}`);
     setPlayerPanelMode('p1', 'stats');
     setPlayerPanelMode('p2', 'stats');
   }
@@ -770,7 +783,7 @@ function applyPlayerSelection(which, player) {
     }, 0);
 
     // Update control message and show Player 2 setup
-    setControlMessage('Select or create Player 2');
+    setControlMessage('', 'Select or create Player 2');
     $('p2Setup').style.display = 'block';
     setPlayerPanelMode('p1', 'setup');
     setPlayerPanelMode('p2', 'setup');
@@ -1377,7 +1390,7 @@ function updateGameDurationDisplay() {
 
   const currentType = currentPlayer.type === 'agent' ? '🤖' : '👤';
   const gameDuration = formatTime(timerState.gameDurationSeconds);
-  $('controlMessage').textContent = `${currentType} ${currentPlayer.name}'s turn - Duration ${gameDuration}`;
+  setControlMessage(currentType, `${currentPlayer.name}'s turn - Duration ${gameDuration}`);
 }
 
 // Navigation menu functions
