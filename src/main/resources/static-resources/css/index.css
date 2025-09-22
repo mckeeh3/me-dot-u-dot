@@ -1,5 +1,5 @@
 :root {
-  --board-max-size: min(62vw, 90rem);
+  --board-max-size: min(62vw, 85vh);
   --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
   --game-gap-md: min(1.5rem, calc(0.85rem + 0.9vw));
   --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw));
@@ -102,7 +102,7 @@ body {
   color: var(--text);
 }
 
-.icon-btn.icon-btn--reset .icon-symbol {
+.icon-btn.icon-btn-reset .icon-symbol {
   color: #ff4d4d;
   font-size: min(3rem, calc(2.2rem + 0.8vw));
   font-weight: bold;
@@ -110,6 +110,10 @@ body {
 
 .icon-btn:hover .icon-symbol {
   color: var(--bg);
+}
+
+.icon-btn.icon-btn-reset:hover .icon-symbol {
+  color: #c06868;
 }
 
 .game-main {
