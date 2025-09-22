@@ -117,7 +117,7 @@ body {
 }
 
 .game-main {
-  grid-template-columns: clamp(200px, 18vw, 460px) minmax(26rem, 1.4fr) clamp(200px, 18vw, 460px);
+  grid-template-columns: clamp(200px, 18vw, 700px) minmax(26rem, 1.4fr) clamp(200px, 18vw, 700px);
   grid-template-areas: 'player1 board player2';
   gap: var(--game-gap-lg);
   align-items: stretch;
