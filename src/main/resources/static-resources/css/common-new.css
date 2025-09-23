@@ -1,5 +1,5 @@
 html {
-  font-size: clamp(1rem, max(1vw, 1vh), 3rem);
+  font-size: clamp(1rem, min(1vw, 1vh), 3rem);
 }
 
 :root {

@@ -1425,6 +1425,7 @@ async function loadLatestJournalEntry() {
       JournalViewer.setNavigationButtonsEnabled({
         upButtonId: 'journalUpBtn',
         downButtonId: 'journalDownBtn',
+        diffCheckboxId: 'showDiffCheckbox',
         enabled: true,
       });
     } else {
@@ -1435,6 +1436,7 @@ async function loadLatestJournalEntry() {
       JournalViewer.setNavigationButtonsEnabled({
         upButtonId: 'journalUpBtn',
         downButtonId: 'journalDownBtn',
+        diffCheckboxId: 'showDiffCheckbox',
         enabled: false,
       });
     }
@@ -1445,6 +1447,7 @@ async function loadLatestJournalEntry() {
     JournalViewer.setNavigationButtonsEnabled({
       upButtonId: 'journalUpBtn',
       downButtonId: 'journalDownBtn',
+      diffCheckboxId: 'showDiffCheckbox',
       enabled: false,
     });
   }

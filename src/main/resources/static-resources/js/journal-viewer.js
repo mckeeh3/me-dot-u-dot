@@ -5,13 +5,7 @@
     }
   }
 
-  function renderTextDiff({
-    targetElement,
-    previousText = '',
-    currentText = '',
-    showDiff = false,
-    emptyMessage = 'No content available.',
-  }) {
+  function renderTextDiff({ targetElement, previousText = '', currentText = '', showDiff = false, emptyMessage = 'No content available.' }) {
     if (!targetElement) return;
 
     const fragment = document.createDocumentFragment();
@@ -36,13 +30,15 @@
     targetElement.appendChild(fragment);
   }
 
-  function setNavigationButtonsEnabled({ upButtonId, downButtonId, enabled }) {
+  function setNavigationButtonsEnabled({ upButtonId, downButtonId, diffCheckboxId, enabled }) {
     const upButton = typeof upButtonId === 'string' ? $(upButtonId) : upButtonId;
     const downButton = typeof downButtonId === 'string' ? $(downButtonId) : downButtonId;
+    const diffCheckbox = typeof diffCheckboxId === 'string' ? $(diffCheckboxId) : diffCheckboxId;
     const isEnabled = Boolean(enabled);
 
     if (upButton) upButton.disabled = !isEnabled;
     if (downButton) downButton.disabled = !isEnabled;
+    if (diffCheckbox) diffCheckbox.disabled = !isEnabled;
   }
 
   window.JournalViewer = {
