@@ -402,9 +402,6 @@ function renderGameBoard() {
         const isPlayer1 = playerId === state.game.player1Status.player.id;
         const cls = isPlayer1 ? 'player1' : 'player2';
         cell.classList.add(cls);
-        // const cls = playerId === state.p1?.id ? 'player1' : playerId === state.p2?.id ? 'player2' : '';
-        // if (cls) cell.classList.add(cls);
-        // cell.textContent = '●';
 
         // Find the move data for this cell
         const moveData = moveCounts.find((move) => move.squareId === id);
@@ -423,6 +420,9 @@ function renderGameBoard() {
             <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
           </div>
         `;
+
+        // Add hover handler only to occupied cells
+        cellHoverHandler(cell);
       }
 
       if (lastMoveId && id === lastMoveId) {
@@ -436,14 +436,36 @@ function renderGameBoard() {
       const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
       const isInProgress = state.game && state.game.status === 'in_progress';
       const isOccupied = !!(square && square.playerId);
+
       if (!isAgentsTurn && isInProgress && !isOccupied) {
         cell.addEventListener('click', () => onCellClick(id));
-      } else {
+      } else if (!isOccupied) {
         cell.style.pointerEvents = 'none';
       }
+
       board.appendChild(cell);
     }
   }
+}
+
+function cellHoverHandler(cell) {
+  cell.addEventListener('mouseenter', () => {
+    cell._hoverTimeout = setTimeout(() => {
+      cellHovered(cell);
+      cell._hoverTimeout = null;
+    }, 1000);
+  });
+
+  cell.addEventListener('mouseleave', () => {
+    if (cell._hoverTimeout) {
+      clearTimeout(cell._hoverTimeout);
+      cell._hoverTimeout = null;
+    }
+  });
+}
+
+function cellHovered(cell) {
+  console.log(`${new Date().toISOString()} cellHovered, squareId: ${cell.dataset.squareId}`);
 }
 
 function getScoringSquaresForMove(squareId) {
