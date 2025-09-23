@@ -448,8 +448,15 @@ function renderGameBoard() {
   }
 }
 
+// Global variable to track the enlarged cell popup
+let enlargedCellPopup = null;
+
 function cellHoverHandler(cell) {
-  cell.addEventListener('mouseenter', () => {
+  cell.addEventListener('mouseenter', (event) => {
+    // Store mouse position for popup positioning
+    cell._mouseX = event.clientX;
+    cell._mouseY = event.clientY;
+
     cell._hoverTimeout = setTimeout(() => {
       cellHovered(cell);
       cell._hoverTimeout = null;
@@ -461,6 +468,13 @@ function cellHoverHandler(cell) {
       clearTimeout(cell._hoverTimeout);
       cell._hoverTimeout = null;
     }
+    hideEnlargedCell();
+  });
+
+  // Track mouse movement for popup positioning
+  cell.addEventListener('mousemove', (event) => {
+    cell._mouseX = event.clientX;
+    cell._mouseY = event.clientY;
   });
 }
 
@@ -474,8 +488,80 @@ function cellHovered(cell) {
   const playerMove = moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : '';
   const thinkTime = moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : '';
 
-  console.log(`${new Date().toISOString()} cellHovered, squareId: ${squareId}, isPlayer1: ${isPlayer1}`);
-  console.log(`${new Date().toISOString()} gameMove: ${gameMove}, playerMove: ${playerMove}, thinkTime: ${thinkTime}`);
+  // Show enlarged cell popup
+  showEnlargedCell(cell, {
+    squareId,
+    isPlayer1,
+    gameMove,
+    playerMove,
+    thinkTime,
+  });
+}
+
+function showEnlargedCell(cell, data) {
+  // Hide any existing popup
+  hideEnlargedCell();
+
+  // Create the enlarged cell element
+  enlargedCellPopup = document.createElement('div');
+  enlargedCellPopup.className = `enlarged-cell ${data.isPlayer1 ? 'player1' : 'player2'}`;
+
+  // Create the same 3-layer structure as the original cell
+  enlargedCellPopup.innerHTML = `
+    <div class="cell-layer cell-layer-top">
+      <span class="cell-id">${data.squareId}</span>
+      <span class="game-move-count">${data.gameMove}</span>
+    </div>
+    <div class="cell-layer cell-layer-middle">
+      <span class="player-square ${data.isPlayer1 ? 'player1' : 'player2'}">●</span>
+    </div>
+    <div class="cell-layer cell-layer-bottom">
+      <span class="player-think-time">${data.thinkTime}</span>
+      <span class="player-move-count">${data.playerMove}</span>
+    </div>
+  `;
+
+  // Position the popup near the mouse but keep it visible in the window
+  const mouseX = cell._mouseX || 0;
+  const mouseY = cell._mouseY || 0;
+  const popupSize = Math.min(window.innerWidth * 0.1, window.innerHeight * 0.1);
+  const offset = 20;
+
+  let left = mouseX + offset;
+  let top = mouseY + offset;
+
+  // Adjust position to keep popup in viewport
+  if (left + popupSize > window.innerWidth) {
+    left = mouseX - popupSize - offset;
+  }
+  if (top + popupSize > window.innerHeight) {
+    top = mouseY - popupSize - offset;
+  }
+  if (left < 0) left = offset;
+  if (top < 0) top = offset;
+
+  enlargedCellPopup.style.left = `${left}px`;
+  enlargedCellPopup.style.top = `${top}px`;
+
+  // Add to DOM and show with animation
+  document.body.appendChild(enlargedCellPopup);
+
+  // Trigger animation after a brief delay to ensure proper rendering
+  setTimeout(() => {
+    enlargedCellPopup.classList.add('show');
+  }, 10);
+}
+
+function hideEnlargedCell() {
+  if (enlargedCellPopup) {
+    enlargedCellPopup.classList.remove('show');
+    setTimeout(() => {
+      if (enlargedCellPopup && enlargedCellPopup.parentNode) {
+        enlargedCellPopup.parentNode.removeChild(enlargedCellPopup);
+      }
+      enlargedCellPopup = null;
+    }, 200); // Match the CSS transition duration
+  }
 }
 
 function getScoringSquaresForMove(squareId) {
