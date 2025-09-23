@@ -465,7 +465,17 @@ function cellHoverHandler(cell) {
 }
 
 function cellHovered(cell) {
-  console.log(`${new Date().toISOString()} cellHovered, squareId: ${cell.dataset.squareId}`);
+  const squareId = cell.dataset.squareId;
+  const playerId = state.game.board.squares.find((square) => square.squareId === squareId)?.playerId;
+  const isPlayer1 = playerId === state.game.player1Status.player.id;
+  const moveCounts = calculateMoveCounts(state.game);
+  const moveData = moveCounts.find((move) => move.squareId === squareId);
+  const gameMove = moveData ? moveData.gameMoves : '';
+  const playerMove = moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : '';
+  const thinkTime = moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : '';
+
+  console.log(`${new Date().toISOString()} cellHovered, squareId: ${squareId}, isPlayer1: ${isPlayer1}`);
+  console.log(`${new Date().toISOString()} gameMove: ${gameMove}, playerMove: ${playerMove}, thinkTime: ${thinkTime}`);
 }
 
 function getScoringSquaresForMove(squareId) {
