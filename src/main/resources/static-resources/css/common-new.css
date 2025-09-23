@@ -1,3 +1,7 @@
+html {
+  font-size: clamp(1rem, max(1vw, 1vh), 3rem);
+}
+
 :root {
   --layout-gap: clamp(1rem, 2.5vw, 2rem);
   --layout-padding: clamp(1rem, 2vw, 2.5rem);

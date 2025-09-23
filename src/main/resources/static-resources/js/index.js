@@ -8,9 +8,9 @@ function setPlayerPanelMode(which, mode) {
   const panelBody = document.querySelector(`[data-player="${which}"] .player-panel-body`);
   if (!panelBody) return;
   if (mode === 'stats') {
-    panelBody.classList.add('player-panel-body--stats');
+    panelBody.classList.add('player-panel-body-stats');
   } else {
-    panelBody.classList.remove('player-panel-body--stats');
+    panelBody.classList.remove('player-panel-body-stats');
   }
 }
 
@@ -372,7 +372,7 @@ function calculateMoveCounts(gameState) {
 }
 
 function renderGameBoard() {
-  const board = $('gameBoard');
+  const board = $('gameBoardGrid');
   board.innerHTML = '';
 
   const size = currentSize();
@@ -474,7 +474,7 @@ function getScoringSquaresForMove(squareId) {
 }
 
 function renderPreviewBoard(level) {
-  const board = $('gameBoard');
+  const board = $('gameBoardGrid');
   board.innerHTML = '';
   const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
   const size = levelSizeMap[level] || 5;
@@ -1176,116 +1176,6 @@ async function beginGame() {
   playSound('game-start.mp3');
 }
 
-// Journal viewer state
-const journalState = {
-  currentAgentId: null,
-  currentSequenceId: null,
-  isViewing: false,
-};
-
-async function openJournalViewer(playerNum) {
-  const player = playerNum === 'p1' ? state.p1 : state.p2;
-  if (!player || player.type !== 'agent') return;
-
-  // Toggle: if journal is already viewing this agent, close it
-  if (journalState.isViewing && journalState.currentAgentId === player.id) {
-    exitJournalViewer();
-    return;
-  }
-
-  journalState.currentAgentId = player.id;
-  journalState.currentSequenceId = Number.MAX_SAFE_INTEGER; // Start with max value
-  journalState.isViewing = true;
-
-  // Hide game board and show journal viewer
-  $('gameBoard').style.display = 'none';
-  $('journalViewer').style.display = 'flex';
-
-  // Load initial journal entry
-  await loadJournalEntry();
-}
-
-function exitJournalViewer() {
-  journalState.isViewing = false;
-  journalState.currentAgentId = null;
-  journalState.currentSequenceId = null;
-
-  // Show game board and hide journal viewer
-  $('gameBoard').style.display = 'grid';
-  $('journalViewer').style.display = 'none';
-}
-
-async function navigateJournal(direction) {
-  if (!journalState.currentAgentId) return;
-
-  const endpoint = direction === 'up' ? '/playbook/get-journal-by-agent-id-up' : '/playbook/get-journal-by-agent-id-down';
-
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agentId: journalState.currentAgentId,
-        sequenceId: journalState.currentSequenceId,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.journals && data.journals.length > 0) {
-        const entry = data.journals[0];
-        journalState.currentSequenceId = entry.sequenceId;
-        displayJournalEntry(entry);
-      }
-    }
-  } catch (error) {
-    console.error('Error navigating journal:', error);
-    $('journalInstructions').textContent = 'Error loading journal entry.';
-  }
-}
-
-async function loadJournalEntry() {
-  if (!journalState.currentAgentId) return;
-
-  try {
-    const res = await fetch('/playbook/get-journal-by-agent-id-down', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agentId: journalState.currentAgentId,
-        sequenceId: journalState.currentSequenceId,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.journals && data.journals.length > 0) {
-        const entry = data.journals[0];
-        journalState.currentSequenceId = entry.sequenceId;
-        displayJournalEntry(entry);
-      } else {
-        // No journal entries found
-        $('journalAgentId').textContent = journalState.currentAgentId;
-        $('journalSequenceId').textContent = '-';
-        $('journalInstructions').textContent = 'No journal entries found for this agent.';
-      }
-    }
-  } catch (error) {
-    console.error('Error loading journal entry:', error);
-    $('journalAgentId').textContent = journalState.currentAgentId;
-    $('journalSequenceId').textContent = '-';
-    $('journalInstructions').textContent = 'Error loading journal entries.';
-  }
-}
-
-function displayJournalEntry(entry) {
-  const updatedAt = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : '-';
-  $('journalAgentId').textContent = entry.agentId;
-  $('journalSequenceId').textContent = entry.sequenceId;
-  $('journalUpdatedAt').textContent = updatedAt;
-  $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
-}
-
 // Timer functionality
 const timerState = {
   p1Seconds: 0,
@@ -1419,5 +1309,236 @@ function closeMenuOnClickOutside(e) {
   }
 }
 
-// Initialize the UI when the page loads
+const journalState = {
+  isViewing: false,
+  currentAgentId: null,
+  currentSequenceId: Number.MAX_SAFE_INTEGER,
+  currentAgentMeta: null,
+  showDiff: false,
+};
+
+async function openJournalViewer(playerNum) {
+  const player = playerNum === 'p1' ? state.p1 : state.p2;
+  if (!player || player.type !== 'agent') return;
+
+  // Toggle: if journal is already viewing this agent, close it
+  if (journalState.isViewing && journalState.currentAgentId === player.id) {
+    exitJournalViewer();
+    return;
+  }
+
+  journalState.currentAgentId = player.id;
+  journalState.currentSequenceId = Number.MAX_SAFE_INTEGER; // Start with max value
+  journalState.isViewing = true;
+
+  // Hide game board and show journal viewer
+  $('gameBoard').style.display = 'none';
+  $('journalViewer').style.display = 'flex';
+
+  // await loadJournalEntry();
+  await loadLatestJournalEntry();
+}
+
+function exitJournalViewer() {
+  journalState.isViewing = false;
+  journalState.currentAgentId = null;
+  journalState.currentSequenceId = null;
+
+  // Show game board and hide journal viewer
+  $('gameBoard').style.display = 'flex';
+  $('journalViewer').style.display = 'none';
+}
+
+async function navigateJournalOLD(direction) {
+  if (!journalState.currentAgentId) return;
+
+  const endpoint = direction === 'up' ? '/playbook/get-journal-by-agent-id-up' : '/playbook/get-journal-by-agent-id-down';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: journalState.currentAgentId,
+        sequenceId: journalState.currentSequenceId,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.journals && data.journals.length > 0) {
+        const entry = data.journals[0];
+        journalState.currentSequenceId = entry.sequenceId;
+        displayJournalEntry(entry);
+      }
+    }
+  } catch (error) {
+    console.error('Error navigating journal:', error);
+    $('journalInstructions').textContent = 'Error loading journal entry.';
+  }
+}
+
+async function loadJournalEntryOLD() {
+  if (!journalState.currentAgentId) return;
+
+  try {
+    const res = await fetch('/playbook/get-journal-by-agent-id-down', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: journalState.currentAgentId,
+        sequenceId: journalState.currentSequenceId,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.journals && data.journals.length > 0) {
+        const entry = data.journals[0];
+        journalState.currentSequenceId = entry.sequenceId;
+        displayJournalEntry(entry);
+      } else {
+        // No journal entries found
+        $('journalAgentId').textContent = journalState.currentAgentId;
+        $('journalSequenceId').textContent = '-';
+        $('journalInstructions').textContent = 'No journal entries found for this agent.';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading journal entry:', error);
+    $('journalAgentId').textContent = journalState.currentAgentId;
+    $('journalSequenceId').textContent = '-';
+    $('journalInstructions').textContent = 'Error loading journal entries.';
+  }
+}
+
+async function loadLatestJournalEntry() {
+  if (!journalState.currentAgentId) return;
+
+  try {
+    const data = await fetchJournalEntry('down');
+
+    if (data && data.journals && data.journals.length > 0) {
+      journalState.isViewing = true;
+      journalState.currentSequenceId = data.journals[0].sequenceId;
+      displayJournalEntry();
+      JournalViewer.setNavigationButtonsEnabled({
+        upButtonId: 'journalUpBtn',
+        downButtonId: 'journalDownBtn',
+        enabled: true,
+      });
+    } else {
+      $('journalAgentId').textContent = journalState.currentAgentId;
+      $('journalSequenceId').textContent = '-';
+      $('journalUpdatedAt').textContent = '-';
+      $('journalInstructions').textContent = 'No journal entries found for this agent.';
+      JournalViewer.setNavigationButtonsEnabled({
+        upButtonId: 'journalUpBtn',
+        downButtonId: 'journalDownBtn',
+        enabled: false,
+      });
+    }
+  } catch (error) {
+    console.error('Error loading journal entry:', error);
+    $('journalAgentId').textContent = journalState.currentAgentId;
+    $('journalInstructions').textContent = 'Error loading journal entry.';
+    JournalViewer.setNavigationButtonsEnabled({
+      upButtonId: 'journalUpBtn',
+      downButtonId: 'journalDownBtn',
+      enabled: false,
+    });
+  }
+}
+
+async function navigateJournal(direction) {
+  if (!journalState.currentAgentId) return;
+
+  try {
+    const data = await fetchJournalEntry(direction);
+
+    if (data && data.journals && data.journals.length > 0) {
+      displayJournalEntry();
+    }
+  } catch (error) {
+    console.error('Error navigating journal:', error);
+  }
+}
+
+async function fetchJournalEntry(direction) {
+  const endpoint = direction === 'up' ? '/playbook/get-journal-by-agent-id-up' : '/playbook/get-journal-by-agent-id-down';
+
+  const dataCurrent = await fetchJson(endpoint, {
+    method: 'POST',
+    body: JSON.stringify({
+      agentId: journalState.currentAgentId,
+      sequenceId: journalState.currentSequenceId,
+    }),
+  });
+
+  if (dataCurrent && dataCurrent.journals && dataCurrent.journals.length > 0) {
+    journalState.currentSequenceId = dataCurrent.journals[0].sequenceId;
+    journalState.currentEntry = dataCurrent.journals[0];
+  }
+
+  const checkbox = $('showDiffCheckbox');
+  journalState.showDiff = checkbox ? checkbox.checked : false;
+
+  const dataPrevious = await fetchJson('/playbook/get-journal-by-agent-id-and-sequence', {
+    method: 'POST',
+    body: JSON.stringify({
+      agentId: journalState.currentAgentId,
+      sequenceId: journalState.currentSequenceId - 1,
+    }),
+  });
+  if (dataPrevious && dataPrevious.journals && dataPrevious.journals.length > 0) {
+    journalState.previousEntry = dataPrevious.journals[0];
+  } else {
+    journalState.previousEntry = null;
+  }
+
+  return dataCurrent;
+}
+
+function displayJournalEntry(entry) {
+  const updatedAt = entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : '-';
+  $('journalAgentId').textContent = entry.agentId;
+  $('journalSequenceId').textContent = entry.sequenceId;
+  $('journalUpdatedAt').textContent = updatedAt;
+  $('journalInstructions').textContent = entry.instructions || 'No instructions available.';
+}
+
+function displayJournalEntry() {
+  const entry = journalState.currentEntry;
+
+  if (!entry) return;
+
+  const agentIdEl = $('journalAgentId');
+  const seqIdEl = $('journalSequenceId');
+  const updatedAtEl = $('journalUpdatedAt');
+  const instructionsEl = $('journalInstructions');
+
+  const updatedAt = formatDateTime(entry.updatedAt);
+
+  if (agentIdEl) agentIdEl.textContent = entry.agentId;
+  if (seqIdEl) seqIdEl.textContent = entry.sequenceId;
+  if (updatedAtEl) updatedAtEl.textContent = updatedAt;
+
+  JournalViewer.renderTextDiff({
+    targetElement: instructionsEl,
+    previousText: journalState?.previousEntry?.instructions || '',
+    currentText: journalState?.currentEntry?.instructions || '',
+    showDiff: journalState.showDiff,
+    emptyMessage: 'No instructions available.',
+  });
+}
+
+function toggleDiff() {
+  const checkbox = $('showDiffCheckbox');
+  journalState.showDiff = checkbox.checked;
+
+  if (journalState.isViewing) {
+    displayJournalEntry();
+  }
+}
+
 window.addEventListener('DOMContentLoaded', initializeUI);

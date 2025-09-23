@@ -111,10 +111,7 @@ async function selectPlayer(agent) {
   const agentId = typeof agent === 'string' ? agent : agent?.id;
   if (!agentId) return;
 
-  const agentMeta =
-    typeof agent === 'object' && agent
-      ? agent
-      : agentListState.agents.find((candidate) => candidate.id === agentId) || null;
+  const agentMeta = typeof agent === 'object' && agent ? agent : agentListState.agents.find((candidate) => candidate.id === agentId) || null;
 
   journalState.currentAgentMeta = agentMeta;
 

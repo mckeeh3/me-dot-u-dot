@@ -11,24 +11,6 @@
   padding: 20px;
 }
 
-.journal-viewer-in-playbook,
-.journal-viewer-in-agent-role {
-  flex: 1;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: var(--panel);
-  border: 1px solid var(--neon-cyan);
-  border-radius: 10px;
-  width: 90%;
-  max-width: 1200px;
-  /* min-height: 500px; */
-  max-height: calc(100vh - 10vh); /* Dynamic height based on viewport, accounting for header/navigation */
-  min-height: 800px; /* Ensure minimum usable height */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .journal-header {
   display: flex;
   align-items: center;
@@ -46,7 +28,7 @@
 }
 
 .journal-header-title {
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-size: 2rem;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
   -webkit-background-clip: text;
   background-clip: text;
@@ -55,7 +37,7 @@
 }
 
 .journal-exit {
-  font-size: 20px !important;
+  font-size: 2rem !important;
   width: 40px !important;
   height: 40px !important;
 }
@@ -82,7 +64,7 @@
 
 .journal-label {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 0.8rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -90,7 +72,7 @@
 
 .journal-value {
   color: var(--neon-cyan);
-  font-size: 16px;
+  font-size: 0.8rem;
   font-weight: bold;
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
@@ -104,7 +86,7 @@
 
 .journal-instructions-label {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -118,7 +100,7 @@
   border-radius: 8px;
   padding: 16px;
   color: var(--text);
-  font-size: 20px;
+  font-size: 1rem;
   line-height: 1.6;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -143,7 +125,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(0, 229, 255, 0.3);
   color: var(--neon-cyan);
-  font-size: 20px;
+  font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -172,7 +154,7 @@
   border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 8px;
   color: var(--neon-cyan);
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -193,10 +175,10 @@
   justify-content: center;
   gap: 8px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 1rem;
   cursor: pointer;
   user-select: none;
-  height: 50px; /* Match the height of the nav buttons */
+  height: 50px;
 }
 
 .diff-checkbox-label input[type='checkbox'] {
@@ -234,7 +216,7 @@
   background: rgba(15, 21, 38, 0.92);
   border-radius: var(--layout-border-radius, 16px);
   overflow: hidden;
-  font-size: clamp(0.85rem, 0.9vw, 1rem);
+  font-size: 1rem;
 }
 
 .journal-list-table thead th {
@@ -242,7 +224,7 @@
   padding: clamp(0.6rem, 1vw, 0.9rem) clamp(0.9rem, 1.4vw, 1.2rem);
   background: rgba(0, 229, 255, 0.2);
   color: var(--text);
-  font-size: clamp(0.85rem, 0.95vw, 1.05rem);
+  font-size: 1rem;
   font-weight: 600;
   border-bottom: 1px solid rgba(0, 229, 255, 0.25);
 }
@@ -269,11 +251,12 @@
 }
 
 .journal-list-table .agent-name-cell {
-  font-size: clamp(0.9rem, 0.5vw, 1rem);
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .journal-list-table .agent-model-cell {
+  font-size: 0.8rem;
   color: var(--muted);
 }
 
@@ -281,7 +264,7 @@
   text-align: center;
   color: var(--muted);
   padding: clamp(1.25rem, 2vw, 1.75rem);
-  font-size: clamp(0.85rem, 0.95vw, 1rem);
+  font-size: 1rem;
 }
 
 .journal-detail-body {
@@ -311,7 +294,7 @@
   display: flex;
   align-items: center;
   gap: clamp(0.35rem, 0.6vw, 0.75rem);
-  font-size: clamp(0.85rem, 0.95vw, 1rem);
+  font-size: 1rem;
 }
 
 .journal-detail-body .journal-label {
@@ -339,7 +322,7 @@
   min-height: 0;
   max-height: 100%;
   padding: clamp(0.9rem, 1.2vw, 1.3rem);
-  font-size: clamp(0.92rem, 1.05vw, 1.15rem);
+  font-size: 1rem;
   line-height: 1.6;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -362,7 +345,7 @@
 }
 
 .journal-detail-panel .diff-checkbox-label {
-  font-size: clamp(0.85rem, 0.95vw, 1rem);
+  font-size: 1rem;
   gap: clamp(0.35rem, 0.5vw, 0.65rem);
   height: auto;
 }

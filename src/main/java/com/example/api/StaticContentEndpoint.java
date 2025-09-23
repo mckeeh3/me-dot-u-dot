@@ -29,6 +29,11 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("css/index.css");
   }
 
+  @Get("/css/index-journal-viewer.css")
+  public HttpResponse serveIndexJournalViewerCss() {
+    return HttpResponses.staticResource("css/index-journal-viewer.css");
+  }
+
   @Get("/js/index.js")
   public HttpResponse serveIndexJs() {
     return HttpResponses.staticResource("js/index.js");

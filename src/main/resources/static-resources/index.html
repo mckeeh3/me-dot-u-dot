@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/common.css" />
     <link rel="stylesheet" href="/css/common-new.css" />
     <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/journal-viewer.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -53,7 +54,7 @@
       </header>
 
       <main class="app-main game-main">
-        <aside class="app-panel player-panel player-panel--p1" data-player="p1">
+        <aside class="app-panel player-panel player-panel-p1" data-player="p1">
           <div class="app-panel-header">
             <h2 class="app-panel-title">Player 1</h2>
           </div>
@@ -106,46 +107,56 @@
                   <div id="p1Timer" class="stat-value">0s</div>
                 </div>
               </div>
-              <button id="p1JournalBtn" class="journal-btn" onclick="openJournalViewer('p1')" style="display: none">View Journal</button>
+              <button id="p1JournalBtn" class="btn-primary journal-btn" onclick="openJournalViewer('p1')" style="display: none">View Journal</button>
             </div>
           </div>
         </aside>
 
         <section class="app-panel board-panel">
-          <div class="app-panel-body board-panel-body">
+          <div id="gameBoard" class="app-panel-body board-panel-body">
             <div class="game-board-wrapper">
-              <div class="game-board" id="gameBoard" style="--size: 5"></div>
-              <div id="journalViewer" class="journal-viewer" style="display: none">
-                <div class="journal-header">
-                  <button id="journalExitBtn" class="icon-btn journal-exit" onclick="exitJournalViewer()" title="Exit Journal">❌</button>
-                  <h3>Agent Playbook Journal</h3>
-                </div>
-                <div class="journal-content">
-                  <div class="journal-info">
-                    <div class="journal-field">
-                      <span class="journal-label">Agent ID:</span>
-                      <span id="journalAgentId" class="journal-value">-</span>
-                      <span class="journal-label">Sequence ID:</span>
-                      <span id="journalSequenceId" class="journal-value">-</span>
-                      <span class="journal-label">Updated At:</span>
-                      <span id="journalUpdatedAt" class="journal-value">-</span>
-                    </div>
+              <div id="gameBoardGrid" class="game-board" style="--size: 5"></div>
+            </div>
+          </div>
+
+          <div id="journalViewer" class="app-panel-body board-panel-body" style="display: none">
+            <div class="app-panel-header journal-viewer-content">
+              <h2 class="app-panel-title">Agent Playbook Journal</h2>
+            </div>
+
+            <div class="app-panel-body journal-viewer-content">
+              <div class="journal-content journal-viewer-content">
+                <div class="journal-info">
+                  <div class="journal-field">
+                    <span class="journal-label">Agent:</span>
+                    <span id="journalAgentId" class="journal-value">-</span>
                   </div>
-                  <div class="journal-instructions-container">
-                    <div class="journal-instructions-label">Instructions:</div>
-                    <div id="journalInstructions" class="journal-instructions">Loading journal entry...</div>
+                  <div class="journal-field">
+                    <span class="journal-label">Sequence ID:</span>
+                    <span id="journalSequenceId" class="journal-value">-</span>
+                  </div>
+                  <div class="journal-field">
+                    <span class="journal-label">Updated At:</span>
+                    <span id="journalUpdatedAt" class="journal-value">-</span>
                   </div>
                 </div>
-                <div class="journal-navigation">
-                  <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry">▲</button>
-                  <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry">▼</button>
+
+                <div class="journal-instructions-container">
+                  <div class="journal-instructions-label">Instructions:</div>
+                  <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
                 </div>
               </div>
+            </div>
+
+            <div class="journal-navigation journal-viewer-content">
+              <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
+              <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
+              <label class="diff-checkbox-label"> <input type="checkbox" id="showDiffCheckbox" onchange="toggleDiff()" /> Show diff </label>
             </div>
           </div>
         </section>
 
-        <aside class="app-panel player-panel player-panel--p2" data-player="p2">
+        <aside class="app-panel player-panel player-panel-p2" data-player="p2">
           <div class="app-panel-header">
             <h2 class="app-panel-title">Player 2</h2>
           </div>
@@ -198,7 +209,7 @@
                   <div id="p2Timer" class="stat-value">0s</div>
                 </div>
               </div>
-              <button id="p2JournalBtn" class="journal-btn" onclick="openJournalViewer('p2')" style="display: none">View Journal</button>
+              <button id="p2JournalBtn" class="btn-primary journal-btn" onclick="openJournalViewer('p2')" style="display: none">View Journal</button>
             </div>
           </div>
         </aside>
@@ -208,5 +219,7 @@
     <script src="/js/common.js"></script>
     <script src="/js/common-new.js"></script>
     <script src="/js/index.js"></script>
+    <script src="/js/journal-viewer.js"></script>
+    <script src="/js/diff.js"></script>
   </body>
 </html>

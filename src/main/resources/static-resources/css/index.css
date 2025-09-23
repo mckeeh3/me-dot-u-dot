@@ -1,11 +1,17 @@
 :root {
   --board-max-size: min(62vw, 85vh);
-  --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
+  /* --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
   --game-gap-md: min(1.5rem, calc(0.85rem + 0.9vw));
-  --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw));
-  --game-font-lg: min(2rem, calc(1.2rem + 1vw));
+  --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw)); */
+  --game-gap-lg: 2rem;
+  --game-gap-md: 1.5rem;
+  --game-gap-sm: 1rem;
+  /* --game-font-lg: min(2rem, calc(1.2rem + 1vw));
   --game-font-md: min(1.2rem, calc(0.95rem + 0.4vw));
-  --game-font-sm: min(0.95rem, calc(0.8rem + 0.3vw));
+  --game-font-sm: min(0.95rem, calc(0.8rem + 0.3vw)); */
+  --game-font-lg: 2rem;
+  --game-font-md: 1.2rem;
+  --game-font-sm: 0.95rem;
 }
 
 body {
@@ -140,24 +146,24 @@ body {
   gap: var(--game-gap-md);
 }
 
-.player-panel--p1 {
+.player-panel-p1 {
   grid-area: player1;
   border-color: rgba(57, 255, 20, 0.28);
   box-shadow: 0 0 28px rgba(57, 255, 20, 0.12);
 }
 
-.player-panel--p2 {
+.player-panel-p2 {
   grid-area: player2;
   border-color: rgba(255, 58, 242, 0.28);
   box-shadow: 0 0 28px rgba(255, 58, 242, 0.12);
 }
 
-.player-panel--p1 .app-panel-title {
+.player-panel-p1 .app-panel-title {
   color: var(--neon-green);
   text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
 }
 
-.player-panel--p2 .app-panel-title {
+.player-panel-p2 .app-panel-title {
   color: var(--neon-magenta);
   text-shadow: 0 0 10px rgba(255, 58, 242, 0.3);
 }
@@ -173,7 +179,8 @@ body {
   justify-content: flex-start;
 }
 
-.player-panel-body.player-panel-body--stats {
+/* this is set in index.js */
+.player-panel-body.player-panel-body-stats {
   justify-content: center;
 }
 
@@ -225,6 +232,7 @@ body {
   border: 1px solid rgba(0, 229, 255, 0.4);
   background: linear-gradient(135deg, rgba(0, 229, 255, 0.22), rgba(138, 43, 226, 0.18));
   color: var(--neon-cyan);
+  font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -312,11 +320,11 @@ body {
   filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.3));
 }
 
-.player-panel--p1 .avatar {
+.player-panel-p1 .avatar {
   filter: drop-shadow(0 0 12px rgba(57, 255, 20, 0.35));
 }
 
-.player-panel--p2 .avatar {
+.player-panel-p2 .avatar {
   filter: drop-shadow(0 0 12px rgba(255, 58, 242, 0.35));
 }
 
@@ -362,12 +370,12 @@ body {
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
 }
 
-.player-panel--p1 .stat-value {
+.player-panel-p1 .stat-value {
   color: var(--neon-green);
   text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
 }
 
-.player-panel--p2 .stat-value {
+.player-panel-p2 .stat-value {
   color: var(--neon-magenta);
   text-shadow: 0 0 10px rgba(255, 58, 242, 0.3);
 }
@@ -517,16 +525,24 @@ body {
 }
 
 #journalViewer {
-  position: absolute;
-  inset: min(1.5rem, calc(0.75rem + 1vw));
+  position: relative;
+  /* inset: min(1.5rem, calc(0.75rem + 1vw)); */
   display: none;
   z-index: 5;
 }
 
-#journalViewer.displaying,
+.journal-viewer-header {
+  width: 100%;
+}
+
+.journal-viewer-content {
+  width: 100%;
+}
+
+/* #journalViewer.displaying,
 #journalViewer[style*='display: flex'] {
   display: flex;
-}
+} */
 
 /* Responsive layout */
 @media (max-width: 1280px) {

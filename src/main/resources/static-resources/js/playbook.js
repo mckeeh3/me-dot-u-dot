@@ -111,10 +111,7 @@ async function selectPlayer(agent) {
   const agentId = typeof agent === 'string' ? agent : agent?.id;
   if (!agentId) return;
 
-  const agentMeta =
-    typeof agent === 'object' && agent
-      ? agent
-      : agentListState.agents.find((candidate) => candidate.id === agentId) || null;
+  const agentMeta = typeof agent === 'object' && agent ? agent : agentListState.agents.find((candidate) => candidate.id === agentId) || null;
 
   journalState.currentAgentMeta = agentMeta;
 
@@ -218,7 +215,7 @@ async function fetchJournalEntry(direction) {
 
 function displayJournalEntry() {
   const entry = journalState.currentEntry;
-  // Get all the elements first
+
   const agentIdEl = $('journalAgentId');
   const seqIdEl = $('journalSequenceId');
   const updatedAtEl = $('journalUpdatedAt');
@@ -239,18 +236,15 @@ function displayJournalEntry() {
   });
 }
 
-// Toggle diff display
 function toggleDiff() {
   const checkbox = $('showDiffCheckbox');
   journalState.showDiff = checkbox.checked;
 
-  // If currently viewing a journal entry, refresh the display
   if (journalState.isViewing) {
     displayJournalEntry();
   }
 }
 
-// Initialize the UI when the page loads
 window.addEventListener('DOMContentLoaded', () => {
   loadAgentList();
 });
