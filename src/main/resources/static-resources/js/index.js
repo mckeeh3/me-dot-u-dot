@@ -748,7 +748,7 @@ async function populateCreateForm(which, player) {
     }
   } else {
     modelDropdown.style.display = 'none';
-    $(`${which}-model-btn`).textContent = 'Select Model';
+    $(`${which}-model-btn`).textContent = '— Select Model —';
   }
 
   // Update create button state and text
@@ -850,7 +850,7 @@ function populateTypeMenu(which) {
       } else {
         modelDropdown.style.display = 'none';
         // Reset model selection for human players
-        $(`${which}-model-btn`).textContent = 'Select Model';
+        $(`${which}-model-btn`).textContent = '— Select Model —';
       }
 
       // Update create button state and text
@@ -910,7 +910,7 @@ function updateCreateButtonState(which) {
   const createBtn = $(`${which}-create-btn`);
 
   const isAgent = typeBtn.textContent === 'agent';
-  const hasModel = isAgent ? modelBtn.textContent !== 'Select Model' : true;
+  const hasModel = isAgent ? modelBtn.textContent !== '— Select Model —' : true;
 
   createBtn.disabled = !hasModel;
 }
@@ -1042,7 +1042,7 @@ function populatePlayerForm(which, player) {
   if (player.type === 'agent') {
     const modelBtn = $(`${which}-model-btn`);
     if (modelBtn) {
-      modelBtn.textContent = player.model || 'Select Model';
+      modelBtn.textContent = player.model || '— Select Model —';
     }
     if (modelGroup) {
       modelGroup.style.display = 'block';
@@ -1072,13 +1072,13 @@ function clearPlayerForm(which, clearId = true) {
   // Reset type dropdown
   const typeBtn = $(`${which}-type-btn`);
   if (typeBtn) {
-    typeBtn.textContent = 'Select Type';
+    typeBtn.textContent = '— Select Type —';
   }
 
   // Reset model dropdown
   const modelBtn = $(`${which}-model-btn`);
   if (modelBtn) {
-    modelBtn.textContent = 'Select Model';
+    modelBtn.textContent = '— Select Model —';
   }
 
   const modelGroup = $(`${which}-model-group`);

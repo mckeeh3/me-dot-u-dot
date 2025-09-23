@@ -88,12 +88,6 @@ body {
   cursor: default;
 }
 
-/* Dropdown Styles */
-.dd-container {
-  position: relative;
-  min-width: 200px;
-}
-
 .dd {
   position: relative;
   display: block;
@@ -193,22 +187,10 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.icon-img {
-  width: 24px;
-  height: 24px;
-}
-
 /* Common Panel Styles */
 .panel {
   background-color: var(--panel);
   border: 1px solid var(--neon-cyan);
   border-radius: 10px;
   padding: 20px;
-}
-
-/* Responsive Breakpoints */
-@media (max-width: 768px) {
-  .dd-container {
-    min-width: 150px;
-  }
 }
