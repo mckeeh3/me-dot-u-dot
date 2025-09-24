@@ -333,16 +333,9 @@ function calculateMoveThinkTime(thinkMs) {
 }
 
 function calculateMoveCounts(gameState) {
-  if (!gameState)
-    return {
-      squareId: '',
-      playerId: '',
-      p1Moves: 0,
-      p2Moves: 0,
-      gameMoves: 0,
-      p1ThinkMs: '',
-      p2ThinkMs: '',
-    };
+  if (!gameState || !Array.isArray(gameState.moveHistory) || !gameState.player1Status || !gameState.player2Status) {
+    return [];
+  }
 
   let p1MoveCount = 0;
   let p2MoveCount = 0;
@@ -372,20 +365,38 @@ function calculateMoveCounts(gameState) {
 }
 
 function renderGameBoard() {
-  const board = $('gameBoardGrid');
-  board.innerHTML = '';
+  const boardEl = $('gameBoardGrid');
+  if (!boardEl) return;
 
   const size = currentSize();
-  board.style.setProperty('--size', size);
-  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
-  const squarePx = squareSizeBySize[size] || 14;
-  board.style.setProperty('--square-size', `${squarePx}px`);
+  boardEl.style.setProperty('--size', size);
+  boardEl.style.removeProperty('--square-size');
+
+  const metrics = ensureLiveBoardSizing(boardEl);
+  boardEl.innerHTML = '';
+
+  let baseFontPx = null;
+  if (metrics && size > 0) {
+    const boardStyles = window.getComputedStyle(boardEl);
+    const gapPx = parseFloat(boardStyles.columnGap || boardStyles.gap || 0) || 0;
+    const totalGap = gapPx * Math.max(0, size - 1);
+    const effectiveSpan = Math.max(metrics.boardSizePx - totalGap, 0);
+    const squarePx = size > 0 ? effectiveSpan / size : 0;
+    baseFontPx = Math.max(squarePx * 0.12, 10);
+  }
+
+  if (Number.isFinite(baseFontPx) && baseFontPx > 0) {
+    boardEl.style.fontSize = `${baseFontPx}px`;
+  } else {
+    boardEl.style.removeProperty('font-size');
+  }
 
   const squares = state.game ? state.game.board.squares : [];
   const byId = new Map(squares.map((d) => [d.squareId, d]));
   const lastMoveId = state.game?.moveHistory?.length ? state.game.moveHistory[state.game.moveHistory.length - 1].squareId : null;
   const scoringSquaresForLastMove = lastMoveId ? new Set(getScoringSquaresForMove(lastMoveId)) : new Set();
-  const moveCounts = calculateMoveCounts(state.game);
+  const moveCountsArray = state.game ? calculateMoveCounts(state.game) : [];
+  const moveCounts = new Map(moveCountsArray.map((move) => [move.squareId, move]));
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
@@ -397,23 +408,19 @@ function renderGameBoard() {
       cell.className = 'cell';
       cell.dataset.squareId = id;
 
-      if (square && square.playerId) {
-        const playerId = square.playerId;
-        const isPlayer1 = playerId === state.game.player1Status.player.id;
-        const cls = isPlayer1 ? 'player1' : 'player2';
-        cell.classList.add(cls);
+      if (square && square.playerId && state.game?.player1Status && state.game?.player2Status) {
+        const isPlayer1 = square.playerId === state.game.player1Status.player.id;
+        cell.classList.add(isPlayer1 ? 'player1' : 'player2');
 
-        // Find the move data for this cell
-        const moveData = moveCounts.find((move) => move.squareId === id);
+        const moveData = moveCounts.get(id);
 
-        // Create 3-layer structure
         cell.innerHTML = `
           <div class="cell-layer cell-layer-top">
             <span class="cell-id">${id}</span>
             <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
           </div>
           <div class="cell-layer cell-layer-middle">
-            <span class="player-square">●</span>
+            <span class="player-square ${isPlayer1 ? 'player1' : 'player2'}">●</span>
           </div>
           <div class="cell-layer cell-layer-bottom">
             <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>
@@ -440,16 +447,40 @@ function renderGameBoard() {
         cell.style.pointerEvents = 'none';
       }
 
-      board.appendChild(cell);
+      boardEl.appendChild(cell);
 
       if (square && square.playerId) {
-        // Add hover handler only to occupied cells after a 3 second delay
         setTimeout(() => {
           cellHoverHandler(cell);
         }, 3000);
       }
     }
   }
+}
+
+function ensureLiveBoardSizing(boardEl) {
+  if (!boardEl) return null;
+  const panel = boardEl.closest('.board-panel-body');
+  if (!panel) return null;
+
+  const panelStyles = window.getComputedStyle(panel);
+  const paddingX = parseFloat(panelStyles.paddingLeft || 0) + parseFloat(panelStyles.paddingRight || 0);
+  const paddingY = parseFloat(panelStyles.paddingTop || 0) + parseFloat(panelStyles.paddingBottom || 0);
+  const availableWidth = Math.max(panel.clientWidth - paddingX, 0);
+  const availableHeight = Math.max(panel.clientHeight - paddingY, 0);
+  const fallbackBound = Math.max(availableWidth, availableHeight);
+  const preferredBound = Math.min(availableWidth, availableHeight);
+  const finalBound = preferredBound > 0 ? preferredBound : fallbackBound;
+
+  if (!Number.isFinite(finalBound) || finalBound <= 0) {
+    boardEl.style.removeProperty('--board-bound');
+    return null;
+  }
+
+  boardEl.style.setProperty('--board-bound', `${finalBound}px`);
+  const rect = boardEl.getBoundingClientRect();
+  const boardSizePx = Math.min(rect.width, rect.height) || finalBound;
+  return { boardSizePx };
 }
 
 // Global variable to track the enlarged cell popup
@@ -597,13 +628,29 @@ function getScoringSquaresForMove(squareId) {
 
 function renderPreviewBoard(level) {
   const board = $('gameBoardGrid');
+  if (!board) return;
   board.innerHTML = '';
   const levelSizeMap = { one: 5, two: 7, three: 9, four: 11, five: 13, six: 15, seven: 17, eight: 19, nine: 21 };
   const size = levelSizeMap[level] || 5;
   board.style.setProperty('--size', size);
-  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
-  const squarePx = squareSizeBySize[size] || 14;
-  board.style.setProperty('--square-size', `${squarePx}px`);
+  board.style.removeProperty('--square-size');
+
+  const metrics = ensureLiveBoardSizing(board);
+  let baseFontPx = null;
+  if (metrics && size > 0) {
+    const boardStyles = window.getComputedStyle(board);
+    const gapPx = parseFloat(boardStyles.columnGap || boardStyles.gap || 0) || 0;
+    const totalGap = gapPx * Math.max(0, size - 1);
+    const effectiveSpan = Math.max(metrics.boardSizePx - totalGap, 0);
+    const squarePx = size > 0 ? effectiveSpan / size : 0;
+    baseFontPx = Math.max(squarePx * 0.2, 12);
+  }
+
+  if (Number.isFinite(baseFontPx) && baseFontPx > 0) {
+    board.style.fontSize = `${baseFontPx}px`;
+  } else {
+    board.style.removeProperty('font-size');
+  }
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
@@ -805,9 +852,15 @@ async function refreshGameState() {
   renderGameBoard();
 }
 
+function handleGameResize() {
+  renderGameBoard();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Prefill ids
   setStatus("🎮 Let's play a game!");
+  window.addEventListener('resize', handleGameResize, { passive: true });
+  window.addEventListener('orientationchange', handleGameResize, { passive: true });
   renderGameBoard();
 });
 

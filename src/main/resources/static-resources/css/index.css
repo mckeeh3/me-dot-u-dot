@@ -401,52 +401,54 @@ body {
 .game-board {
   display: grid;
   gap: min(1.2rem, 1.8vw);
-  width: min(var(--board-max-size), 95%);
+  width: min(var(--board-bound, var(--board-max-size)), 100%);
+  height: min(var(--board-bound, var(--board-max-size)), 100%);
   aspect-ratio: 1;
-  grid-template-columns: repeat(var(--size, 5), 1fr);
+  grid-template-columns: repeat(var(--size, 5), minmax(0, 1fr));
   user-select: none;
 }
 
 .cell {
   aspect-ratio: 1 / 1;
   border: 1px solid rgba(0, 229, 255, 0.25);
-  border-radius: 0.6rem;
+  border-radius: 0.35em;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--square-size, 28px);
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0.2em;
+  font-size: 1em;
   color: var(--text);
   background: linear-gradient(180deg, rgba(20, 26, 46, 0.65), rgba(13, 17, 31, 0.65));
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.08);
+  box-shadow: 0 0 0.75rem rgba(0, 229, 255, 0.08);
   transition: transform 120ms ease, box-shadow 150ms ease, border-color 150ms ease;
   cursor: pointer;
 }
 
 .cell:hover {
-  transform: translateY(-1px);
+  transform: translateY(-0.05em);
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 1rem rgba(0, 229, 255, 0.25);
 }
 
 .cell.player1 {
   color: var(--neon-green);
-  text-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
+  text-shadow: 0 0 0.75rem rgba(57, 255, 20, 0.5);
 }
 
 .cell.player2 {
   color: var(--neon-magenta);
-  text-shadow: 0 0 12px rgba(255, 58, 242, 0.5);
+  text-shadow: 0 0 0.75rem rgba(255, 58, 242, 0.5);
 }
 
 .cell.last-move {
-  outline: 2px solid var(--neon-cyan);
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.35);
+  outline: 0.125rem solid var(--neon-cyan);
+  box-shadow: 0 0 1.75rem rgba(0, 229, 255, 0.35);
   animation: neonPulse 1.2s ease-out 1;
 }
 
 .cell.scoring-square {
-  box-shadow: 0 0 12px rgba(255, 193, 7, 0.7);
+  box-shadow: 0 0 1.2rem rgba(255, 193, 7, 0.7);
   border-color: rgba(255, 193, 7, 0.8);
 }
 
@@ -456,13 +458,11 @@ body {
   align-items: center;
   width: 100%;
   height: 30%;
-  font-size: 0.6em;
   line-height: 1;
 }
 
 .cell-layer-middle {
   justify-content: center;
-  font-size: 0.8em;
 }
 
 .cell-id {
@@ -478,20 +478,6 @@ body {
   padding-right: 0.5em;
 }
 
-.player-square {
-  font-size: 1.5em;
-}
-
-.player-square.player1 {
-  color: var(--neon-green);
-  text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
-}
-
-.player-square.player2 {
-  color: var(--neon-magenta);
-  text-shadow: 0 0 10px rgba(255, 58, 242, 0.5);
-}
-
 .player-think-time {
   font-weight: bold;
   color: var(--text);
@@ -503,6 +489,35 @@ body {
   font-weight: bold;
   font-size: 0.9em;
   padding-right: 0.5em;
+}
+
+.cell-id,
+.game-move-count,
+.player-think-time,
+.player-move-count {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.player-square {
+  font-size: 1.8em;
+}
+
+.player-square.player1 {
+  color: var(--neon-green);
+  text-shadow: 0 0 0.75rem rgba(57, 255, 20, 0.5);
+}
+
+.player-square.player2 {
+  color: var(--neon-magenta);
+  text-shadow: 0 0 0.75rem rgba(255, 58, 242, 0.5);
+}
+
+.player-think-time,
+.player-move-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1em;
 }
 
 @keyframes neonPulse {
