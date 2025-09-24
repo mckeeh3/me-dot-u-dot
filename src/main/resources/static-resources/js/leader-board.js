@@ -359,11 +359,11 @@ function updateReplayUI() {
   lastReplaySnapshot = snapshot;
   updateReplayButtons(snapshot);
   updateReplayStatus(snapshot);
-  renderGameBoardAtIndex(snapshot);
-  renderMoveDetails(snapshot);
   if (replayState.gameState) {
     renderGameInfo(replayState.gameState, snapshot.perPlayer);
   }
+  renderMoveDetails(snapshot);
+  renderGameBoardAtIndex(snapshot);
 }
 
 function buildReplaySnapshot(index) {
