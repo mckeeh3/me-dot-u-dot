@@ -243,6 +243,10 @@ async function loadGameDetails(gameId) {
 // Render game information
 function renderGameInfo(gameState, perPlayerStats = {}) {
   const gameInfo = $('gameInfo');
+  const headerId = $('gameDetailsId');
+  if (headerId) {
+    headerId.textContent = gameState.gameId;
+  }
 
   const p1 = gameState.player1Status;
   const p2 = gameState.player2Status;
@@ -262,7 +266,6 @@ function renderGameInfo(gameState, perPlayerStats = {}) {
 
   gameInfo.innerHTML = `
         <div class="game-summary">
-            <h3>Game: ${gameState.gameId}</h3>
             <div class="player-info">
                 <div class="player player1-bg">
                     <span class="player-avatar">${p1.player.type === 'agent' ? '🤖' : '👤'}</span>
