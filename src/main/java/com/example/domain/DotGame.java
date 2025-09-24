@@ -763,6 +763,7 @@ public interface DotGame {
       }
 
       // check if line is longer than the concurrent squares to score
+      // this is a high scoring move when connecting 2 lines into a single line in the same direction
       if (moves.size() > level.concurrentSquaresToScore()) {
         return moves.size() - level.concurrentSquaresToScore() + 1;
       }

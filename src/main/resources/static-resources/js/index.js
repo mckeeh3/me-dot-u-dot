@@ -460,7 +460,7 @@ function cellHoverHandler(cell) {
     cell._hoverTimeout = setTimeout(() => {
       cellHovered(cell);
       cell._hoverTimeout = null;
-    }, 1000);
+    }, 2500);
   });
 
   cell.addEventListener('mouseleave', () => {

@@ -425,6 +425,30 @@ public class DotGameTest {
     assertEquals(2, scoringMoves.totalScore());
   }
 
+  @Test
+  void testLevelTwoFullVerticalLineConnectTwoLinesBonusScore() {
+    var scoringMoves = DotGame.ScoringMoves
+        .create(player2);
+
+    var moveHistory = moveHistory(player1, player2, List.of(
+        "D4", "D1",
+        "D7", "A1",
+        "A7", "G1",
+        "D5", "E1",
+        "D6", "F1",
+        "B7", "C1",
+        "C7"));
+    var move = new DotGame.Square("B1", player2);
+
+    scoringMoves = scoringMoves.scoreMove(move, DotGame.Board.Level.two, moveHistory);
+    assertEquals(4, scoringMoves.totalScore());
+    assertEquals(1, scoringMoves.scoringMoves().size());
+    assertEquals(DotGame.ScoringMoveType.vertical, scoringMoves.scoringMoves().get(0).type());
+    assertEquals(4, scoringMoves.scoringMoves().get(0).score());
+    var expectedMoves = List.of("A1", "B1", "C1", "D1", "E1", "F1", "G1");
+    assertEquals(expectedMoves, scoringMoves.scoringMoves().get(0).scoringSquares());
+  }
+
   static DotGame.Square square(String id, DotGame.Player player) {
     return new DotGame.Square(id, player);
   }
