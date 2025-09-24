@@ -47,23 +47,24 @@ body {
   background: rgba(15, 21, 38, 0.92);
   border-radius: var(--layout-border-radius, 1rem);
   overflow: hidden;
-  font-size: clamp(0.85rem, 0.95vw, 1.05rem);
+  font-size: 0.7rem;
 }
 
 .leader-table thead th,
 .games-table thead th {
   text-align: left;
-  padding: clamp(0.6rem, 1vw, 1rem) clamp(0.9rem, 1.3vw, 1.4rem);
+  padding: 1rem 0.5rem;
   background: rgba(0, 229, 255, 0.18);
   color: var(--text);
   font-weight: 600;
   letter-spacing: 0.04em;
   border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+  width: 60%;
 }
 
 .leader-table tbody td,
 .games-table tbody td {
-  padding: clamp(0.55rem, 0.9vw, 0.95rem) clamp(0.9rem, 1.25vw, 1.3rem);
+  padding: 0.5rem;
   color: var(--text);
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
   white-space: nowrap;
