@@ -1,21 +1,14 @@
 :root {
   --board-max-size: min(62vw, 85vh);
-  /* --game-gap-lg: min(2rem, calc(1rem + 1.2vw));
-  --game-gap-md: min(1.5rem, calc(0.85rem + 0.9vw));
-  --game-gap-sm: min(1rem, calc(0.6rem + 0.6vw)); */
   --game-gap-lg: 2rem;
   --game-gap-md: 1.5rem;
   --game-gap-sm: 1rem;
-  /* --game-font-lg: min(2rem, calc(1.2rem + 1vw));
-  --game-font-md: min(1.2rem, calc(0.95rem + 0.4vw));
-  --game-font-sm: min(0.95rem, calc(0.8rem + 0.3vw)); */
   --game-font-lg: 2rem;
   --game-font-md: 1.2rem;
   --game-font-sm: 0.95rem;
 }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
   margin: 0;
   padding: 0;
   background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
