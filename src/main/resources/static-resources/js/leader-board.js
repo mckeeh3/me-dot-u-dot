@@ -12,9 +12,13 @@ let replayState = {
   players: {},
 };
 
+let lastReplaySnapshot = null;
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
   setupReplayControls();
+  ensureReplayBoardSizing($('gameBoard'));
+  window.addEventListener('resize', handleReplayResize, { passive: true });
   await loadLeaderBoard();
 });
 
@@ -349,6 +353,7 @@ function setReplayIndex(index) {
 
 function updateReplayUI() {
   const snapshot = buildReplaySnapshot(replayState.index);
+  lastReplaySnapshot = snapshot;
   updateReplayButtons(snapshot);
   updateReplayStatus(snapshot);
   renderGameBoardAtIndex(snapshot);
@@ -458,9 +463,10 @@ function renderGameBoardAtIndex(snapshot) {
   const boardEl = $('gameBoard');
   if (!boardEl) return;
 
+  const metrics = ensureReplayBoardSizing(boardEl);
   boardEl.innerHTML = '';
 
-  if (!replayState.gameState) {
+  if (!replayState.gameState || !metrics || metrics.boardSizePx <= 0) {
     return;
   }
 
@@ -469,9 +475,13 @@ function renderGameBoardAtIndex(snapshot) {
 
   boardEl.style.setProperty('--size', size);
   boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-  const squareSizeBySize = { 5: 32, 7: 28, 9: 24, 11: 20, 13: 18, 15: 16, 17: 14, 19: 12, 21: 11 };
-  const squarePx = squareSizeBySize[size] || 14;
-  boardEl.style.setProperty('--square-size', `${squarePx}px`);
+  const boardStyles = window.getComputedStyle(boardEl);
+  const gapPx = parseFloat(boardStyles.columnGap || boardStyles.gap || 0) || 0;
+  const totalGap = gapPx * Math.max(0, size - 1);
+  const effectiveSpan = Math.max(metrics.boardSizePx - totalGap, 0);
+  const squarePx = size > 0 ? effectiveSpan / size : 0;
+  const baseFontPx = Math.max(squarePx * 0.12, 10);
+  boardEl.style.fontSize = `${baseFontPx}px`;
 
   const scoringSquares = new Set(snapshot.scoringSquares || []);
 
@@ -609,4 +619,41 @@ function renderMoveDetails(snapshot) {
     <div><strong>Move ${snapshot.index}:</strong> ${playerName} played <strong>${move.squareId}</strong> ${thinkDisplay ? `after ${thinkDisplay}` : ''}.</div>
     <div>Points this move: <strong>${moveScore}</strong> • Scoring squares: <strong>${scoringText}</strong>.</div>
   `;
+}
+
+function ensureReplayBoardSizing(boardEl) {
+  if (!boardEl) return null;
+  const container = boardEl.parentElement;
+  if (!container) return null;
+
+  const containerStyles = window.getComputedStyle(container);
+  const gapValue = parseFloat(containerStyles.rowGap || containerStyles.gap || 0) || 0;
+  const children = Array.from(container.children);
+  const totalGap = gapValue * Math.max(0, children.length - 1);
+  const reservedHeight = children.reduce((sum, child) => {
+    if (child === boardEl) {
+      return sum;
+    }
+    return sum + child.offsetHeight;
+  }, 0);
+
+  const availableHeight = container.clientHeight - reservedHeight - totalGap;
+  const availableWidth = container.clientWidth;
+  const heightLimit = Math.max(availableHeight, 0);
+  const boardBound = Math.max(0, Math.min(availableWidth, heightLimit));
+
+  boardEl.style.setProperty('--leader-board-bound', `${boardBound}px`);
+  const rect = boardEl.getBoundingClientRect();
+  const boardSizePx = Math.min(rect.width, rect.height);
+  return { boardSizePx };
+}
+
+function handleReplayResize() {
+  const boardEl = $('gameBoard');
+  if (!boardEl) return;
+  if (lastReplaySnapshot) {
+    renderGameBoardAtIndex(lastReplaySnapshot);
+  } else {
+    ensureReplayBoardSizing(boardEl);
+  }
 }

@@ -7,99 +7,102 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Leader Board - Me-Dot-U-Dot</title>
-    <link rel="stylesheet" href="css/common.css" />
-    <link rel="stylesheet" href="css/leader-board.css" />
-    <link rel="stylesheet" href="css/journal-viewer.css" />
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
+    <link rel="stylesheet" href="/css/leader-board.css" />
   </head>
   <body>
-    <!-- Navigation Menu -->
-    <div class="control-bar">
-      <div class="control-left">
-        <div class="nav-menu">
-          <div class="dd" id="nav">
-            <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
-              <img src="images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
-            </button>
-            <div id="nav-menu" class="dd-menu">
-              <div class="dd-item" onclick="window.location.href='/'">Game</div>
-              <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
-              <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
-              <div class="dd-item current">Leader Board</div>
-              <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item" onclick="window.location.href='/'">Game</div>
+                <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item current">Leader Board</div>
+                <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="control-center">
-        <h1>🏆 Leader Board</h1>
-      </div>
-      <div class="control-right">
-        <!-- Right side controls if needed -->
-      </div>
+        <div class="app-header-center">
+          <h1 class="app-header-title">🏆 Leader Board</h1>
+        </div>
+        <div class="app-header-right"></div>
+      </header>
+
+      <main class="app-main leader-main">
+        <aside class="app-panel leader-panel" aria-labelledby="leaderBoardTitle">
+          <div class="app-panel-header">
+            <h2 id="leaderBoardTitle" class="app-panel-title">Top Players</h2>
+          </div>
+          <div class="app-panel-body leader-table-container">
+            <table class="leader-table">
+              <thead>
+                <tr>
+                  <th scope="col">Player</th>
+                  <th scope="col">Games Won</th>
+                </tr>
+              </thead>
+              <tbody id="leaderBoardBody">
+                <tr class="leader-empty-row">
+                  <td colspan="2">Loading leader board…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+
+        <section class="app-panel games-panel" aria-labelledby="playerGamesTitle">
+          <div class="app-panel-header">
+            <h2 id="playerGamesTitle" class="app-panel-title">Games for <span id="selectedPlayerId">Select a player</span></h2>
+          </div>
+          <div class="app-panel-body games-table-container">
+            <table class="games-table">
+              <thead>
+                <tr>
+                  <th scope="col">Game Created</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="playerGamesBody">
+                <tr class="leader-empty-row">
+                  <td colspan="2">Select a player to load games…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="app-panel details-panel" aria-labelledby="gameDetailsTitle">
+          <div class="app-panel-header">
+            <h2 id="gameDetailsTitle" class="app-panel-title">Game Details</h2>
+          </div>
+          <div class="app-panel-body details-body">
+            <div class="game-info" id="gameInfo"></div>
+            <div class="game-board-container">
+              <div id="gameBoard" class="game-board" role="grid" aria-label="Game board replay"></div>
+              <div class="replay-controls">
+                <button id="replayFirstBtn" class="replay-btn" title="First move" aria-label="Go to first move">⏮</button>
+                <button id="replayPrevBtn" class="replay-btn" title="Previous move" aria-label="Go to previous move">◀</button>
+                <div id="replayStatus" class="replay-status">Move 0 / 0</div>
+                <button id="replayNextBtn" class="replay-btn" title="Next move" aria-label="Go to next move">▶</button>
+                <button id="replayLastBtn" class="replay-btn" title="Last move" aria-label="Go to last move">⏭</button>
+              </div>
+              <div id="moveDetails" class="move-details">Select a game to review its moves.</div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
 
-    <div class="main-container">
-      <!-- Section 1: Leader Board -->
-      <section class="leader-board-section">
-        <h2>Top Players</h2>
-        <div class="table-container">
-          <table class="leader-table">
-            <thead>
-              <tr>
-                <th>Player ID</th>
-                <th>Games Won</th>
-              </tr>
-            </thead>
-            <tbody id="leaderBoardBody">
-              <!-- Leader board data will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Section 2: Player Games -->
-      <section class="player-games-section">
-        <h2>Games for <span id="selectedPlayerId">Select a player</span></h2>
-        <div class="table-container">
-          <table class="games-table">
-            <thead>
-              <tr>
-                <th>Game Created</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="playerGamesBody">
-              <!-- Player games data will be populated here -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Section 3: Game Board and Details -->
-      <section class="game-details-section">
-        <h2>Game Details</h2>
-        <div class="game-info" id="gameInfo">
-          <!-- Game information will be displayed here -->
-        </div>
-        <div class="game-board-container">
-          <div id="gameBoard" class="game-board">
-            <!-- Game board will be rendered here -->
-          </div>
-          <div class="replay-controls">
-            <button id="replayFirstBtn" class="replay-btn" title="First move">⏮</button>
-            <button id="replayPrevBtn" class="replay-btn" title="Previous move">◀</button>
-            <div id="replayStatus" class="replay-status">Move 0 / 0</div>
-            <button id="replayNextBtn" class="replay-btn" title="Next move">▶</button>
-            <button id="replayLastBtn" class="replay-btn" title="Last move">⏭</button>
-          </div>
-          <div id="moveDetails" class="move-details">
-            Select a game to review its moves.
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <script src="js/common.js"></script>
-    <script src="js/leader-board.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
+    <script src="/js/leader-board.js"></script>
   </body>
 </html>

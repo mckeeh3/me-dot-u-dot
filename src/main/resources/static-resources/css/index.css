@@ -474,7 +474,6 @@ body {
 
 .cell-id {
   font-weight: bold;
-  /* color: var(--muted); */
   font-size: 1.1em;
   padding-left: 0.5em;
 }
@@ -487,7 +486,7 @@ body {
 }
 
 .player-square {
-  font-size: 1.2em;
+  font-size: 1.5em;
 }
 
 .player-square.player1 {
@@ -509,7 +508,6 @@ body {
 
 .player-move-count {
   font-weight: bold;
-  /* color: var(--muted); */
   font-size: 0.9em;
   padding-right: 0.5em;
 }
