@@ -443,8 +443,10 @@ function renderGameBoard() {
       board.appendChild(cell);
 
       if (square && square.playerId) {
-        // Add hover handler only to occupied cells
-        cellHoverHandler(cell);
+        // Add hover handler only to occupied cells after a 3 second delay
+        setTimeout(() => {
+          cellHoverHandler(cell);
+        }, 3000);
       }
     }
   }
