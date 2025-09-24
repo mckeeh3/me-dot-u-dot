@@ -420,9 +420,6 @@ function renderGameBoard() {
             <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
           </div>
         `;
-
-        // Add hover handler only to occupied cells
-        cellHoverHandler(cell);
       }
 
       if (lastMoveId && id === lastMoveId) {
@@ -444,6 +441,11 @@ function renderGameBoard() {
       }
 
       board.appendChild(cell);
+
+      if (square && square.playerId) {
+        // Add hover handler only to occupied cells
+        cellHoverHandler(cell);
+      }
     }
   }
 }
@@ -460,7 +462,7 @@ function cellHoverHandler(cell) {
     cell._hoverTimeout = setTimeout(() => {
       cellHovered(cell);
       cell._hoverTimeout = null;
-    }, 2500);
+    }, 1000);
   });
 
   cell.addEventListener('mouseleave', () => {
