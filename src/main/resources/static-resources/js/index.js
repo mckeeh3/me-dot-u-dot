@@ -484,7 +484,7 @@ function ensureLiveBoardSizing(boardEl) {
 }
 
 // Global variable to track the enlarged square popup
-let enlargedSquarePopup = null;
+let squarePopup = null;
 
 function squareHoverHandler(square) {
   square.addEventListener('mouseenter', (event) => {
@@ -503,7 +503,7 @@ function squareHoverHandler(square) {
       clearTimeout(square._hoverTimeout);
       square._hoverTimeout = null;
     }
-    hideEnlargedSquare();
+    hideSquarePopup();
   });
 
   // Track mouse movement for popup positioning
@@ -524,7 +524,7 @@ function squareHovered(square) {
   const thinkTime = moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : '';
 
   // Show enlarged square popup
-  showEnlargedSquare(square, {
+  showSquarePopup(square, {
     squareId,
     isPlayer1,
     gameMove,
@@ -533,16 +533,16 @@ function squareHovered(square) {
   });
 }
 
-function showEnlargedSquare(square, data) {
+function showSquarePopup(square, data) {
   // Hide any existing popup
-  hideEnlargedSquare();
+  hideSquarePopup();
 
   // Create the enlarged square element
-  enlargedSquarePopup = document.createElement('div');
-  enlargedSquarePopup.className = `enlarged-square ${data.isPlayer1 ? 'player1' : 'player2'}`;
+  squarePopup = document.createElement('div');
+  squarePopup.className = `square-popup ${data.isPlayer1 ? 'player1' : 'player2'}`;
 
   // Create the same 3-layer structure as the original square
-  enlargedSquarePopup.innerHTML = `
+  squarePopup.innerHTML = `
     <div class="square-layer square-layer-top">
       <span class="square-id">${data.squareId}</span>
       <span class="game-move-count">${data.gameMove}</span>
@@ -575,26 +575,26 @@ function showEnlargedSquare(square, data) {
   if (left < 0) left = offset;
   if (top < 0) top = offset;
 
-  enlargedSquarePopup.style.left = `${left}px`;
-  enlargedSquarePopup.style.top = `${top}px`;
+  squarePopup.style.left = `${left}px`;
+  squarePopup.style.top = `${top}px`;
 
   // Add to DOM and show with animation
-  document.body.appendChild(enlargedSquarePopup);
+  document.body.appendChild(squarePopup);
 
   // Trigger animation after a brief delay to ensure proper rendering
   setTimeout(() => {
-    enlargedSquarePopup.classList.add('show');
+    squarePopup.classList.add('show');
   }, 10);
 }
 
-function hideEnlargedSquare() {
-  if (enlargedSquarePopup) {
-    enlargedSquarePopup.classList.remove('show');
+function hideSquarePopup() {
+  if (squarePopup) {
+    squarePopup.classList.remove('show');
     setTimeout(() => {
-      if (enlargedSquarePopup && enlargedSquarePopup.parentNode) {
-        enlargedSquarePopup.parentNode.removeChild(enlargedSquarePopup);
+      if (squarePopup && squarePopup.parentNode) {
+        squarePopup.parentNode.removeChild(squarePopup);
       }
-      enlargedSquarePopup = null;
+      squarePopup = null;
     }, 200); // Match the CSS transition duration
   }
 }
