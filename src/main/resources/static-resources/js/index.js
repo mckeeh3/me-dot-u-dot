@@ -451,7 +451,7 @@ function renderGameBoard() {
 
       if (square && square.playerId) {
         setTimeout(() => {
-          squareHoverHandler(squareEl);
+          squarePopupSetup(squareEl);
         }, 3000);
       }
     }
@@ -483,10 +483,10 @@ function ensureLiveBoardSizing(boardEl) {
   return { boardSizePx };
 }
 
-// Global variable to track the enlarged square popup
+// Global variable to track the square popup
 let squarePopup = null;
 
-function squareHoverHandler(square) {
+function squarePopupSetup(square) {
   square.addEventListener('mouseenter', (event) => {
     // Store mouse position for popup positioning
     square._mouseX = event.clientX;
@@ -523,7 +523,7 @@ function squareHovered(square) {
   const playerMove = moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : '';
   const thinkTime = moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : '';
 
-  // Show enlarged square popup
+  // Show square popup
   showSquarePopup(square, {
     squareId,
     isPlayer1,
@@ -537,7 +537,7 @@ function showSquarePopup(square, data) {
   // Hide any existing popup
   hideSquarePopup();
 
-  // Create the enlarged square element
+  // Create the square element
   squarePopup = document.createElement('div');
   squarePopup.className = `square-popup ${data.isPlayer1 ? 'player1' : 'player2'}`;
 
