@@ -543,6 +543,11 @@ function renderGameBoardAtIndex(snapshot) {
       }
 
       boardEl.appendChild(squareEl);
+
+      if (moveData) {
+        const squareData = SquarePopup.squareDataFromReplayState(squareEl, replayState, moveData);
+        SquarePopup.squarePopupSetup(squareEl, squareData);
+      }
     }
   }
 }

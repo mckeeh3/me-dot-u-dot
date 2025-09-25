@@ -119,6 +119,16 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("css/journal-viewer.css");
   }
 
+  @Get("/js/square-popup.js")
+  public HttpResponse serveSquarePopupJs() {
+    return HttpResponses.staticResource("js/square-popup.js");
+  }
+
+  @Get("/css/square-popup.css")
+  public HttpResponse serveSquarePopupCss() {
+    return HttpResponses.staticResource("css/square-popup.css");
+  }
+
   @Get("/js/diff.js")
   public HttpResponse serveDiffJs() {
     return HttpResponses.staticResource("js/diff.js");
