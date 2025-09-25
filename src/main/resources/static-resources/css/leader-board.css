@@ -3,7 +3,7 @@
   --leader-gap-md: 1.5rem;
   --leader-gap-sm: 1rem;
   --leader-board-size: min(52vw, 72vh);
-  --leader-cell-gap: 0.5rem;
+  --leader-square-gap: 0.5rem;
 }
 
 body {
@@ -214,7 +214,7 @@ body {
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(var(--size, 5), minmax(0, 1fr));
-  gap: var(--leader-cell-gap);
+  gap: var(--leader-square-gap);
   place-content: stretch;
   place-items: stretch;
   align-self: center;
@@ -283,7 +283,7 @@ body {
   color: var(--neon-cyan);
 }
 
-.cell {
+.square {
   aspect-ratio: 1 / 1;
   position: relative;
   border: 1px solid rgba(0, 229, 255, 0.28);
@@ -300,33 +300,33 @@ body {
   transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.cell.current-move {
+.square.current-move {
   box-shadow: 0 0 1rem rgba(255, 255, 255, 0.45);
   border-color: rgba(255, 255, 255, 0.8);
 }
 
-.cell.scoring-square {
+.square.scoring-square {
   box-shadow: 0 0 1.125rem rgba(255, 193, 7, 0.65);
   border-color: rgba(255, 193, 7, 0.8);
 }
 
-.cell.player1 {
+.square.player1 {
   color: var(--neon-green);
   text-shadow: 0 0 0.75rem rgba(57, 255, 20, 0.45);
 }
 
-.cell.player2 {
+.square.player2 {
   color: var(--neon-magenta);
   text-shadow: 0 0 0.75rem rgba(255, 58, 242, 0.45);
 }
 
-.cell.last-move {
+.square.last-move {
   outline: 0.125rem solid var(--neon-cyan);
   box-shadow: 0 0 1.75rem rgba(0, 229, 255, 0.32);
   animation: neonPulse 1.2s ease-out 1;
 }
 
-.cell-layer {
+.square-layer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -335,11 +335,11 @@ body {
   line-height: 1;
 }
 
-.cell-layer-middle {
+.square-layer-middle {
   justify-content: center;
 }
 
-.cell-id {
+.square-id {
   font-weight: bold;
   font-size: 1.1em;
   padding-left: 0.5em;
@@ -365,7 +365,7 @@ body {
   padding-right: 0.5em;
 }
 
-.cell-id,
+.square-id,
 .game-move-count,
 .player-think-time,
 .player-move-count {

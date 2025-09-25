@@ -493,41 +493,41 @@ function renderGameBoardAtIndex(snapshot) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
 
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.squareId = id;
+      const squareEl = document.createElement('div');
+      squareEl.className = 'square';
+      squareEl.dataset.squareId = id;
 
       const moveData = snapshot.occupancy.get(id);
 
       if (moveData) {
         const playerMeta = replayState.players[moveData.playerId];
         if (playerMeta?.cssClass) {
-          cell.classList.add(playerMeta.cssClass);
+          squareEl.classList.add(playerMeta.cssClass);
         }
 
-        cell.innerHTML = `
-          <div class="cell-layer cell-layer-top">
-            <span class="cell-id">${id}</span>
+        squareEl.innerHTML = `
+          <div class="square-layer square-layer-top">
+            <span class="square-id">${id}</span>
             <span class="game-move-count">${moveData.gameMove}</span>
           </div>
-          <div class="cell-layer cell-layer-middle">
+          <div class="square-layer square-layer-middle">
             <span class="player-square">●</span>
           </div>
-          <div class="cell-layer cell-layer-bottom">
+          <div class="square-layer square-layer-bottom">
             <span class="player-think-time">${moveData.thinkTime || ''}</span>
             <span class="player-move-count">${moveData.playerMove}</span>
           </div>
         `;
       } else {
-        cell.innerHTML = `
-          <div class="cell-layer cell-layer-top">
-            <span class="cell-id"></span>
+        squareEl.innerHTML = `
+          <div class="square-layer square-layer-top">
+            <span class="square-id"></span>
             <span class="game-move-count"></span>
           </div>
-          <div class="cell-layer cell-layer-middle">
+          <div class="square-layer square-layer-middle">
             <span class="player-square"></span>
           </div>
-          <div class="cell-layer cell-layer-bottom">
+          <div class="square-layer square-layer-bottom">
             <span class="player-think-time"></span>
             <span class="player-move-count"></span>
           </div>
@@ -535,14 +535,14 @@ function renderGameBoardAtIndex(snapshot) {
       }
 
       if (snapshot.currentMove && snapshot.currentMove.squareId === id) {
-        cell.classList.add('current-move');
+        squareEl.classList.add('current-move');
       }
 
       if (scoringSquares.has(id)) {
-        cell.classList.add('scoring-square');
+        squareEl.classList.add('scoring-square');
       }
 
-      boardEl.appendChild(cell);
+      boardEl.appendChild(squareEl);
     }
   }
 }

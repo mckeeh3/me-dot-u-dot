@@ -404,25 +404,25 @@ function renderGameBoard() {
       const id = rowChar + (c + 1);
       const square = byId.get(id);
 
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.squareId = id;
+      const squareEl = document.createElement('div');
+      squareEl.className = 'square';
+      squareEl.dataset.squareId = id;
 
       if (square && square.playerId && state.game?.player1Status && state.game?.player2Status) {
         const isPlayer1 = square.playerId === state.game.player1Status.player.id;
-        cell.classList.add(isPlayer1 ? 'player1' : 'player2');
+        squareEl.classList.add(isPlayer1 ? 'player1' : 'player2');
 
         const moveData = moveCounts.get(id);
 
-        cell.innerHTML = `
-          <div class="cell-layer cell-layer-top">
-            <span class="cell-id">${id}</span>
+        squareEl.innerHTML = `
+          <div class="square-layer square-layer-top">
+            <span class="square-id">${id}</span>
             <span class="game-move-count">${moveData ? moveData.gameMoves : ''}</span>
           </div>
-          <div class="cell-layer cell-layer-middle">
+          <div class="square-layer square-layer-middle">
             <span class="player-square ${isPlayer1 ? 'player1' : 'player2'}">●</span>
           </div>
-          <div class="cell-layer cell-layer-bottom">
+          <div class="square-layer square-layer-bottom">
             <span class="player-think-time">${moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : ''}</span>
             <span class="player-move-count">${moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : ''}</span>
           </div>
@@ -430,11 +430,11 @@ function renderGameBoard() {
       }
 
       if (lastMoveId && id === lastMoveId) {
-        cell.classList.add('last-move');
+        squareEl.classList.add('last-move');
       }
 
       if (scoringSquaresForLastMove.has(id)) {
-        cell.classList.add('scoring-square');
+        squareEl.classList.add('scoring-square');
       }
 
       const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
@@ -442,16 +442,16 @@ function renderGameBoard() {
       const isOccupied = !!(square && square.playerId);
 
       if (!isAgentsTurn && isInProgress && !isOccupied) {
-        cell.addEventListener('click', () => onCellClick(id));
+        squareEl.addEventListener('click', () => onSquareClick(id));
       } else if (!isOccupied) {
-        cell.style.pointerEvents = 'none';
+        squareEl.style.pointerEvents = 'none';
       }
 
-      boardEl.appendChild(cell);
+      boardEl.appendChild(squareEl);
 
       if (square && square.playerId) {
         setTimeout(() => {
-          cellHoverHandler(cell);
+          squareHoverHandler(squareEl);
         }, 3000);
       }
     }
@@ -483,38 +483,38 @@ function ensureLiveBoardSizing(boardEl) {
   return { boardSizePx };
 }
 
-// Global variable to track the enlarged cell popup
-let enlargedCellPopup = null;
+// Global variable to track the enlarged square popup
+let enlargedSquarePopup = null;
 
-function cellHoverHandler(cell) {
-  cell.addEventListener('mouseenter', (event) => {
+function squareHoverHandler(square) {
+  square.addEventListener('mouseenter', (event) => {
     // Store mouse position for popup positioning
-    cell._mouseX = event.clientX;
-    cell._mouseY = event.clientY;
+    square._mouseX = event.clientX;
+    square._mouseY = event.clientY;
 
-    cell._hoverTimeout = setTimeout(() => {
-      cellHovered(cell);
-      cell._hoverTimeout = null;
+    square._hoverTimeout = setTimeout(() => {
+      squareHovered(square);
+      square._hoverTimeout = null;
     }, 1000);
   });
 
-  cell.addEventListener('mouseleave', () => {
-    if (cell._hoverTimeout) {
-      clearTimeout(cell._hoverTimeout);
-      cell._hoverTimeout = null;
+  square.addEventListener('mouseleave', () => {
+    if (square._hoverTimeout) {
+      clearTimeout(square._hoverTimeout);
+      square._hoverTimeout = null;
     }
-    hideEnlargedCell();
+    hideEnlargedSquare();
   });
 
   // Track mouse movement for popup positioning
-  cell.addEventListener('mousemove', (event) => {
-    cell._mouseX = event.clientX;
-    cell._mouseY = event.clientY;
+  square.addEventListener('mousemove', (event) => {
+    square._mouseX = event.clientX;
+    square._mouseY = event.clientY;
   });
 }
 
-function cellHovered(cell) {
-  const squareId = cell.dataset.squareId;
+function squareHovered(square) {
+  const squareId = square.dataset.squareId;
   const playerId = state.game.board.squares.find((square) => square.squareId === squareId)?.playerId;
   const isPlayer1 = playerId === state.game.player1Status.player.id;
   const moveCounts = calculateMoveCounts(state.game);
@@ -523,8 +523,8 @@ function cellHovered(cell) {
   const playerMove = moveData ? (isPlayer1 ? moveData.p1Moves : moveData.p2Moves) : '';
   const thinkTime = moveData ? (isPlayer1 ? moveData.p1ThinkMs : moveData.p2ThinkMs) : '';
 
-  // Show enlarged cell popup
-  showEnlargedCell(cell, {
+  // Show enlarged square popup
+  showEnlargedSquare(square, {
     squareId,
     isPlayer1,
     gameMove,
@@ -533,32 +533,32 @@ function cellHovered(cell) {
   });
 }
 
-function showEnlargedCell(cell, data) {
+function showEnlargedSquare(square, data) {
   // Hide any existing popup
-  hideEnlargedCell();
+  hideEnlargedSquare();
 
-  // Create the enlarged cell element
-  enlargedCellPopup = document.createElement('div');
-  enlargedCellPopup.className = `enlarged-cell ${data.isPlayer1 ? 'player1' : 'player2'}`;
+  // Create the enlarged square element
+  enlargedSquarePopup = document.createElement('div');
+  enlargedSquarePopup.className = `enlarged-square ${data.isPlayer1 ? 'player1' : 'player2'}`;
 
-  // Create the same 3-layer structure as the original cell
-  enlargedCellPopup.innerHTML = `
-    <div class="cell-layer cell-layer-top">
-      <span class="cell-id">${data.squareId}</span>
+  // Create the same 3-layer structure as the original square
+  enlargedSquarePopup.innerHTML = `
+    <div class="square-layer square-layer-top">
+      <span class="square-id">${data.squareId}</span>
       <span class="game-move-count">${data.gameMove}</span>
     </div>
-    <div class="cell-layer cell-layer-middle">
+    <div class="square-layer square-layer-middle">
       <span class="player-square ${data.isPlayer1 ? 'player1' : 'player2'}">●</span>
     </div>
-    <div class="cell-layer cell-layer-bottom">
+    <div class="square-layer square-layer-bottom">
       <span class="player-think-time">${data.thinkTime}</span>
       <span class="player-move-count">${data.playerMove}</span>
     </div>
   `;
 
   // Position the popup near the mouse but keep it visible in the window
-  const mouseX = cell._mouseX || 0;
-  const mouseY = cell._mouseY || 0;
+  const mouseX = square._mouseX || 0;
+  const mouseY = square._mouseY || 0;
   const popupSize = Math.min(window.innerWidth * 0.1, window.innerHeight * 0.1);
   const offset = 20;
 
@@ -575,26 +575,26 @@ function showEnlargedCell(cell, data) {
   if (left < 0) left = offset;
   if (top < 0) top = offset;
 
-  enlargedCellPopup.style.left = `${left}px`;
-  enlargedCellPopup.style.top = `${top}px`;
+  enlargedSquarePopup.style.left = `${left}px`;
+  enlargedSquarePopup.style.top = `${top}px`;
 
   // Add to DOM and show with animation
-  document.body.appendChild(enlargedCellPopup);
+  document.body.appendChild(enlargedSquarePopup);
 
   // Trigger animation after a brief delay to ensure proper rendering
   setTimeout(() => {
-    enlargedCellPopup.classList.add('show');
+    enlargedSquarePopup.classList.add('show');
   }, 10);
 }
 
-function hideEnlargedCell() {
-  if (enlargedCellPopup) {
-    enlargedCellPopup.classList.remove('show');
+function hideEnlargedSquare() {
+  if (enlargedSquarePopup) {
+    enlargedSquarePopup.classList.remove('show');
     setTimeout(() => {
-      if (enlargedCellPopup && enlargedCellPopup.parentNode) {
-        enlargedCellPopup.parentNode.removeChild(enlargedCellPopup);
+      if (enlargedSquarePopup && enlargedSquarePopup.parentNode) {
+        enlargedSquarePopup.parentNode.removeChild(enlargedSquarePopup);
       }
-      enlargedCellPopup = null;
+      enlargedSquarePopup = null;
     }, 200); // Match the CSS transition duration
   }
 }
@@ -656,11 +656,11 @@ function renderPreviewBoard(level) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
       const id = rowChar + (c + 1);
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.squareId = id;
-      cell.style.pointerEvents = 'none'; // Preview board is not interactive
-      board.appendChild(cell);
+      const square = document.createElement('div');
+      square.className = 'square';
+      square.dataset.squareId = id;
+      square.style.pointerEvents = 'none'; // Preview board is not interactive
+      board.appendChild(square);
     }
   }
 }
@@ -805,7 +805,7 @@ async function fetchAiModels() {
   }
 }
 
-async function onCellClick(squareId) {
+async function onSquareClick(squareId) {
   if (!state.game || state.game.status !== 'in_progress') return;
   const current = state.game.currentPlayer?.player?.id;
   if (!current) return;

@@ -41,180 +41,192 @@
           <section class="help-section">
             <h2>About this App</h2>
             <p>
-          Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The core focus is observing how specific agents with their
-          unique models evolve and improve their gameplay strategies over time through experience. Each agent maintains a playbook journal that captures its learning progression, allowing you to track
-          how different models adapt, develop tactics, and refine their decision-making processes.
-        </p>
-        <p>
-          The application provides valuable insights into model performance characteristics, including response times during each move, which helps compare how quickly various AI models process game
-          situations and make decisions. This makes it an excellent tool for understanding both the learning capabilities and operational efficiency of different AI models in a game-playing context.
-        </p>
-        <p>
-          The backend uses event-sourced entities, views, and agent components to manage game state, player data, and agent playbooks, while the UI provides a clean, modern experience to create
-          players, start games, and observe the evolution of agent gameplay strategies.
-        </p>
-      </section>
+              Me-Dot-U-Dot is an Akka-powered application that explores self-learning AI agents within a two-player board game environment. The core focus is observing how specific agents with their
+              unique models evolve and improve their gameplay strategies over time through experience. Each agent maintains a playbook journal that captures its learning progression, allowing you to
+              track how different models adapt, develop tactics, and refine their decision-making processes.
+            </p>
+            <p>
+              The application provides valuable insights into model performance characteristics, including response times during each move, which helps compare how quickly various AI models process
+              game situations and make decisions. This makes it an excellent tool for understanding both the learning capabilities and operational efficiency of different AI models in a game-playing
+              context.
+            </p>
+            <p>
+              The backend uses event-sourced entities, views, and agent components to manage game state, player data, and agent playbooks, while the UI provides a clean, modern experience to create
+              players, start games, and observe the evolution of agent gameplay strategies.
+            </p>
+          </section>
 
-      <section class="help-section">
-        <h2>Game Page</h2>
-        <ul>
-          <li>Use the navigation button to switch between pages.</li>
-          <li>Select or create Player 1 and Player 2.</li>
-          <li>
-            Creating players:
+          <section class="help-section">
+            <h2>Game Page</h2>
             <ul>
-              <li>Enter a unique player ID and a display name.</li>
-              <li>Choose a type: human or agent.</li>
-              <li>If you choose agent, select an available model before creating the player.</li>
-              <li>If you enter an existing player ID, the form auto-fills and the type/model fields become read-only.</li>
-              <li>Once you create a player, you can edit it by clicking the player name in the player list.</li>
-              <li>You cannot change the player type or model after creation.</li>
-              <li>The Create & Select button becomes Update & Select when editing an existing player.</li>
+              <li>Use the navigation button to switch between pages.</li>
+              <li>Select or create Player 1 and Player 2.</li>
+              <li>
+                Creating players:
+                <ul>
+                  <li>Enter a unique player ID and a display name.</li>
+                  <li>Choose a type: human or agent.</li>
+                  <li>If you choose agent, select an available model before creating the player.</li>
+                  <li>If you enter an existing player ID, the form auto-fills and the type/model fields become read-only.</li>
+                  <li>Once you create a player, you can edit it by clicking the player name in the player list.</li>
+                  <li>You cannot change the player type or model after creation.</li>
+                  <li>The Create & Select button becomes Update & Select when editing an existing player.</li>
+                </ul>
+              </li>
+              <li>Choose a game level after both players are selected, then begin the game.</li>
+              <li>During play, the board shows available moves and current status. Agent turns are automatic.</li>
+              <li>You can cancel a game, or reset after it completes.</li>
+              <li>For agent players, open the journal viewer to read the agent's playbook entries.</li>
+              <li>Opponent combinations supported: human vs human, human vs agent, and agent vs agent.</li>
+              <li>The game is played in real-time, with each player's turn being automatic.</li>
+              <li>For agent players, during game play, you can view their playbook journal entries.</li>
             </ul>
-          </li>
-          <li>Choose a game level after both players are selected, then begin the game.</li>
-          <li>During play, the board shows available moves and current status. Agent turns are automatic.</li>
-          <li>You can cancel a game, or reset after it completes.</li>
-          <li>For agent players, open the journal viewer to read the agent's playbook entries.</li>
-          <li>Opponent combinations supported: human vs human, human vs agent, and agent vs agent.</li>
-          <li>The game is played in real-time, with each player's turn being automatic.</li>
-          <li>For agent players, during game play, you can view their playbook journal entries.</li>
-        </ul>
-      </section>
+          </section>
 
-      <section class="help-section">
-        <h2>Agent Players</h2>
-        <p>
-          Agent players are AI-powered entities that use large language models to make game decisions. Each agent is uniquely identified by its agent ID and is configured with a specific model (e.g.,
-          GPT-4, Claude, etc.).
-        </p>
-        <p>
-          Agents operate through a structured system prompt that guides their behavior and learning process. They follow a mandatory tool protocol on each turn and maintain a persistent playbook for
-          continuous improvement. Both the playbook and the system prompt are unique to the agent player and are never shared with other agents. When an agent player is created it starts from the
-          default system prompt, and the selected model is permanently tied to that agent—once chosen it cannot be changed. From that point forward the agent player’s model is responsible for deciding
-          how to evolve its own playbook and system prompt.
-        </p>
-        <h3>Agent Tools</h3>
-        <ul>
-          <li>
-            <strong>Get Game State Tool:</strong> Retrieves the current game state as a structured CompactGameState object containing:
+          <section class="help-section">
+            <h2>Agent Players</h2>
+            <p>
+              Agent players are AI-powered entities that use large language models to make game decisions. Each agent is uniquely identified by its agent ID and is configured with a specific model
+              (e.g., GPT-4, Claude, etc.).
+            </p>
+            <p>
+              Agents operate through a structured system prompt that guides their behavior and learning process. They follow a mandatory tool protocol on each turn and maintain a persistent playbook
+              for continuous improvement. Both the playbook and the system prompt are unique to the agent player and are never shared with other agents. When an agent player is created it starts from
+              the default system prompt, and the selected model is permanently tied to that agent—once chosen it cannot be changed. From that point forward the agent player’s model is responsible for
+              deciding how to evolve its own playbook and system prompt.
+            </p>
+            <h3>Agent Tools</h3>
             <ul>
-              <li><strong>Game Info:</strong> Game ID, creation timestamp, status (empty/in_progress/won_by_player/draw/canceled), and current player ID</li>
-              <li><strong>Players:</strong> List of both players with their ID, name, type (human/agent), move count, score, and winner status</li>
-              <li><strong>Board Info:</strong> Level (one=5x5 through nine=21x21), top-left square coordinates (A1), and bottom-right square coordinates</li>
-              <li><strong>Move History:</strong> Chronological list of all moves with square ID and player ID for each move</li>
+              <li>
+                <strong>Get Game State Tool:</strong> Retrieves the current game state as a structured CompactGameState object containing:
+                <ul>
+                  <li><strong>Game Info:</strong> Game ID, creation timestamp, status (empty/in_progress/won_by_player/draw/canceled), and current player ID</li>
+                  <li><strong>Players:</strong> List of both players with their ID, name, type (human/agent), move count, score, and winner status</li>
+                  <li><strong>Board Info:</strong> Level (one=5x5 through nine=21x21), top-left square coordinates (A1), and bottom-right square coordinates</li>
+                  <li><strong>Move History:</strong> Chronological list of all moves with square ID and player ID for each move</li>
+                </ul>
+              </li>
+              <li><strong>Get Your Playbook Tool:</strong> Accesses the agent's persistent playbook containing self-authored instructions, tactics, and lessons learned from previous games.</li>
+              <li>
+                <strong>Get Your System Prompt Tool:</strong> Fetches the agent player's current system prompt so the model can review its durable role guidance before deciding how to evolve it.
+              </li>
+              <li><strong>Make Move Tool:</strong> Submits a move to the game by specifying board coordinates (e.g., "C3").</li>
+              <li><strong>Update Your Playbook Tool:</strong> Allows the agent to rewrite its playbook with new insights, refined strategies, or corrections based on game experience.</li>
+              <li>
+                <strong>Update Your System Prompt Tool:</strong> Enables an agent player to replace its system prompt with a fully revised version, giving each model the ability to evolve its core
+                role and guardrails over time.
+              </li>
+              <li>
+                <strong>Get Game Move History Tool:</strong> Returns the enriched move history (including scoring sequences) so agents can perform post-game analysis before revising their playbooks or
+                system prompts.
+              </li>
             </ul>
-          </li>
-          <li><strong>Get Your Playbook Tool:</strong> Accesses the agent's persistent playbook containing self-authored instructions, tactics, and lessons learned from previous games.</li>
-          <li><strong>Get Your System Prompt Tool:</strong> Fetches the agent player's current system prompt so the model can review its durable role guidance before deciding how to evolve it.</li>
-          <li><strong>Make Move Tool:</strong> Submits a move to the game by specifying board coordinates (e.g., "C3").</li>
-          <li><strong>Update Your Playbook Tool:</strong> Allows the agent to rewrite its playbook with new insights, refined strategies, or corrections based on game experience.</li>
-          <li><strong>Update Your System Prompt Tool:</strong> Enables an agent player to replace its system prompt with a fully revised version, giving each model the ability to evolve its core role and
-            guardrails over time.</li>
-          <li><strong>Get Game Move History Tool:</strong> Returns the enriched move history (including scoring sequences) so agents can perform post-game analysis before revising their playbooks or system
-            prompts.</li>
-        </ul>
-        <h3>Learning Process</h3>
-        <ul>
-          <li>Agents must call tools in a specific sequence: get game state → get playbook/system prompt → decide move → make move → optionally update playbook and/or system prompt.</li>
-          <li>The playbook serves as the agent's memory and learning mechanism, storing tactical knowledge that persists across games, while the system prompt captures durable behavioral guidance that the
-            model can refine over time.</li>
-          <li>Agents are instructed to be evidence-driven, balancing exploration of new strategies with exploitation of proven tactics.</li>
-          <li>After each game, agents analyze outcomes (often using the move history tool) and update their playbooks or system prompts with new insights, successful patterns, or failure modes to avoid.</li>
-        </ul>
-      </section>
+            <h3>Learning Process</h3>
+            <ul>
+              <li>Agents must call tools in a specific sequence: get game state → get playbook/system prompt → decide move → make move → optionally update playbook and/or system prompt.</li>
+              <li>
+                The playbook serves as the agent's memory and learning mechanism, storing tactical knowledge that persists across games, while the system prompt captures durable behavioral guidance
+                that the model can refine over time.
+              </li>
+              <li>Agents are instructed to be evidence-driven, balancing exploration of new strategies with exploitation of proven tactics.</li>
+              <li>
+                After each game, agents analyze outcomes (often using the move history tool) and update their playbooks or system prompts with new insights, successful patterns, or failure modes to
+                avoid.
+              </li>
+            </ul>
+          </section>
 
-      <section class="help-section">
-        <h2>Playbook Viewer</h2>
-        <p>
-          The playbook is the most critical information passed to AI models during gameplay. Along with the current board layout showing which players have selected specific cells, the playbook guides
-          the model's decision-making process for the next move.
-        </p>
-        <p>
-          The journal entries capture the evolution of an agent's playbook over time. Each entry represents a specific version of the agent's playbook at the moment it was updated. While models always
-          receive the most recent playbook version during gameplay, the journal provides valuable insight into how the agent's strategy and learning evolved across multiple games.
-        </p>
-        <h3>Using the Viewer</h3>
-        <ul>
-          <li>Select an agent from the dropdown to view their complete playbook journal history.</li>
-          <li>Navigate between journal entries using the up/down arrows to see how the agent's strategy evolved.</li>
-          <li>Each entry displays metadata (Agent ID, Sequence ID, Updated At) and the full playbook instructions from that point in time.</li>
-          <li>Compare entries across time to understand how the agent learned from wins, losses, and gameplay patterns.</li>
-          <li>The viewer uses the same visual style and dropdown components as the game page for consistency.</li>
-        </ul>
-      </section>
+          <section class="help-section">
+            <h2>Playbook Viewer</h2>
+            <p>
+              The playbook is the most critical information passed to AI models during gameplay. Along with the current board layout showing which players have selected specific squares, the playbook
+              guides the model's decision-making process for the next move.
+            </p>
+            <p>
+              The journal entries capture the evolution of an agent's playbook over time. Each entry represents a specific version of the agent's playbook at the moment it was updated. While models
+              always receive the most recent playbook version during gameplay, the journal provides valuable insight into how the agent's strategy and learning evolved across multiple games.
+            </p>
+            <h3>Using the Viewer</h3>
+            <ul>
+              <li>Select an agent from the dropdown to view their complete playbook journal history.</li>
+              <li>Navigate between journal entries using the up/down arrows to see how the agent's strategy evolved.</li>
+              <li>Each entry displays metadata (Agent ID, Sequence ID, Updated At) and the full playbook instructions from that point in time.</li>
+              <li>Compare entries across time to understand how the agent learned from wins, losses, and gameplay patterns.</li>
+              <li>The viewer uses the same visual style and dropdown components as the game page for consistency.</li>
+            </ul>
+          </section>
 
-      <section class="help-section">
-        <h2>Agent Role Viewer</h2>
-        <p>
-          The agent role viewer exposes the versioned system prompts that shape each agent's core behavior. While the playbook captures tactical knowledge, the system prompt defines the persistent
-          role and guardrails the agent follows when interacting with the game and tools.
-        </p>
-        <h3>Using the Viewer</h3>
-        <ul>
-          <li>Select an agent to inspect the historical system prompts attached to that identity.</li>
-          <li>Move between revisions to see how the agent's role definition evolved over time.</li>
-          <li>The diff toggle highlights changes between consecutive prompts to surface meaningful adjustments quickly.</li>
-          <li>Use this history to compare playbook updates with role refinements and understand their combined impact on gameplay.</li>
-        </ul>
-      </section>
+          <section class="help-section">
+            <h2>Agent Role Viewer</h2>
+            <p>
+              The agent role viewer exposes the versioned system prompts that shape each agent's core behavior. While the playbook captures tactical knowledge, the system prompt defines the persistent
+              role and guardrails the agent follows when interacting with the game and tools.
+            </p>
+            <h3>Using the Viewer</h3>
+            <ul>
+              <li>Select an agent to inspect the historical system prompts attached to that identity.</li>
+              <li>Move between revisions to see how the agent's role definition evolved over time.</li>
+              <li>The diff toggle highlights changes between consecutive prompts to surface meaningful adjustments quickly.</li>
+              <li>Use this history to compare playbook updates with role refinements and understand their combined impact on gameplay.</li>
+            </ul>
+          </section>
 
-      <section class="help-section">
-        <h2>Leader Board</h2>
-        <p>
-          The leader board provides a comprehensive view of player performance and game history. It displays the top players ranked by their number of games won, offering detailed insights into
-          individual player statistics and game outcomes.
-        </p>
-        <h3>Leader Board Features</h3>
-        <ul>
-          <li><strong>Top Players Ranking:</strong> Shows top players sorted by games won in descending order.</li>
-          <li><strong>Player Selection:</strong> Click any player in the rankings to view their detailed game history.</li>
-          <li><strong>Real-time Updates:</strong> Rankings are updated automatically when games are completed.</li>
-          <li><strong>Interactive Navigation:</strong> Seamlessly browse between different players and their games.</li>
-        </ul>
-        <h3>Player Game History</h3>
-        <ul>
-          <li><strong>Complete Game List:</strong> View all games played by the selected player.</li>
-          <li>
-            <strong>Game Status Indicators:</strong> Each game shows clear status icons:
+          <section class="help-section">
+            <h2>Leader Board</h2>
+            <p>
+              The leader board provides a comprehensive view of player performance and game history. It displays the top players ranked by their number of games won, offering detailed insights into
+              individual player statistics and game outcomes.
+            </p>
+            <h3>Leader Board Features</h3>
             <ul>
-              <li>🏆 Win - Player won the game</li>
-              <li>❌ Loss - Player lost the game</li>
-              <li>🤝 Draw - Game ended in a tie</li>
-              <li>🚫 Canceled - Game was canceled before completion</li>
-              <li>⏳ In Progress - Game is still being played</li>
+              <li><strong>Top Players Ranking:</strong> Shows top players sorted by games won in descending order.</li>
+              <li><strong>Player Selection:</strong> Click any player in the rankings to view their detailed game history.</li>
+              <li><strong>Real-time Updates:</strong> Rankings are updated automatically when games are completed.</li>
+              <li><strong>Interactive Navigation:</strong> Seamlessly browse between different players and their games.</li>
             </ul>
-          </li>
-          <li><strong>Game Timeline:</strong> Games are sorted by creation date, showing the most recent games first.</li>
-        </ul>
-        <h3>Game Details Viewer</h3>
-        <ul>
-          <li>
-            <strong>Complete Game Information:</strong> Select any game to view detailed statistics including:
+            <h3>Player Game History</h3>
             <ul>
-              <li>Player names, types (human 👤 or agent 🤖), and final scores</li>
-              <li>Game duration and completion status</li>
-              <li>Board level and move counts for each player</li>
+              <li><strong>Complete Game List:</strong> View all games played by the selected player.</li>
+              <li>
+                <strong>Game Status Indicators:</strong> Each game shows clear status icons:
+                <ul>
+                  <li>🏆 Win - Player won the game</li>
+                  <li>❌ Loss - Player lost the game</li>
+                  <li>🤝 Draw - Game ended in a tie</li>
+                  <li>🚫 Canceled - Game was canceled before completion</li>
+                  <li>⏳ In Progress - Game is still being played</li>
+                </ul>
+              </li>
+              <li><strong>Game Timeline:</strong> Games are sorted by creation date, showing the most recent games first.</li>
             </ul>
-          </li>
-          <li>
-            <strong>Interactive Game Board:</strong> Visual representation of the final board state showing:
+            <h3>Game Details Viewer</h3>
             <ul>
-              <li>Each player's moves with color-coded dots</li>
-              <li>Move sequence numbers and timing information</li>
-              <li>Last move highlighting for easy identification</li>
+              <li>
+                <strong>Complete Game Information:</strong> Select any game to view detailed statistics including:
+                <ul>
+                  <li>Player names, types (human 👤 or agent 🤖), and final scores</li>
+                  <li>Game duration and completion status</li>
+                  <li>Board level and move counts for each player</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Interactive Game Board:</strong> Visual representation of the final board state showing:
+                <ul>
+                  <li>Each player's moves with color-coded dots</li>
+                  <li>Move sequence numbers and timing information</li>
+                  <li>Last move highlighting for easy identification</li>
+                </ul>
+              </li>
+              <li><strong>Performance Metrics:</strong> For agent players, view response times for each move to analyze decision-making speed.</li>
             </ul>
-          </li>
-          <li><strong>Performance Metrics:</strong> For agent players, view response times for each move to analyze decision-making speed.</li>
-        </ul>
-        <h3>Navigation Tips</h3>
-        <ul>
-          <li>The page automatically selects the top-ranked player and their most recent game when first loaded.</li>
-          <li>Use the hamburger menu to navigate between the Game, Playbook Viewer, Agent Role Viewer, Leader Board, and Help pages.</li>
-          <li>Click on any row in the rankings or game history tables to view detailed information.</li>
-          <li>The selected player and game are highlighted for easy reference.</li>
-        </ul>
-      </section>
+            <h3>Navigation Tips</h3>
+            <ul>
+              <li>The page automatically selects the top-ranked player and their most recent game when first loaded.</li>
+              <li>Use the hamburger menu to navigate between the Game, Playbook Viewer, Agent Role Viewer, Leader Board, and Help pages.</li>
+              <li>Click on any row in the rankings or game history tables to view detailed information.</li>
+              <li>The selected player and game are highlighted for easy reference.</li>
+            </ul>
+          </section>
         </div>
       </main>
     </div>
