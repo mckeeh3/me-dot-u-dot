@@ -41,6 +41,9 @@
         <aside class="app-panel leader-panel" aria-labelledby="leaderBoardTitle">
           <div class="app-panel-header">
             <h2 id="leaderBoardTitle" class="app-panel-title">Top Players</h2>
+            <button id="leaderRefreshBtn" class="icon-btn icon-btn-refresh" type="button" title="Refresh leader board" aria-label="Refresh leader board">
+              <span class="icon-symbol" aria-hidden="true">↺</span>
+            </button>
           </div>
           <div class="app-panel-body leader-table-container">
             <table class="leader-table">
@@ -89,11 +92,15 @@
             <div class="game-board-container">
               <div id="gameBoard" class="game-board" role="grid" aria-label="Game board replay"></div>
               <div class="replay-controls">
-                <button id="replayFirstBtn" class="replay-btn" title="First move" aria-label="Go to first move">⏮</button>
-                <button id="replayPrevBtn" class="replay-btn" title="Previous move" aria-label="Go to previous move">◀</button>
+                <div class="replay-controls-group replay-controls-left">
+                  <button id="replayFirstBtn" class="replay-btn" title="First move (<)" aria-label="Go to first move">⏮</button>
+                  <button id="replayPrevBtn" class="replay-btn" title="Previous move (<-)" aria-label="Go to previous move">◀</button>
+                </div>
                 <div id="replayStatus" class="replay-status">Move 0 / 0</div>
-                <button id="replayNextBtn" class="replay-btn" title="Next move" aria-label="Go to next move">▶</button>
-                <button id="replayLastBtn" class="replay-btn" title="Last move" aria-label="Go to last move">⏭</button>
+                <div class="replay-controls-group replay-controls-right">
+                  <button id="replayNextBtn" class="replay-btn" title="Next move (->)" aria-label="Go to next move">▶</button>
+                  <button id="replayLastBtn" class="replay-btn" title="Last move (>)" aria-label="Go to last move">⏭</button>
+                </div>
               </div>
               <div id="moveDetails" class="move-details">Select a game to review its moves.</div>
             </div>

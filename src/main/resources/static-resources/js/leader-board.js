@@ -20,6 +20,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   ensureReplayBoardSizing($('gameBoard'));
   window.addEventListener('resize', handleReplayResize, { passive: true });
   await loadLeaderBoard();
+  document.addEventListener('keydown', handleReplayKeyboard, { passive: false });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const refreshBtn = $('leaderRefreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      loadLeaderBoard();
+    });
+  }
 });
 
 // Load leader board data
@@ -663,5 +673,40 @@ function handleReplayResize() {
     renderGameBoardAtIndex(lastReplaySnapshot);
   } else {
     ensureReplayBoardSizing(boardEl);
+  }
+}
+
+function handleReplayKeyboard(event) {
+  const target = event.target;
+  if (target) {
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) {
+      return;
+    }
+  }
+
+  if (!replayState.gameState || replayState.moveHistory.length === 0) {
+    return;
+  }
+
+  let handled = false;
+  const key = event.key;
+
+  if (key === 'ArrowLeft') {
+    setReplayIndex(replayState.index - 1);
+    handled = true;
+  } else if (key === 'ArrowRight') {
+    setReplayIndex(replayState.index + 1);
+    handled = true;
+  } else if (key === ',' || key === '<') {
+    setReplayIndex(0);
+    handled = true;
+  } else if (key === '.' || key === '>') {
+    setReplayIndex(replayState.moveHistory.length);
+    handled = true;
+  }
+
+  if (handled) {
+    event.preventDefault();
   }
 }
