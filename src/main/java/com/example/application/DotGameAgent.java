@@ -45,9 +45,7 @@ public class DotGameAgent extends Agent {
         .tools(functionTools)
         .systemMessage(systemPrompt(prompt.agentId))
         .userMessage(prompt.toPrompt())
-        .onFailure(e -> {
-          return handleError(prompt, e);
-        })
+        .onFailure(e -> handleError(prompt, e))
         .thenReply();
   }
 
