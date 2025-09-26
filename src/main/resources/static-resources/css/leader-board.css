@@ -315,7 +315,7 @@ body {
 }
 
 .move-details {
-  width: min(36rem, 90vw);
+  width: min(40rem, 90vw);
   background: rgba(15, 21, 38, 0.9);
   border: 1px solid rgba(0, 229, 255, 0.25);
   border-radius: calc(var(--layout-border-radius, 1rem) / 1.6);
@@ -369,7 +369,6 @@ body {
 
 .square.last-move {
   outline: 0.125rem solid var(--neon-cyan);
-  box-shadow: 0 0 1.75rem rgba(0, 229, 255, 0.32);
   animation: neonPulse 1.2s ease-out 1;
 }
 

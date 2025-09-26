@@ -545,7 +545,7 @@ function renderGameBoardAtIndex(snapshot) {
       }
 
       if (snapshot.currentMove && snapshot.currentMove.squareId === id) {
-        squareEl.classList.add('current-move');
+        squareEl.classList.add('last-move');
       }
 
       if (scoringSquares.has(id)) {
