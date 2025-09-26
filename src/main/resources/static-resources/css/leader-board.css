@@ -37,7 +37,7 @@ body {
   width: min(2rem, calc(1.5rem + 0.6vw));
   height: min(2rem, calc(1.5rem + 0.6vw));
   border-radius: 50%;
-  font-size: min(1.5rem, calc(1rem + 0.5vw));
+  font-size: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -60,7 +60,7 @@ body {
 
 .icon-btn.icon-btn-refresh .icon-symbol {
   color: var(--text);
-  font-size: min(2rem, calc(1.5rem + 0.8vw));
+  font-size: 2rem;
   font-weight: bold;
 }
 
@@ -158,7 +158,7 @@ body {
 
 .game-summary h3 {
   margin: 0;
-  font-size: 2.6vh;
+  font-size: 2.6rem;
   color: var(--neon-cyan);
   text-align: center;
   text-shadow: 0 0 0.875rem rgba(0, 229, 255, 0.18);
@@ -193,13 +193,13 @@ body {
 }
 
 .player-avatar {
-  font-size: calc(1.8rem + 1vw);
+  font-size: 2.8rem;
 }
 
 .player1-name,
 .player2-name {
   font-weight: 700;
-  font-size: calc(1rem + 0.6vw);
+  font-size: 1.6rem;
 }
 
 .player1-name {
@@ -212,7 +212,7 @@ body {
 
 .player-score,
 .player-moves {
-  font-size: calc(0.9rem + 0.3vw);
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -469,7 +469,7 @@ body {
   }
 
   .app-header-title {
-    font-size: 5vw;
+    font-size: 5rem;
   }
 }
 
