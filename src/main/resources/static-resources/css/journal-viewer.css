@@ -148,7 +148,7 @@
   border: 1px solid rgba(0, 229, 255, 0.4);
   border-radius: 8px;
   color: var(--neon-cyan);
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
