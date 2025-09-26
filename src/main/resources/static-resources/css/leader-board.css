@@ -176,7 +176,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--leader-gap-sm);
-  padding: 1.6rem;
+  padding: 1rem;
   border-radius: calc(var(--layout-border-radius, 1rem) / 1.5);
   position: relative;
   background: rgba(255, 255, 255, 0.05);
@@ -193,7 +193,7 @@ body {
 }
 
 .player-avatar {
-  font-size: 2.8rem;
+  font-size: 2.5rem;
 }
 
 .player1-name,
