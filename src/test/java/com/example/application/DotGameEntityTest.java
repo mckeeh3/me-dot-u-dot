@@ -432,7 +432,7 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.won_by_player.name(), c.gameInfo().status());
     assertEquals(player1.id(), c.player1ScoringMoves().playerId());
     assertEquals(player2.id(), c.player2ScoringMoves().playerId());
-    assertEquals(3, c.player1ScoringMoves().scoringMoves().size());
+    assertEquals(4, c.player1ScoringMoves().scoringMoves().size());
     assertEquals(2, c.player2ScoringMoves().scoringMoves().size());
     assertEquals(DotGame.ScoringMoveType.horizontal.name(), c.player1ScoringMoves().scoringMoves().get(0).type());
     assertEquals(1, c.player1ScoringMoves().scoringMoves().get(0).score());

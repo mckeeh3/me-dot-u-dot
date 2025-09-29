@@ -515,7 +515,9 @@ public interface DotGame {
     horizontal,
     vertical,
     diagonal,
-    adjacent
+    adjacent,
+    topToBottom,
+    leftToRight
   }
 
   public record ScoringMove(Square move, ScoringMoveType type, int score, List<String> scoringSquares) {}
@@ -547,7 +549,8 @@ public interface DotGame {
       return withScoringMoves(scoreMoveHorizontal(move, level, moveHistory))
           .withScoringMoves(scoreMoveVertical(move, level, moveHistory))
           .withScoringMoves(scoreMoveDiagonal(move, level, moveHistory))
-          .withScoringMoves(scoreMoveAdjacent(move, level, moveHistory));
+          .withScoringMoves(scoreMoveAdjacent(move, level, moveHistory))
+          .withScoringMoves(scoreMoveSideToSide(move, level, moveHistory));
     }
 
     // ============================================================
@@ -718,8 +721,6 @@ public interface DotGame {
 
       var scoringMoves = groups.stream()
           .map(g -> {
-            // var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
-            // var score = g.size() > adjacentSquaresToScore ? g.size() - adjacentSquaresToScore : 0;
             var score = scoreAdjacent(level, g);
             var scoringSquares = g.stream().map(m -> m.squareId()).toList();
             return new ScoringMove(move, ScoringMoveType.adjacent, score, scoringSquares);
@@ -740,6 +741,99 @@ public interface DotGame {
     static int scoreAdjacent(Board.Level level, List<Move> moves) {
       var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
       return moves.size() - 1 >= adjacentSquaresToScore ? Math.max(2, moves.size() - adjacentSquaresToScore) : 0;
+    }
+
+    // ============================================================
+    // ScoreMoveSideToSide
+    // ============================================================
+    List<ScoringMove> scoreMoveSideToSide(Square move, Board.Level level, List<Move> moveHistory) {
+      var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId))).toList();
+
+      var movesInRow = findPlayerMovesInRow(1, moveHistory, playerId);
+      var scoringMovesTopToBottom = movesInRow.stream()
+          .map(m -> scoreMoveTopToBottom(m.row() + 1, level.getSize(), move, List.of(m), newMoveHistory))
+          .flatMap(List::stream)
+          .filter(scoringMove -> scoringMove.score > 0)
+          .toList();
+
+      var movesInCol = findPlayerMovesInCol(1, moveHistory, playerId);
+      var scoringMovesLeftToRight = movesInCol.stream()
+          .map(m -> scoreMoveLeftToRight(m.col() + 1, level.getSize(), move, List.of(m), newMoveHistory))
+          .flatMap(List::stream)
+          .filter(scoringMove -> scoringMove.score > 0)
+          .toList();
+
+      return Stream.concat(scoringMovesTopToBottom.stream(), scoringMovesLeftToRight.stream()).toList();
+    }
+
+    List<ScoringMove> scoreMoveTopToBottom(int row, int maxRow, Square move, List<Move> path, List<Move> moveHistory) {
+      if (row == maxRow) {
+        var nextMovesInPath = findPlayerMovesInRow(row, moveHistory, playerId)
+            .stream()
+            .filter(m -> isInTopToBottomPath(path.get(path.size() - 1), m))
+            .toList();
+        var finalPath = Stream.concat(path.stream(), nextMovesInPath.stream()).toList();
+        var scoringSquares = finalPath.stream().map(m -> m.squareId()).toList();
+        return scoringSquares.size() >= maxRow
+            ? List.of(new ScoringMove(move, ScoringMoveType.topToBottom, maxRow, scoringSquares))
+            : List.of();
+      }
+
+      return findPlayerMovesInRow(row, moveHistory, playerId)
+          .stream()
+          .filter(m -> isInTopToBottomPath(path.get(path.size() - 1), m))
+          .map(m -> scoreMoveTopToBottom(m.row() + 1, maxRow, move, Stream.concat(path.stream(), Stream.of(m)).toList(), moveHistory))
+          .flatMap(List::stream)
+          .toList();
+    }
+
+    static boolean isInTopToBottomPath(Move move, Move otherMove) {
+      if (move.playerId().equals(otherMove.playerId())) {
+        return Math.abs(move.col() - otherMove.col()) <= 1 && move.row() - otherMove.row() == -1;
+      }
+      return false;
+    }
+
+    List<ScoringMove> scoreMoveLeftToRight(int col, int maxCol, Square move, List<Move> path, List<Move> moveHistory) {
+      if (col == maxCol) {
+        var nextMovesInPath = findPlayerMovesInCol(col, moveHistory, playerId)
+            .stream()
+            .filter(m -> isInLeftToRightPath(path.get(path.size() - 1), m))
+            .toList();
+        var finalPath = Stream.concat(path.stream(), nextMovesInPath.stream()).toList();
+        var scoringSquares = finalPath.stream().map(m -> m.squareId()).toList();
+        return scoringSquares.size() >= maxCol
+            ? List.of(new ScoringMove(move, ScoringMoveType.leftToRight, maxCol, scoringSquares))
+            : List.of();
+      }
+
+      return findPlayerMovesInCol(col, moveHistory, playerId)
+          .stream()
+          .filter(m -> isInLeftToRightPath(path.get(path.size() - 1), m))
+          .map(m -> scoreMoveLeftToRight(m.col() + 1, maxCol, move, Stream.concat(path.stream(), Stream.of(m)).toList(), moveHistory))
+          .flatMap(List::stream)
+          .toList();
+    }
+
+    static boolean isInLeftToRightPath(Move move, Move otherMove) {
+      if (move.playerId().equals(otherMove.playerId())) {
+        return Math.abs(move.row() - otherMove.row()) <= 1 && move.col() - otherMove.col() == -1;
+      }
+      return false;
+    }
+
+    static List<Move> findPlayerMovesInRow(int row, List<Move> moveHistory, String playerId) {
+      return moveHistory.stream()
+          .filter(m -> m.playerId().equals(playerId))
+          .filter(m -> m.row() == row)
+          .toList();
+    }
+
+    static List<Move> findPlayerMovesInCol(int col, List<Move> moveHistory, String playerId) {
+      return moveHistory.stream()
+          .filter(m -> m.playerId().equals(playerId))
+          .filter(m -> m.col() == col)
+          .toList();
     }
 
     // ============================================================
