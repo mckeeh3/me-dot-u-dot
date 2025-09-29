@@ -86,6 +86,17 @@
         <section class="app-panel details-panel" aria-labelledby="gameDetailsTitle">
           <div class="app-panel-header">
             <h2 id="gameDetailsTitle" class="app-panel-title">Game: <span id="gameDetailsId">-</span></h2>
+            <button
+              id="gameInfoToggleBtn"
+              class="game-info-toggle-btn"
+              type="button"
+              aria-controls="gameInfo"
+              aria-expanded="true"
+              title="Hide game details"
+            >
+              <span class="icon-symbol" aria-hidden="true">👁</span>
+              <span class="toggle-label">Hide details</span>
+            </button>
           </div>
           <div class="app-panel-body details-body">
             <div class="game-info" id="gameInfo"></div>

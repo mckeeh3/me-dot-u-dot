@@ -13,12 +13,14 @@ let replayState = {
 };
 
 let lastReplaySnapshot = null;
+let gameInfoVisible = true;
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
   setupReplayControls();
   ensureReplayBoardSizing($('gameBoard'));
   window.addEventListener('resize', handleReplayResize, { passive: true });
+  initGameInfoToggle();
   await loadLeaderBoard();
   document.addEventListener('keydown', handleReplayKeyboard, { passive: false });
 });
@@ -100,6 +102,54 @@ function setupReplayControls() {
   }
 
   updateReplayUI();
+}
+
+function initGameInfoToggle() {
+  const toggleBtn = $('gameInfoToggleBtn');
+  if (!toggleBtn) {
+    return;
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    gameInfoVisible = !gameInfoVisible;
+    applyGameInfoVisibility();
+  });
+
+  applyGameInfoVisibility();
+}
+
+function applyGameInfoVisibility() {
+  const gameInfo = $('gameInfo');
+  const toggleBtn = $('gameInfoToggleBtn');
+
+  if (gameInfo) {
+    if (gameInfoVisible) {
+      gameInfo.removeAttribute('hidden');
+    } else {
+      gameInfo.setAttribute('hidden', '');
+    }
+    gameInfo.classList.toggle('is-hidden', !gameInfoVisible);
+  }
+
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', String(gameInfoVisible));
+    toggleBtn.setAttribute('title', gameInfoVisible ? 'Hide game details' : 'Show game details');
+    toggleBtn.classList.toggle('is-collapsed', !gameInfoVisible);
+
+    const label = toggleBtn.querySelector('.toggle-label');
+    if (label) {
+      label.textContent = gameInfoVisible ? 'Hide details' : 'Show details';
+    }
+
+    const icon = toggleBtn.querySelector('.icon-symbol');
+    if (icon) {
+      icon.textContent = gameInfoVisible ? '👁' : '🙈';
+    }
+  }
+
+  if (replayState?.index) {
+    renderGameBoardAtIndex(buildReplaySnapshot(replayState.index));
+  }
 }
 
 // Select a player and load their games
@@ -297,6 +347,8 @@ function renderGameInfo(gameState, perPlayerStats = {}) {
             </div>
         </div>
     `;
+
+  applyGameInfoVisibility();
 }
 
 // Get game status display
