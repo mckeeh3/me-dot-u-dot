@@ -749,14 +749,14 @@ public interface DotGame {
     List<ScoringMove> scoreMoveSideToSide(Square move, Board.Level level, List<Move> moveHistory) {
       var newMoveHistory = Stream.concat(moveHistory.stream(), Stream.of(new Move(move.squareId(), playerId))).toList();
 
-      var movesInRow = findPlayerMovesInRow(1, moveHistory, playerId);
+      var movesInRow = findPlayerMovesInRow(1, newMoveHistory, playerId);
       var scoringMovesTopToBottom = movesInRow.stream()
           .map(m -> scoreMoveTopToBottom(m.row() + 1, level.getSize(), move, List.of(m), newMoveHistory))
           .flatMap(List::stream)
           .filter(scoringMove -> scoringMove.score > 0)
           .toList();
 
-      var movesInCol = findPlayerMovesInCol(1, moveHistory, playerId);
+      var movesInCol = findPlayerMovesInCol(1, newMoveHistory, playerId);
       var scoringMovesLeftToRight = movesInCol.stream()
           .map(m -> scoreMoveLeftToRight(m.col() + 1, level.getSize(), move, List.of(m), newMoveHistory))
           .flatMap(List::stream)
