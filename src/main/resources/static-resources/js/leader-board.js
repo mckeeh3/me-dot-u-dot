@@ -589,7 +589,7 @@ function renderMoveDetails(snapshot) {
   const scoringMoves = move.scoringMoves || [];
   const scoringMoveTypePrefix = (type) => {
     if (!type) return '';
-    switch (type.toLowerCase()) {
+    switch (type) {
       case 'horizontal':
         return 'H';
       case 'vertical':
@@ -598,6 +598,10 @@ function renderMoveDetails(snapshot) {
         return 'D';
       case 'adjacent':
         return 'A';
+      case 'topToBottom':
+        return 'T2B';
+      case 'leftToRight':
+        return 'L2R';
       default:
         return type.charAt(0).toUpperCase();
     }
