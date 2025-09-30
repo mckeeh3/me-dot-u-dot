@@ -5,11 +5,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.application.GetGameStateTool;
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
-import com.example.application.GetGameMoveHistoryTool;
+import com.example.application.GameMoveTool;
+import com.example.application.GameMoveTool.MoveHistory;
+import com.example.application.GameStateTool;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
 import com.example.domain.DotGame.Player;
@@ -146,15 +147,16 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-state-tool/{gameId}")
-  public GetGameStateTool.CompactGameState getGameStateTool(String gameId) {
+  public GameStateTool.CompactGameState getGameStateTool(String gameId) {
     log.debug("Get game state tool: {}", gameId);
-    return new GetGameStateTool(componentClient).getGameState(gameId);
+    return new GameStateTool(componentClient).getGameState(gameId);
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
-  public GetGameMoveHistoryTool.MoveHistory getGameMoveHistoryTool(String gameId) {
+  public MoveHistory getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
-    return new GetGameMoveHistoryTool(componentClient).getGameMoveHistory(gameId);
+    // return new GameMoveHistoryTool(componentClient).getMoveHistory(gameId);
+    return new GameMoveTool(componentClient).getMoveHistory(gameId);
   }
 
   public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}

@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.application.GetGameStateTool.CompactGameState;
+import com.example.application.GameStateTool.CompactGameState;
 import com.example.domain.DotGame;
 
 import akka.javasdk.testkit.EventSourcedResult;

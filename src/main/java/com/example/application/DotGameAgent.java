@@ -28,13 +28,10 @@ public class DotGameAgent extends Agent {
   public DotGameAgent(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.functionTools = List.of(
-        new GetGameStateTool(componentClient),
-        new GetYourPlaybookTool(componentClient),
-        new MakeMoveTool(componentClient),
-        new UpdateYourPlaybookTool(componentClient),
-        new GetYourSystemPromptTool(componentClient),
-        new UpdateYourSystemPromptTool(componentClient),
-        new GetGameMoveHistoryTool(componentClient));
+        new GameStateTool(componentClient),
+        new GameMoveTool(componentClient),
+        new PlaybookTool(componentClient),
+        new SystemPromptTool(componentClient));
   }
 
   public Effect<String> makeMove(MakeMovePrompt prompt) {
@@ -95,7 +92,7 @@ public class DotGameAgent extends Agent {
         .invoke();
 
     if (result instanceof DotGame.State) {
-      return JsonSupport.encodeToString(GetGameStateTool.CompactGameState.from((DotGame.State) result));
+      return JsonSupport.encodeToString(GameStateTool.CompactGameState.from((DotGame.State) result));
     }
 
     return "Error getting game state for gameId: %s".formatted(gameId);
@@ -129,11 +126,26 @@ public class DotGameAgent extends Agent {
             Your Name is %s.
             Here's the current game Id: %s.
 
-            Use the get game state tool to get the current game state and use the get your playbook tool to get your playbook.
-            Use this information to decide how to make your next move.
-            ALWAYS use the make move tool to make your move when it is your turn.
-            Optionally, you can use the update playbook tool to update your playbook and the update system prompt tool to update your system prompt.
-            """.formatted(agentId, agentName, gameId).stripIndent();
+            IMPORTANT: It's your turn to make a move in the game.
+
+            Required Actions (in order):
+            1. Use PlaybookTool_getYourPlaybook to review your tactical knowledge and strategic guidelines
+            2. Use GameStateTool_getGameState to analyze the current board position, scores, and available moves
+            3. Analyze the game state using your playbook insights to identify the best move
+            4. ALWAYS use GameMoveTool_makeMove to execute your chosen move (this is mandatory)
+
+            Decision-Making Process:
+            • Evaluate board position: look for scoring opportunities, defensive needs, strategic positioning
+            • Apply playbook tactics: use your learned patterns, opening sequences, and strategic principles
+            • Consider opponent behavior: anticipate their likely responses and counter-strategies
+            • Choose optimal square: select the move that maximizes your advantage or minimizes opponent opportunities
+
+            Optional Mid-Game Learning:
+            - Use PlaybookTool_writeYourPlaybook if you discover new tactical insights during play
+            - Use SystemPromptTool_writeYourSystemPrompt if you need to adjust your decision-making approach
+
+            Remember: You must make a move using GameMoveTool_makeMove - this is not optional.
+            """.formatted(agentId, agentName, gameId).stripIndent().stripIndent();
       }
 
       return """
@@ -142,12 +154,25 @@ public class DotGameAgent extends Agent {
           Your Name is %s.
           Here's the current game Id: %s.
 
-          IMPORTANT: Do your post game review and analysis.
-          Use the GetGameMoveHistoryTool to get the move history for the game.
-          Use the insights you gather here with your playbook and system prompt updates—this data helps you choose which tactics to memorialise in the playbook and which behavioral adjustments belong in the system prompt.
-          You can optionally update your playbook and system prompt via the provided tools to capture your learnings  and experience
-          from this game to improve your performance in future games.
-          """.formatted(agentId, agentName, gameId).stripIndent();
+          IMPORTANT: Conduct your post-game review and learning process.
+
+          Required Actions:
+          1. Use GameMoveTool_getMoveHistory to analyze the complete game sequence and each player's moves and scoring moves
+          2. Evaluate your decision-making: identify successful moves, missed opportunities, and strategic errors
+          3. Assess opponent patterns and effective counter-strategies you discovered
+
+          Optional Learning Updates:
+          - Use PlaybookTool_getYourPlaybook to review your tactical knowledge and strategic guidelines
+          - Use PlaybookTool_writeYourPlaybook to capture tactical insights, winning patterns, or strategic corrections
+          - Use SystemPromptTool_getYourSystemPrompt to review your core decision-making approach or behavioral tendencies
+          - Use SystemPromptTool_writeYourSystemPrompt to adjust your core decision-making approach or behavioral tendencies
+
+          Focus Areas for Updates:
+          • Playbook: Specific tactics, opening sequences, endgame strategies, pattern recognition
+          • System Prompt: Decision-making philosophy, risk assessment, opponent analysis approach, general behavioral adjustments
+
+          This post-game analysis is crucial for continuous improvement and better performance in future games.
+          """.formatted(agentId, agentName, gameId).stripIndent().stripIndent();
     }
   }
 }

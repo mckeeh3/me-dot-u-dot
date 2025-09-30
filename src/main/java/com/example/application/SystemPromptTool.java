@@ -10,16 +10,35 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class UpdateYourSystemPromptTool {
-  static final Logger log = LoggerFactory.getLogger(UpdateYourSystemPromptTool.class);
+public class SystemPromptTool {
+  static final Logger log = LoggerFactory.getLogger(SystemPromptTool.class);
   final ComponentClient componentClient;
 
-  public UpdateYourSystemPromptTool(ComponentClient componentClient) {
+  public SystemPromptTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
 
   @FunctionTool(description = """
-      Rewrite your system prompt so your future turns reflect the lessons you just learned.
+      Read your current system prompt so you can evaluate or edit it.
+
+      - The system prompt defines your enduring role: voice, priorities, required tool order, and guardrails.
+      - Call this tool when you intend to adjust that role; review the existing text, decide what to keep, and prepare the improved version.
+      - Also read it if you feel uncertain about your charter—it is the authoritative source of your mandate.
+      - Returns the full current system prompt (plain text).
+
+      Use it immediately before submitting an update via `updateYourSystemPrompt` to ensure you copy forward the parts that should remain intact.
+      """)
+  public AgentRole.State getYourSystemPrompt(
+      @Description("The ID of your agent") String agentId) {
+    log.debug("Agent: {}, Get system prompt", agentId);
+
+    return componentClient.forEventSourcedEntity(agentId)
+        .method(AgentRoleEntity::getState)
+        .invoke();
+  }
+
+  @FunctionTool(description = """
+      Write your revised system prompt so your future turns reflect the lessons you just learned.
 
       - Input: the complete, updated system prompt (include expectations, tone, mandatory tool order, and any new guardrails).
       - When to use: after you notice recurring mistakes, discover a stronger workflow, or need to clarify how you should reason and respond.
@@ -30,11 +49,12 @@ public class UpdateYourSystemPromptTool {
 
       IMPORTANT: It is important to review system prompt after each game.
       Consider updating your system prompt when you discover a stronger workflow or need to clarify how you should reason and respond.
-      Updating your system prompt enables you to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
+      Updating your system prompt enables you to improve your performance in future games. Preserve the trustworthy foundations while
+      evolving the areas that need refinement.
       """)
-  public Done updateSystemPrompt(
+  public Done writeYourSystemPrompt(
       @Description("The ID of your agent") String agentId,
-      @Description("The system prompt instructions you want to update your agent role with") String instructions) {
+      @Description("The revised system prompt instructions you want to write") String instructions) {
     log.debug("Agent: {}, Update system prompt", agentId);
 
     var command = new AgentRole.Command.UpdateAgentRole(agentId, instructions);

@@ -11,11 +11,11 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class GetGameStateTool {
-  static final Logger log = LoggerFactory.getLogger(GetGameStateTool.class);
+public class GameStateTool {
+  static final Logger log = LoggerFactory.getLogger(GameStateTool.class);
   final ComponentClient componentClient;
 
-  public GetGameStateTool(ComponentClient componentClient) {
+  public GameStateTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
 
