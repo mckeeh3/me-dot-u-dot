@@ -173,9 +173,9 @@ public class DotGameToAgentConsumer extends Consumer {
   boolean makeMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
     log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.agentId());
 
-    var result = "";
+    var response = "";
     try {
-      result = componentClient
+      response = componentClient
           .forAgent()
           .inSession(sessionId)
           .method(DotGameAgent::makeMove)
@@ -192,7 +192,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(prompt.agentId());
 
-    log.debug("{}, agent result: {}", logMessage, result);
+    log.debug("{}, agent response: {}", logMessage, response);
     log.debug("Game status: {}, game over or agent made move: {}", gameState.status(), agentMadeMove);
 
     return agentMadeMove;

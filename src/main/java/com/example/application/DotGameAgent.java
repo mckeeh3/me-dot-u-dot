@@ -129,7 +129,7 @@ public class DotGameAgent extends Agent {
             IMPORTANT: It's your turn to make a move in the game.
 
             Required Actions (in order):
-            1. Use PlaybookTool_getYourPlaybook to review your tactical knowledge and strategic guidelines
+            1. Use PlaybookTool_readYourPlaybook to review your tactical knowledge and strategic guidelines
             2. Use GameStateTool_getGameState to analyze the current board position, scores, and available moves
             3. Analyze the game state using your playbook insights to identify the best move
             4. ALWAYS use GameMoveTool_makeMove to execute your chosen move (this is mandatory)
@@ -162,9 +162,9 @@ public class DotGameAgent extends Agent {
           3. Assess opponent patterns and effective counter-strategies you discovered
 
           Optional Learning Updates:
-          - Use PlaybookTool_getYourPlaybook to review your tactical knowledge and strategic guidelines
+          - Use PlaybookTool_readYourPlaybook to review your tactical knowledge and strategic guidelines
           - Use PlaybookTool_writeYourPlaybook to capture tactical insights, winning patterns, or strategic corrections
-          - Use SystemPromptTool_getYourSystemPrompt to review your core decision-making approach or behavioral tendencies
+          - Use SystemPromptTool_readYourSystemPrompt to review your core decision-making approach or behavioral tendencies
           - Use SystemPromptTool_writeYourSystemPrompt to adjust your core decision-making approach or behavioral tendencies
 
           Focus Areas for Updates:

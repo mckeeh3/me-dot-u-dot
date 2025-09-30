@@ -28,7 +28,7 @@ public class SystemPromptTool {
 
       Use it immediately before submitting an update via `updateYourSystemPrompt` to ensure you copy forward the parts that should remain intact.
       """)
-  public AgentRole.State getYourSystemPrompt(
+  public AgentRole.State readYourSystemPrompt(
       @Description("The ID of your agent") String agentId) {
     log.debug("Agent: {}, Get system prompt", agentId);
 

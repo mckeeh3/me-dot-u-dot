@@ -26,7 +26,7 @@ public class PlaybookTool {
       - Also call it immediately before updating the playbook; copy forward the guidance you still trust and edit only what needs to change.
       - Returns the full current playbook (plain text).
       """)
-  public Playbook.State getYourPlaybook(
+  public Playbook.State readYourPlaybook(
       @Description("The ID of your agent") String agentId) {
     log.debug("Player: {}, Get playbook", agentId);
 
