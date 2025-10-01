@@ -63,7 +63,7 @@ public class PlaybookTool {
       @Description("The revised playbook instructions you want to write") String instructions,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Player: {}, Write playbook", agentId);
-    gameLog.logToolCall(gameId, agentId, "writePlaybook", "Write playbook");
+    gameLog.logToolCall(gameId, agentId, "writePlaybook", instructions);
 
     var command = new Playbook.Command.UpdatePlaybook(agentId, instructions);
 

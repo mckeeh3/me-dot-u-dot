@@ -33,8 +33,8 @@ public class SystemPromptTool {
   public AgentRole.State readSystemPrompt(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Agent: {}, Get system prompt", agentId);
-    gameLog.logToolCall(gameId, agentId, "readSystemPrompt", "Get system prompt");
+    log.debug("Agent: {}, Read system prompt", agentId);
+    gameLog.logToolCall(gameId, agentId, "readSystemPrompt", "Read system prompt");
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(AgentRoleEntity::getState)
@@ -60,8 +60,8 @@ public class SystemPromptTool {
       @Description("The ID of your agent") String agentId,
       @Description("The revised system prompt instructions you want to write") String instructions,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Agent: {}, Update system prompt", agentId);
-    gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", "Update system prompt");
+    log.debug("Agent: {}, Write system prompt", agentId);
+    gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", instructions);
 
     var command = new AgentRole.Command.UpdateAgentRole(agentId, instructions);
 
