@@ -45,7 +45,7 @@ public class GameStateTool {
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game state: {}", gameId);
-    gameLog.logToolCall(gameId, agentId, "Get game state");
+    gameLog.logToolCall(gameId, agentId, "getGameState", "Get game state");
 
     DotGame.State fullState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)

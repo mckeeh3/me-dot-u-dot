@@ -30,11 +30,11 @@ public class SystemPromptTool {
 
       Use it immediately before submitting an update via `updateYourSystemPrompt` to ensure you copy forward the parts that should remain intact.
       """)
-  public AgentRole.State readYourSystemPrompt(
+  public AgentRole.State readSystemPrompt(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Agent: {}, Get system prompt", agentId);
-    gameLog.logToolCall(gameId, agentId, "Get system prompt");
+    gameLog.logToolCall(gameId, agentId, "readSystemPrompt", "Get system prompt");
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(AgentRoleEntity::getState)
@@ -56,12 +56,12 @@ public class SystemPromptTool {
       Updating your system prompt enables you to improve your performance in future games. Preserve the trustworthy foundations while
       evolving the areas that need refinement.
       """)
-  public Done writeYourSystemPrompt(
+  public Done writeSystemPrompt(
       @Description("The ID of your agent") String agentId,
       @Description("The revised system prompt instructions you want to write") String instructions,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Agent: {}, Update system prompt", agentId);
-    gameLog.logToolCall(gameId, agentId, "Update system prompt");
+    gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", "Update system prompt");
 
     var command = new AgentRole.Command.UpdateAgentRole(agentId, instructions);
 

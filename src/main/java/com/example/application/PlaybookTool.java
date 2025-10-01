@@ -28,11 +28,11 @@ public class PlaybookTool {
       - Also call it immediately before updating the playbook; copy forward the guidance you still trust and edit only what needs to change.
       - Returns the full current playbook (plain text).
       """)
-  public Playbook.State readYourPlaybook(
+  public Playbook.State readPlaybook(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Player: {}, Get playbook", agentId);
-    gameLog.logToolCall(gameId, agentId, "Get playbook");
+    log.debug("Player: {}, Read playbook", agentId);
+    gameLog.logToolCall(gameId, agentId, "readPlaybook", "Read playbook");
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::getState)
@@ -58,12 +58,12 @@ public class PlaybookTool {
       If you don't update your playbook, you will not be able to improve your performance in future games. When you do update it, carry
       forward the proven guidance and only rewrite the specific sections that should evolve.
       """)
-  public Done writeYourPlaybook(
+  public Done writePlaybook(
       @Description("The ID of your agent") String agentId,
       @Description("The revised playbook instructions you want to write") String instructions,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Player: {}, Update playbook", agentId);
-    gameLog.logToolCall(gameId, agentId, "Update playbook");
+    log.debug("Player: {}, Write playbook", agentId);
+    gameLog.logToolCall(gameId, agentId, "writePlaybook", "Write playbook");
 
     var command = new Playbook.Command.UpdatePlaybook(agentId, instructions);
 

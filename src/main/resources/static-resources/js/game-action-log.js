@@ -5,9 +5,8 @@ let selectedGameId = null;
 let selectedLogId = null;
 
 const logPageState = {
-  tokenHistory: [''],
   pageIndex: 0,
-  nextToken: '',
+  offset: 0,
   hasMore: false,
 };
 
@@ -42,13 +41,20 @@ async function loadRecentGames() {
 
   tbody.innerHTML = `
       <tr class="game-list-empty-row">
-        <td colspan="2">Loading recent games…</td>
+        <td>Loading recent games…</td>
       </tr>
     `;
 
   try {
     const limit = 50;
-    const response = await fetch(`/game/get-recent-games?limit=${limit}&offset=0`);
+    const response = await fetch('/game/get-recent-games', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ limit: limit, offset: 0 }),
+    });
     if (!response.ok) {
       throw new Error(`Failed to load recent games (${response.status})`);
     }
@@ -67,7 +73,7 @@ async function loadRecentGames() {
     console.error('Error loading recent games:', error);
     tbody.innerHTML = `
         <tr class="game-list-empty-row">
-          <td colspan="2">Unable to load recent games.</td>
+          <td>Unable to load recent games.</td>
         </tr>
       `;
   }
@@ -84,7 +90,7 @@ function renderRecentGames() {
   if (recentGames.length === 0) {
     tbody.innerHTML = `
         <tr class="game-list-empty-row">
-          <td colspan="2">No recent games found.</td>
+          <td>No recent games found.</td>
         </tr>
       `;
     return;
@@ -93,13 +99,10 @@ function renderRecentGames() {
   recentGames.forEach((game) => {
     const row = document.createElement('tr');
     row.dataset.gameId = game.gameId;
-
     const created = formatDateTime(game.createdAt);
-    const status = formatStatus(game.status);
 
     row.innerHTML = `
-        <td data-label="Game">${game.gameId}</td>
-        <td data-label="Started">${created}<div class="table-subtext">${status}</div></td>
+        <td data-label="Started">${created}</td>
       `;
 
     row.addEventListener('click', () => selectGame(game.gameId));
@@ -131,9 +134,8 @@ function updateRecentGameSelection() {
 }
 
 function resetLogPagination() {
-  logPageState.tokenHistory = [''];
   logPageState.pageIndex = 0;
-  logPageState.nextToken = '';
+  logPageState.offset = 0;
   logPageState.hasMore = false;
   updatePaginationControls();
 }
@@ -151,14 +153,18 @@ async function loadLogsForSelectedGame() {
     `;
 
   try {
-    const token = logPageState.tokenHistory[logPageState.pageIndex] || '';
-    const params = new URLSearchParams({
-      gameId: selectedGameId,
-      limit: String(LOG_PAGE_SIZE),
-      nextPageToken: token,
+    const response = await fetch('/game-action-log/get-logs-by-game', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        gameId: selectedGameId,
+        limit: LOG_PAGE_SIZE,
+        offset: logPageState.offset,
+      }),
     });
-
-    const response = await fetch(`/game-action-log/get-logs-by-game?${params.toString()}`);
     if (!response.ok) {
       throw new Error(`Failed to load logs (${response.status})`);
     }
@@ -167,7 +173,6 @@ async function loadLogsForSelectedGame() {
     const logs = Array.isArray(data.logs) ? data.logs : [];
 
     logPageState.hasMore = Boolean(data.hasMore);
-    logPageState.nextToken = data.nextPageToken || '';
 
     renderLogRows(logs);
     updatePaginationControls();
@@ -323,14 +328,12 @@ function renderLogDetailPlaceholder(message) {
 }
 
 function goToNextLogPage() {
-  if (!logPageState.hasMore || !logPageState.nextToken) {
+  if (!logPageState.hasMore) {
     return;
   }
 
-  const nextToken = logPageState.nextToken;
-  logPageState.tokenHistory = logPageState.tokenHistory.slice(0, logPageState.pageIndex + 1);
-  logPageState.tokenHistory.push(nextToken);
-  logPageState.pageIndex = logPageState.tokenHistory.length - 1;
+  logPageState.pageIndex += 1;
+  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
   loadLogsForSelectedGame();
 }
 
@@ -340,6 +343,7 @@ function goToPreviousLogPage() {
   }
 
   logPageState.pageIndex -= 1;
+  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
   loadLogsForSelectedGame();
 }
 
@@ -386,14 +390,6 @@ function formatDateTime(value) {
   }
 }
 
-function formatStatus(status) {
-  if (!status) {
-    return '';
-  }
-  const normalized = status.replace(/_/g, ' ');
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
-}
-
 function formatLogType(type) {
   if (!type) {
     return 'Unknown';
@@ -418,10 +414,5 @@ function escapeHtml(text) {
     return '';
   }
 
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

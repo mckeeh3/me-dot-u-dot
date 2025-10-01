@@ -10,6 +10,7 @@ import com.example.domain.GameActionLog;
 import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.Get;
 import akka.javasdk.annotations.http.HttpEndpoint;
+import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
 
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
@@ -22,7 +23,7 @@ public class GameActionLogEndpoint {
     this.componentClient = componentClient;
   }
 
-  @Get("/get-logs-by-game")
+  @Post("/get-logs-by-game")
   public GameActionLogView.Logs getLogsByGame(GameActionLogView.GetLogsByGameRequest request) {
     log.debug("Get logs by game: {}", request);
 

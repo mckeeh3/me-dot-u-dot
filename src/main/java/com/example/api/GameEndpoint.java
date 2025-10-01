@@ -125,7 +125,7 @@ public class GameEndpoint {
     }
   }
 
-  @Get("/get-recent-games")
+  @Post("/get-recent-games")
   public DotGameView.GamesPage getRecentGames(DotGameView.GetRecentGamesRequest request) {
     log.debug("Get recent games: {}", request);
     return componentClient.forView()

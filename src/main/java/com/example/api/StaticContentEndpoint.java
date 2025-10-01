@@ -124,6 +124,21 @@ public class StaticContentEndpoint {
     return HttpResponses.staticResource("js/square-popup.js");
   }
 
+  @Get("/js/game-action-log.js")
+  public HttpResponse serveGameActionLogJs() {
+    return HttpResponses.staticResource("js/game-action-log.js");
+  }
+
+  @Get("/css/game-action-log.css")
+  public HttpResponse serveGameActionLogCss() {
+    return HttpResponses.staticResource("css/game-action-log.css");
+  }
+
+  @Get("/game-action-log.html")
+  public HttpResponse serveGameActionLogHtml() {
+    return HttpResponses.staticResource("game-action-log.html");
+  }
+
   @Get("/css/square-popup.css")
   public HttpResponse serveSquarePopupCss() {
     return HttpResponses.staticResource("css/square-popup.css");

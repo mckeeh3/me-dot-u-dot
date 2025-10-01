@@ -25,7 +25,7 @@ public interface GameActionLog {
     }
 
     public boolean isEmpty() {
-      return playerId.isEmpty();
+      return id.isEmpty();
     }
 
     public State onCommand(Command.CreateAgentLog command) {
@@ -36,8 +36,13 @@ public interface GameActionLog {
     }
 
     public static Command.CreateAgentLog log(Type type, String playerId, String gameId, String message) {
-      var id = "%s-%s-%l".formatted(playerId, gameId, System.currentTimeMillis());
+      var id = "%s-%s-%d".formatted(playerId, gameId, System.currentTimeMillis());
       var time = Instant.now();
+      return new Command.CreateAgentLog(id, type, time, playerId, gameId, message);
+    }
+
+    public static Command.CreateAgentLog log(Type type, Instant time, String playerId, String gameId, String message) {
+      var id = "%s-%s-%d".formatted(playerId, gameId, System.currentTimeMillis());
       return new Command.CreateAgentLog(id, type, time, playerId, gameId, message);
     }
   }

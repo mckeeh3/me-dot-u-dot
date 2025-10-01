@@ -67,7 +67,7 @@ public class GameMoveTool {
     if (moveCompleted) {
       var result = "Move to %s completed, it's your opponent's turn".formatted(squareId);
       log.debug(result);
-      gameLog.logMove(gameId, agentId, result);
+      gameLog.logToolCall(gameId, agentId, "makeMove", result);
 
       return result;
     }
@@ -80,7 +80,7 @@ public class GameMoveTool {
             (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
 
     log.debug(moveResult);
-    gameLog.logMove(gameId, agentId, moveResult);
+    gameLog.logToolCall(gameId, agentId, "makeMove", moveResult);
 
     return moveResult;
   }
@@ -102,7 +102,7 @@ public class GameMoveTool {
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game move history: {}", gameId);
-    gameLog.logToolCall(gameId, agentId, "Get game move history");
+    gameLog.logToolCall(gameId, agentId, "getMoveHistory", "Get game move history");
 
     DotGame.State gameState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)
