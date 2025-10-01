@@ -24,7 +24,12 @@ public class PlayerView extends View {
   @Consume.FromKeyValueEntity(PlayerEntity.class)
   public static class ById extends TableUpdater<PlayerRow> {
     public Effect<PlayerRow> onChange(Player.State state) {
-      return effects().updateRow(new PlayerRow(state.id(), state.name(), state.type().name(), state.model()));
+
+      return effects().updateRow(new PlayerRow(
+          state.id(),
+          state.name(),
+          state.type().name(),
+          state.model()));
     }
   }
 

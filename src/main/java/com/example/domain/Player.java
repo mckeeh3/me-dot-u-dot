@@ -7,7 +7,12 @@ public interface Player {
     agent
   }
 
-  public record State(String id, PlayerType type, String name, String model) {
+  public record State(
+      String id,
+      PlayerType type,
+      String name,
+      String model) {
+
     public static State empty() {
       return new State("", PlayerType.human, "", "");
     }
@@ -20,12 +25,16 @@ public interface Player {
       if (isEmpty()) {
         return new State(command.id, command.type, command.name, command.model);
       }
-      return new State(id, type, command.name, model);
+      return this;
     }
 
     public State onCommand(Command.UpdatePlayer command) {
       if (!isEmpty()) {
-        return new State(id, type, command.name, model);
+        return new State(
+            id,
+            type,
+            command.name,
+            model);
       }
       return this;
     }

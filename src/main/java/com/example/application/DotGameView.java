@@ -40,9 +40,21 @@ public class DotGameView extends View {
         FROM dot_game_view
        WHERE player1Id = :playerId OR player2Id = :playerId
        ORDER BY createdAt DESC
-       LIMIT :limit OFFSET :offset
+       LIMIT :limit
+      OFFSET :offset
       """)
   public QueryEffect<GamesPage> getGamesByPlayerIdPaged(GetGamesByPlayerIdPagedRequest request) {
+    return queryResult();
+  }
+
+  @Query("""
+      SELECT * AS games
+        FROM dot_game_view
+       ORDER BY createdAt DESC
+       LIMIT :limit
+      OFFSET :offset
+      """)
+  public QueryEffect<GamesPage> getRecentGames(GetRecentGamesRequest request) {
     return queryResult();
   }
 
@@ -232,6 +244,8 @@ public class DotGameView extends View {
   public record GetMoveStreamByGameIdRequest(String gameId) {}
 
   public record GetGamesByPlayerIdPagedRequest(String playerId, int limit, int offset) {}
+
+  public record GetRecentGamesRequest(int limit, int offset) {}
 
   public record GamesPage(List<DotGameRow> games) {}
 }
