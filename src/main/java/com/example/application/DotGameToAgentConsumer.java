@@ -5,20 +5,23 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.domain.DotGame;
+
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
-import com.example.domain.DotGame;
 
 @ComponentId("dot-game-to-agent-consumer")
 @Consume.FromEventSourcedEntity(DotGameEntity.class)
 public class DotGameToAgentConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());
   final ComponentClient componentClient;
+  final GameActionLogger gameLog;
 
   public DotGameToAgentConsumer(ComponentClient componentClient) {
     this.componentClient = componentClient;
+    this.gameLog = new GameActionLogger(componentClient);
   }
 
   public Effect onEvent(DotGame.Event event) {
@@ -55,6 +58,8 @@ public class DotGameToAgentConsumer extends Consumer {
 
   Effect onEvent(DotGame.Event.MoveMade event) {
     var currentPlayer = event.currentPlayerStatus();
+
+    gameLog.logMove(event);
 
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
@@ -194,6 +199,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     log.debug("{}, agent response: {}", logMessage, response);
     log.debug("Game status: {}, game over or agent made move: {}", gameState.status(), agentMadeMove);
+    gameLog.logAgentResponse(prompt.gameId(), prompt.agentId(), response);
 
     return agentMadeMove;
   }

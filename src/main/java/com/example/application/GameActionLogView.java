@@ -11,23 +11,23 @@ import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
 
-@ComponentId("agent-log-view")
+@ComponentId("game-action-log-view")
 public class GameActionLogView extends View {
 
   @Query("""
-      SELECT * AS logs, next_page_token() as nextPageToken, has_more() as hasMore
-        FROM agent_log_view
+      SELECT * AS logs, has_more() as hasMore
+        FROM game_action_log_view
        WHERE gameId = :gameId
-       ORDER BY logTime DESC
+       ORDER BY time ASC
        LIMIT :limit
-       OFFSET page_token_offset(:nextPageToken)
+       OFFSET :offset
       """)
   public QueryEffect<Logs> getLogsByGame(GetLogsByGameRequest request) {
     return queryResult();
   }
 
   @Consume.FromKeyValueEntity(GameActionLogEntity.class)
-  public static class FromAgentLogEntity extends TableUpdater<LogRow> {
+  public static class FromGameActionLogEntity extends TableUpdater<LogRow> {
     public Effect<LogRow> onChange(GameActionLog.State state) {
 
       return effects().updateRow(new LogRow(
@@ -44,11 +44,11 @@ public class GameActionLogView extends View {
       String id,
       GameActionLog.Type type,
       Instant time,
-      String agentId,
+      String playerId,
       String gameId,
       String message) {}
 
-  public record Logs(List<LogRow> logs, String nextPageToken, boolean hasMore) {}
+  public record Logs(List<LogRow> logs, boolean hasMore) {}
 
-  public record GetLogsByGameRequest(String gameId, long limit, String nextPageToken) {}
+  public record GetLogsByGameRequest(String gameId, int limit, int offset) {}
 }

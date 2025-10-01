@@ -13,9 +13,11 @@ import akka.javasdk.client.ComponentClient;
 public class PlaybookTool {
   static final Logger log = LoggerFactory.getLogger(PlaybookTool.class);
   final ComponentClient componentClient;
+  final GameActionLogger gameLog;
 
   public PlaybookTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
+    this.gameLog = new GameActionLogger(componentClient);
   }
 
   @FunctionTool(description = """
@@ -27,8 +29,10 @@ public class PlaybookTool {
       - Returns the full current playbook (plain text).
       """)
   public Playbook.State readYourPlaybook(
-      @Description("The ID of your agent") String agentId) {
+      @Description("The ID of your agent") String agentId,
+      @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Player: {}, Get playbook", agentId);
+    gameLog.logToolCall(gameId, agentId, "Get playbook");
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::getState)
@@ -56,8 +60,10 @@ public class PlaybookTool {
       """)
   public Done writeYourPlaybook(
       @Description("The ID of your agent") String agentId,
-      @Description("The revised playbook instructions you want to write") String instructions) {
+      @Description("The revised playbook instructions you want to write") String instructions,
+      @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Player: {}, Update playbook", agentId);
+    gameLog.logToolCall(gameId, agentId, "Update playbook");
 
     var command = new Playbook.Command.UpdatePlaybook(agentId, instructions);
 

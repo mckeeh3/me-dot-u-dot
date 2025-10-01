@@ -14,9 +14,11 @@ import akka.javasdk.client.ComponentClient;
 public class GameStateTool {
   static final Logger log = LoggerFactory.getLogger(GameStateTool.class);
   final ComponentClient componentClient;
+  final GameActionLogger gameLog;
 
   public GameStateTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
+    this.gameLog = new GameActionLogger(componentClient);
   }
 
   @FunctionTool(description = """
@@ -40,8 +42,10 @@ public class GameStateTool {
       This is the authoritative source for board state, scores, and whose turn it is.
       """)
   public CompactGameState getGameState(
-      @Description("The ID of the game you are playing") String gameId) {
+      @Description("The ID of the game you are playing and want to get the move history for") String gameId,
+      @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game state: {}", gameId);
+    gameLog.logToolCall(gameId, agentId, "Get game state");
 
     DotGame.State fullState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)

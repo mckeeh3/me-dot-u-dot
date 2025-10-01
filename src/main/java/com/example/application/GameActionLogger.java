@@ -1,6 +1,7 @@
 package com.example.application;
 
 import com.example.domain.GameActionLog;
+import com.example.domain.DotGame;
 
 import akka.javasdk.client.ComponentClient;
 
@@ -18,6 +19,15 @@ public class GameActionLogger {
         .forKeyValueEntity(gameId)
         .method(GameActionLogEntity::createAgentLog)
         .invoke(command);
+  }
+
+  public void logMove(DotGame.Event.MoveMade event) {
+    var currentPlayerStatus = event.currentPlayerStatus();
+    var playerId = currentPlayerStatus.isPresent() ? currentPlayerStatus.get().player().id() : "";
+    var squareId = event.moveHistory().get(event.moveHistory().size() - 1).squareId();
+    var message = "Move to square %s made by human player".formatted(squareId);
+
+    logMove(event.gameId(), playerId, message);
   }
 
   public void logMove(String gameId, String playerId, String message) {

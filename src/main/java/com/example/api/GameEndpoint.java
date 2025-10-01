@@ -157,14 +157,13 @@ public class GameEndpoint {
   @Get("/get-game-state-tool/{gameId}")
   public GameStateTool.CompactGameState getGameStateTool(String gameId) {
     log.debug("Get game state tool: {}", gameId);
-    return new GameStateTool(componentClient).getGameState(gameId);
+    return new GameStateTool(componentClient).getGameState(gameId, "direct-api-client");
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
   public MoveHistory getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
-    // return new GameMoveHistoryTool(componentClient).getMoveHistory(gameId);
-    return new GameMoveTool(componentClient).getMoveHistory(gameId);
+    return new GameMoveTool(componentClient).getMoveHistory(gameId, "direct-api-client");
   }
 
   public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}

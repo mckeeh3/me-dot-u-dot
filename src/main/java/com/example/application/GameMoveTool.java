@@ -17,9 +17,11 @@ import akka.javasdk.client.ComponentClient;
 public class GameMoveTool {
   static final Logger log = LoggerFactory.getLogger(GameMoveTool.class);
   final ComponentClient componentClient;
+  final GameActionLogger gameLog;
 
   public GameMoveTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
+    this.gameLog = new GameActionLogger(componentClient);
   }
 
   @FunctionTool(description = """
@@ -65,6 +67,7 @@ public class GameMoveTool {
     if (moveCompleted) {
       var result = "Move to %s completed, it's your opponent's turn".formatted(squareId);
       log.debug(result);
+      gameLog.logMove(gameId, agentId, result);
 
       return result;
     }
@@ -77,6 +80,7 @@ public class GameMoveTool {
             (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
 
     log.debug(moveResult);
+    gameLog.logMove(gameId, agentId, moveResult);
 
     return moveResult;
   }
@@ -95,8 +99,10 @@ public class GameMoveTool {
       Preserve the trustworthy foundations while evolving the areas that need refinement.
       """)
   public MoveHistory getMoveHistory(
-      @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
+      @Description("The ID of the game you are playing and want to get the move history for") String gameId,
+      @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game move history: {}", gameId);
+    gameLog.logToolCall(gameId, agentId, "Get game move history");
 
     DotGame.State gameState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)

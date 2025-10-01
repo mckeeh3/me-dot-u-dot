@@ -31,7 +31,7 @@ public class GameActionLogEndpoint {
         .invoke(request);
   }
 
-  @Get("/get-log-by-id")
+  @Get("/get-log-by-id/{logMessageId}")
   public GameActionLog.State getLogById(String logMessageId) {
     log.debug("Get log by id: {}", logMessageId);
 
