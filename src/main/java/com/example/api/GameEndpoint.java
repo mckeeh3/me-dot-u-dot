@@ -125,6 +125,14 @@ public class GameEndpoint {
     }
   }
 
+  @Get("/get-recent-games")
+  public DotGameView.GamesPage getRecentGames(DotGameView.GetRecentGamesRequest request) {
+    log.debug("Get recent games: {}", request);
+    return componentClient.forView()
+        .method(DotGameView::getRecentGames)
+        .invoke(request);
+  }
+
   @Post("/get-games-by-player-id-paged")
   public DotGameView.GamesPage getGamesByPlayerIdPaged(DotGameView.GetGamesByPlayerIdPagedRequest request) {
     log.debug("Get games by player id paged: {}", request);
