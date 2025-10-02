@@ -1,4 +1,4 @@
-const LOG_PAGE_SIZE = 25;
+const logPageSize = 20;
 
 let recentGames = [];
 let selectedGameId = null;
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initEventListeners() {
   const refreshBtn = $('gamesRefreshBtn');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => refreshRecentsAndLogs());
+    refreshBtn.addEventListener('click', () => refreshRecentGamesAndLogs());
   }
 
   const prevBtn = $('logsPrevPageBtn');
@@ -177,7 +177,7 @@ async function loadLogsForSelectedGame(options = {}) {
       },
       body: JSON.stringify({
         gameId: selectedGameId,
-        limit: LOG_PAGE_SIZE,
+        limit: logPageSize,
         offset: logPageState.offset,
       }),
     });
@@ -358,7 +358,7 @@ function goToNextLogPage() {
   }
 
   logPageState.pageIndex += 1;
-  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
+  logPageState.offset = logPageState.pageIndex * logPageSize;
   loadLogsForSelectedGame();
 }
 
@@ -368,7 +368,7 @@ function goToPreviousLogPage() {
   }
 
   logPageState.pageIndex -= 1;
-  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
+  logPageState.offset = logPageState.pageIndex * logPageSize;
   loadLogsForSelectedGame();
 }
 
@@ -399,7 +399,7 @@ function clearLogPanels() {
   renderLogDetailPlaceholder('Select a game to view log details.');
 }
 
-async function refreshRecentsAndLogs() {
+async function refreshRecentGamesAndLogs() {
   await loadRecentGames({ preserveSelection: true });
 }
 

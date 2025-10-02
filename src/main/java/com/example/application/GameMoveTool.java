@@ -111,7 +111,9 @@ public class GameMoveTool {
 
     var moveHistory = MoveHistory.from(gameState);
 
-    gameLog.logToolCall(gameId, agentId, "getMoveHistory", json(moveHistory));
+    if (!agentId.isEmpty()) {
+      gameLog.logToolCall(gameId, agentId, "getMoveHistory", json(moveHistory));
+    }
 
     return moveHistory;
   }

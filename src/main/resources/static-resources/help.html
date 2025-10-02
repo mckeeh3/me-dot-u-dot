@@ -228,6 +228,26 @@
               <li>The selected player and game are highlighted for easy reference.</li>
             </ul>
           </section>
+
+          <section class="help-section">
+            <h2>Game Action Logs</h2>
+            <p>
+              The Game Action Logs page gives you a chronological trace of every move, tool call, and message exchanged during a match. It is ideal for monitoring games that are still in progress or
+              for reviewing the exact sequence of decisions that led to a final result without replaying the board state.
+            </p>
+            <h3>Page Layout</h3>
+            <ul>
+              <li><strong>Recent Games:</strong> Lists the latest matches. Select a row to load its log stream. The refresh button keeps the list up to date while preserving your current selection.</li>
+              <li><strong>Action Stream:</strong> Shows paginated log entries for the chosen game with timestamps, player identifiers, action types, and short summaries so you can quickly skim activity.</li>
+              <li><strong>Log Detail:</strong> Displays the full text of the selected entry in a scrollable, fixed-width panel, making prompts, tool payloads, or diagnostic messages easy to read.</li>
+            </ul>
+            <h3>Usage Tips</h3>
+            <ul>
+              <li>Click the refresh button to poll for new entries during an active game; the viewer keeps your current page and highlighted log line.</li>
+              <li>Use the up/down pagination buttons to navigate historical entries while the detail pane updates automatically.</li>
+              <li>Combine the action logs with the leader board or replay viewer to correlate narrative events with board positions and outcomes.</li>
+            </ul>
+          </section>
         </div>
       </main>
     </div>
