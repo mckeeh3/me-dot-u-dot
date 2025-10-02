@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import akka.javasdk.JsonSupport;
 import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
@@ -45,13 +47,25 @@ public class GameStateTool {
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game state: {}", gameId);
-    gameLog.logToolCall(gameId, agentId, "getGameState", "Get game state");
 
     DotGame.State fullState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)
         .invoke();
 
-    return CompactGameState.from(fullState);
+    var compactState = CompactGameState.from(fullState);
+
+    gameLog.logToolCall(gameId, agentId, "getGameState", json(compactState));
+
+    return compactState;
+  }
+
+  String json(CompactGameState compactGameState) {
+    var om = JsonSupport.getObjectMapper();
+    try {
+      return om.writerWithDefaultPrettyPrinter().writeValueAsString(compactGameState);
+    } catch (JsonProcessingException e) {
+      return "Get game state failed: %s".formatted(e.getMessage());
+    }
   }
 
   /**

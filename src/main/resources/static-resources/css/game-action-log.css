@@ -216,7 +216,8 @@
   border: 1px solid rgba(0, 229, 255, 0.25);
   border-radius: calc(var(--layout-border-radius, 1rem) / 1.4);
   padding: 1rem 1.25rem;
-  font-size: 1rem;
+  font-family: 'Fira Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 0.7rem;
   line-height: 1.6;
   color: var(--text);
   white-space: pre-wrap;

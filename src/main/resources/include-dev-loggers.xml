@@ -38,6 +38,10 @@
         <appender-ref ref="FILE" />
     </logger>
 
+    <logger name="com.example.application.GameActionLogEntity" level="info">
+        <appender-ref ref="FILE" />
+    </logger>
+
     <logger name="com.example.application.SessionMemoryConsumer" level="info">
         <appender-ref ref="FILE" />
     </logger>

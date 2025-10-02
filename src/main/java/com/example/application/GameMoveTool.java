@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import com.example.application.GameStateTool.BoardInfo;
 import com.example.application.GameStateTool.GameInfo;
 import com.example.domain.DotGame;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import akka.javasdk.JsonSupport;
 import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
@@ -102,13 +104,25 @@ public class GameMoveTool {
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("Get game move history: {}", gameId);
-    gameLog.logToolCall(gameId, agentId, "getMoveHistory", "Get game move history");
 
     DotGame.State gameState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)
         .invoke();
 
-    return MoveHistory.from(gameState);
+    var moveHistory = MoveHistory.from(gameState);
+
+    gameLog.logToolCall(gameId, agentId, "getMoveHistory", json(moveHistory));
+
+    return moveHistory;
+  }
+
+  String json(MoveHistory moveHistory) {
+    var om = JsonSupport.getObjectMapper();
+    try {
+      return om.writerWithDefaultPrettyPrinter().writeValueAsString(moveHistory);
+    } catch (JsonProcessingException e) {
+      return "Get move history failed: %s".formatted(e.getMessage());
+    }
   }
 
   record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {

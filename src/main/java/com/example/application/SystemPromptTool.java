@@ -36,9 +36,13 @@ public class SystemPromptTool {
     log.debug("Agent: {}, Read system prompt", agentId);
     gameLog.logToolCall(gameId, agentId, "readSystemPrompt", "Read system prompt");
 
-    return componentClient.forEventSourcedEntity(agentId)
+    var state = componentClient.forEventSourcedEntity(agentId)
         .method(AgentRoleEntity::getState)
         .invoke();
+
+    gameLog.logToolCall(gameId, agentId, "readSystemPrompt", state.systemPrompt());
+
+    return state;
   }
 
   @FunctionTool(description = """

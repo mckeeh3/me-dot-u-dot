@@ -32,11 +32,14 @@ public class PlaybookTool {
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Player: {}, Read playbook", agentId);
-    gameLog.logToolCall(gameId, agentId, "readPlaybook", "Read playbook");
 
-    return componentClient.forEventSourcedEntity(agentId)
+    var state = componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::getState)
         .invoke();
+
+    gameLog.logToolCall(gameId, agentId, "readPlaybook", state.instructions().isEmpty() ? "Playbook is empty" : state.instructions());
+
+    return state;
   }
 
   @FunctionTool(description = """
