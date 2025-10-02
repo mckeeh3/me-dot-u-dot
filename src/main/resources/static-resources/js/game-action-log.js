@@ -216,8 +216,8 @@ function renderLogRows(logs) {
     row.dataset.logId = log.id;
     row.dataset.logTime = log.time;
 
-    const time = formatDateTime(log.time);
-    const summary = summariseMessage(log.message);
+    const time = formatTime(log.time);
+    const summary = summarizeMessage(log.message);
 
     row.innerHTML = `
         <td data-label="Time">${time}</td>
@@ -377,14 +377,23 @@ function formatDateTime(value) {
 
   try {
     const date = new Date(value);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
+    return data.toISOString();
+  } catch (e) {
+    return value;
+  }
+}
+
+function formatTime(value) {
+  if (!value) {
+    return '—';
+  }
+  try {
+    const date = new Date(value);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
   } catch (e) {
     return value;
   }
@@ -398,15 +407,15 @@ function formatLogType(type) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function summariseMessage(message) {
+function summarizeMessage(message) {
   if (!message) {
     return '—';
   }
   const trimmed = message.trim();
-  if (trimmed.length <= 60) {
+  if (trimmed.length <= 30) {
     return escapeHtml(trimmed);
   }
-  return `${escapeHtml(trimmed.slice(0, 57))}…`;
+  return `${escapeHtml(trimmed.slice(0, 27))}…`;
 }
 
 function escapeHtml(text) {
