@@ -5,13 +5,52 @@
 }
 
 .game-action-main {
-  grid-template-columns: minmax(14rem, 18rem) minmax(20rem, 26rem) minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 19rem) minmax(20rem, 26rem) minmax(0, 1fr);
   grid-template-areas: 'games list detail';
   gap: var(--log-gap-lg);
 }
 
 .game-list-panel {
   grid-area: games;
+}
+
+.icon-btn {
+  width: min(2rem, calc(1.5rem + 0.6vw));
+  height: min(2rem, calc(1.5rem + 0.6vw));
+  border-radius: 50%;
+  font-size: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.08);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.icon-symbol {
+  line-height: 1;
+  color: var(--text);
+}
+
+.icon-btn.icon-btn-refresh .icon-symbol {
+  color: var(--text);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.icon-btn:hover .icon-symbol {
+  color: var(--bg);
+}
+
+.icon-btn.icon-btn-refresh:hover .icon-symbol {
+  color: var(--muted);
 }
 
 .log-list-panel {

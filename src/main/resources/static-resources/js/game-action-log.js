@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initEventListeners() {
   const refreshBtn = $('gamesRefreshBtn');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', loadRecentGames);
+    refreshBtn.addEventListener('click', () => refreshRecentsAndLogs());
   }
 
   const prevBtn = $('logsPrevPageBtn');
@@ -33,7 +33,10 @@ function initEventListeners() {
   }
 }
 
-async function loadRecentGames() {
+async function loadRecentGames(options = {}) {
+  const { preserveSelection = false } = options;
+  const previousSelectedGameId = selectedGameId;
+
   const tbody = $('recentGamesBody');
   if (!tbody) {
     return;
@@ -53,7 +56,7 @@ async function loadRecentGames() {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({ limit: limit, offset: 0 }),
+      body: JSON.stringify({ limit, offset: 0 }),
     });
     if (!response.ok) {
       throw new Error(`Failed to load recent games (${response.status})`);
@@ -64,11 +67,22 @@ async function loadRecentGames() {
 
     renderRecentGames();
 
-    if (recentGames.length > 0) {
-      selectGame(recentGames[0].gameId);
-    } else {
+    if (recentGames.length === 0) {
       clearLogPanels();
+      return;
     }
+
+    if (preserveSelection && previousSelectedGameId) {
+      const existingGame = recentGames.find((game) => game.gameId === previousSelectedGameId);
+      if (existingGame) {
+        selectedGameId = previousSelectedGameId;
+        updateRecentGameSelection();
+        await loadLogsForSelectedGame({ preserveSelection: true });
+        return;
+      }
+    }
+
+    selectGame(recentGames[0].gameId);
   } catch (error) {
     console.error('Error loading recent games:', error);
     tbody.innerHTML = `
@@ -140,7 +154,9 @@ function resetLogPagination() {
   updatePaginationControls();
 }
 
-async function loadLogsForSelectedGame() {
+async function loadLogsForSelectedGame(options = {}) {
+  const { preserveSelection = false } = options;
+
   const tbody = $('gameLogsBody');
   if (!tbody || !selectedGameId) {
     return;
@@ -178,7 +194,16 @@ async function loadLogsForSelectedGame() {
     updatePaginationControls();
 
     if (logs.length > 0) {
-      selectLog(logs[0].id, true);
+      let logIdToSelect = logs[0].id;
+
+      if (preserveSelection && selectedLogId) {
+        const existingLog = logs.find((log) => log.id === selectedLogId);
+        if (existingLog) {
+          logIdToSelect = existingLog.id;
+        }
+      }
+
+      selectLog(logIdToSelect, true);
     } else {
       selectedLogId = null;
       renderLogDetailPlaceholder('No log entries found for this game.');
@@ -366,8 +391,16 @@ function updatePaginationControls() {
 }
 
 function clearLogPanels() {
+  selectedLogId = null;
+  logPageState.pageIndex = 0;
+  logPageState.offset = 0;
+  logPageState.hasMore = false;
   renderLogRows([]);
   renderLogDetailPlaceholder('Select a game to view log details.');
+}
+
+async function refreshRecentsAndLogs() {
+  await loadRecentGames({ preserveSelection: true });
 }
 
 function formatDateTime(value) {
