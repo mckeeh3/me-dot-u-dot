@@ -62,6 +62,21 @@ public class GameActionLogger {
     logMove(time, event.gameId(), playerId, message);
   }
 
+  public void logForfeitMove(DotGame.Event.MoveForfeited event) {
+    var state = componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    var player1id = state.player1Status().player().id();
+    var player2id = state.player2Status().player().id();
+    var currentPlayerId = state.currentPlayer().isPresent() ? state.currentPlayer().get().player().id() : "";
+
+    var time = event.updatedAt();
+    var playerId = currentPlayerId.equals(player1id) ? player2id : player1id; // current player is NOT the one who forfeited the move
+    logForfeitMove(time, event.gameId(), playerId, event.message());
+  }
+
   public void logMove(Instant time, String gameId, String playerId, String message) {
     log(GameActionLog.Type.make_move, time, playerId, gameId, message);
   }
@@ -78,8 +93,8 @@ public class GameActionLogger {
     log(GameActionLog.Type.model_response, playerId, gameId, message);
   }
 
-  public void logForfeitMove(String gameId, String playerId, String message) {
-    log(GameActionLog.Type.forfeit_move, playerId, gameId, message);
+  public void logForfeitMove(Instant time, String gameId, String playerId, String message) {
+    log(GameActionLog.Type.forfeit_move, time, playerId, gameId, message);
   }
 
   String json(DotGame.ScoringMoves scoringMoves) {

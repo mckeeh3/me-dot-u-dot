@@ -34,7 +34,6 @@ public class SystemPromptTool {
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
     log.debug("Agent: {}, Read system prompt", agentId);
-    gameLog.logToolCall(gameId, agentId, "readSystemPrompt", "Read system prompt");
 
     var state = componentClient.forEventSourcedEntity(agentId)
         .method(AgentRoleEntity::getState)

@@ -107,6 +107,8 @@ public class DotGameToAgentConsumer extends Consumer {
   Effect onEvent(DotGame.Event.MoveForfeited event) {
     var currentPlayer = event.currentPlayerStatus();
 
+    gameLog.logForfeitMove(event);
+
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = event.currentPlayerStatus().get();
       var sessionId = event.gameId() + "-" + agentPlayer.player().id();
@@ -181,20 +183,23 @@ public class DotGameToAgentConsumer extends Consumer {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(prompt.player().player().id());
+    var playerId = prompt.player().player().id();
+    var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(playerId);
 
     log.debug("{}, agent response: {}", logMessage, response);
-    log.debug("Game status: {}, game over or agent made move: {}", gameState.status(), agentMadeMove);
-    gameLog.logModelResponse(prompt.gameId(), prompt.player().player().id(), response);
+    log.debug("Game status: {}, game over or agent: {} made move: {}", gameState.status(), playerId, agentMadeMove);
+
+    gameLog.logModelResponse(prompt.gameId(), playerId, response);
 
     return agentMadeMove;
   }
 
   boolean forfeitMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
-    log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, prompt.player().player().id());
+    var playerId = prompt.player().player().id();
+    log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, playerId);
 
-    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(prompt.player().player().id(), i + 1);
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), prompt.player().player().id(), message);
+    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(playerId, i + 1);
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), playerId, message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId())
