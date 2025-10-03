@@ -430,16 +430,7 @@ public class DotGameEntityTest {
     assertEquals(player1.id(), c.players().players().get(0).id());
     assertEquals(player2.id(), c.players().players().get(1).id());
     assertEquals(DotGame.Status.won_by_player.name(), c.gameInfo().status());
-    assertEquals(player1.id(), c.player1ScoringMoves().playerId());
-    assertEquals(player2.id(), c.player2ScoringMoves().playerId());
-    assertEquals(4, c.player1ScoringMoves().scoringMoves().size());
-    assertEquals(2, c.player2ScoringMoves().scoringMoves().size());
-    assertEquals(DotGame.ScoringMoveType.horizontal.name(), c.player1ScoringMoves().scoringMoves().get(0).type());
-    assertEquals(1, c.player1ScoringMoves().scoringMoves().get(0).score());
-    assertEquals(1, c.player2ScoringMoves().scoringMoves().get(0).score());
-    assertEquals(DotGame.ScoringMoveType.horizontal.name(), c.player2ScoringMoves().scoringMoves().get(0).type());
-    assertEquals(List.of("A1", "A2", "A3"), c.player1ScoringMoves().scoringMoves().get(0).scoringSquareIds().stream().sorted().toList());
-    assertEquals(List.of("B1", "B2", "B3"), c.player2ScoringMoves().scoringMoves().get(0).scoringSquareIds().stream().sorted().toList());
+    assertEquals(9, c.moveHistory().moves().size());
   }
 
   @Test

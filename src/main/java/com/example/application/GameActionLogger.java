@@ -26,6 +26,15 @@ public class GameActionLogger {
         .invoke(command);
   }
 
+  public void log(GameActionLog.Type type, Instant time, String agentId, String gameId, String message) {
+    var command = GameActionLog.State.log(type, time, agentId, gameId, message);
+
+    componentClient
+        .forKeyValueEntity(command.id())
+        .method(GameActionLogEntity::createAgentLog)
+        .invoke(command);
+  }
+
   public void logMove(DotGame.Event.MoveMade event) {
     var lastMove = event.moveHistory().get(event.moveHistory().size() - 1);
     var playerId = lastMove.playerId();
@@ -54,7 +63,7 @@ public class GameActionLogger {
   }
 
   public void logMove(Instant time, String gameId, String playerId, String message) {
-    log(GameActionLog.Type.make_move, playerId, gameId, message);
+    log(GameActionLog.Type.make_move, time, playerId, gameId, message);
   }
 
   public void logToolCall(String gameId, String playerId, String toolName, String message) {

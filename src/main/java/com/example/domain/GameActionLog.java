@@ -36,14 +36,18 @@ public interface GameActionLog {
       return this;
     }
 
+    static String idFrom(String gameId, String playerId) {
+      return "%s-%s-%d".formatted(gameId, playerId, System.currentTimeMillis());
+    }
+
     public static Command.CreateAgentLog log(Type type, String playerId, String gameId, String message) {
-      var id = "%s-%s-%d".formatted(playerId, gameId, System.currentTimeMillis());
+      var id = idFrom(gameId, playerId);
       var time = Instant.now();
       return new Command.CreateAgentLog(id, type, time, playerId, gameId, message);
     }
 
     public static Command.CreateAgentLog log(Type type, Instant time, String playerId, String gameId, String message) {
-      var id = "%s-%s-%d".formatted(playerId, gameId, System.currentTimeMillis());
+      var id = idFrom(gameId, playerId);
       return new Command.CreateAgentLog(id, type, time, playerId, gameId, message);
     }
   }

@@ -42,7 +42,7 @@
         <appender-ref ref="FILE" />
     </logger>
 
-    <logger name="com.example.application.SessionMemoryConsumer" level="info">
+    <logger name="com.example.application.SessionMemoryConsumer" level="debug">
         <appender-ref ref="FILE" />
     </logger>
 </included>
