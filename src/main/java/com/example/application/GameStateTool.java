@@ -1,6 +1,7 @@
 package com.example.application;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,9 +87,7 @@ public class GameStateTool {
       Players players,
       BoardInfo boardInfo,
       EmptySquares emptySquares,
-      MoveHistory moveHistory,
-      ScoringMoves player1ScoringMoves,
-      ScoringMoves player2ScoringMoves) {
+      MoveHistory moveHistory) {
 
     /**
      * Convert from full DotGame.State to compact representation
@@ -99,9 +98,7 @@ public class GameStateTool {
           Players.from(gameState),
           BoardInfo.from(gameState.board()),
           EmptySquares.from(gameState.board()),
-          MoveHistory.from(gameState.moveHistory()),
-          ScoringMoves.from(gameState.player1Status().scoringMoves()),
-          ScoringMoves.from(gameState.player2Status().scoringMoves()));
+          MoveHistory.from(gameState));
     }
   }
 
@@ -158,15 +155,33 @@ public class GameStateTool {
     }
   }
 
-  record Move(String squareId, String playerId) {
-    static Move from(DotGame.Move move) {
-      return new Move(move.squareId(), move.playerId());
+  record Move(String squareId, String playerId, int moveScore, List<ScoringMove> scoringMoves) {
+    static Move from(DotGame.Move move, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
+      var p1ScoringMoves = player1ScoringMoves.scoringMoves()
+          .stream()
+          .filter(sm -> sm.move().squareId().equals(move.squareId()))
+          .map(ScoringMove::from).toList();
+      var p2ScoringMoves = player2ScoringMoves.scoringMoves()
+          .stream()
+          .filter(sm -> sm.move().squareId().equals(move.squareId()))
+          .map(ScoringMove::from).toList();
+      var scoringMoves = Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList();
+
+      var newMoveScore = scoringMoves.stream().map(sm -> sm.score()).reduce(0, Integer::sum);
+
+      return new Move(move.squareId(), move.playerId(), newMoveScore, scoringMoves);
     }
   }
 
-  record MoveHistory(List<Move> moves) {
-    static MoveHistory from(List<DotGame.Move> moves) {
-      return new MoveHistory(moves.stream().map(Move::from).toList());
+  public record MoveHistory(List<Move> moves) {
+    static MoveHistory from(DotGame.State gameState) {
+      var p1ScoringMoves = gameState.player1Status().scoringMoves();
+      var p2ScoringMoves = gameState.player2Status().scoringMoves();
+
+      return new MoveHistory(gameState.moveHistory()
+          .stream()
+          .map(m -> Move.from(m, p1ScoringMoves, p2ScoringMoves))
+          .toList());
     }
   }
 
