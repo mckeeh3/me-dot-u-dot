@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
+import com.example.domain.DotGame.PlayerStatus;
 import com.example.domain.Playbook;
 
 import akka.javasdk.JsonSupport;
@@ -23,10 +24,12 @@ import akka.javasdk.client.ComponentClient;
 public class DotGameAgent extends Agent {
   static final Logger log = LoggerFactory.getLogger(DotGameAgent.class);
   final ComponentClient componentClient;
+  final GameActionLogger gameLog;
   final List<Object> functionTools;
 
   public DotGameAgent(ComponentClient componentClient) {
     this.componentClient = componentClient;
+    this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
         new GameStateTool(componentClient),
         new GameMoveTool(componentClient),
@@ -36,11 +39,12 @@ public class DotGameAgent extends Agent {
 
   public Effect<String> makeMove(MakeMovePrompt prompt) {
     log.debug("MakeMovePrompt: {}", prompt);
+    gameLog.logModelPrompt(prompt.gameId, prompt.player().player().id(), prompt.toPrompt());
 
     return effects()
-        .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agentModel))
+        .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.player().player().model()))
         .tools(functionTools)
-        .systemMessage(systemPrompt(prompt.agentId))
+        .systemMessage(systemPrompt(prompt.player().player().id()))
         .userMessage(prompt.toPrompt())
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
@@ -68,14 +72,14 @@ public class DotGameAgent extends Agent {
   }
 
   String tryAgain(MakeMovePrompt prompt, Throwable exception) {
-    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agentName, exception.getMessage());
+    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.player().player().id(), exception.getMessage());
   }
 
   String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
     log.error("Forfeiting move due to agent error: %s".formatted(exception.getMessage()), exception);
 
-    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agentName, exception.getMessage());
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agentId, message);
+    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.player().player().id(), exception.getMessage());
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.player().player().id(), message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId)
@@ -114,17 +118,15 @@ public class DotGameAgent extends Agent {
   public record MakeMovePrompt(
       String gameId,
       DotGame.Status status,
-      String agentId,
-      String agentName,
-      String agentModel) {
+      PlayerStatus player) {
 
     public String toPrompt() {
       if (status == DotGame.Status.in_progress) {
         return """
             It's your turn to make a move.
-            Your Id is %s.
-            Your Name is %s.
-            Here's the current game Id: %s.
+            Agent Id: %s.
+            Game Id: %s.
+            Game Status: %s.
 
             IMPORTANT: It's your turn to make a move in the game.
 
@@ -145,14 +147,14 @@ public class DotGameAgent extends Agent {
             - Use SystemPromptTool_writeYourSystemPrompt if you need to adjust your decision-making approach
 
             Remember: You must make a move using GameMoveTool_makeMove - this is not optional.
-            """.formatted(agentId, agentName, gameId).stripIndent().stripIndent();
+            """.formatted(player.player().id(), gameId, status).stripIndent().stripIndent();
       }
 
       return """
-          The game is over.
-          Your Id is %s.
-          Your Name is %s.
-          Here's the current game Id: %s.
+          The game is over, you %s.
+          Agent Id: %s.
+          Game Id: %s.
+          Game Status: %s.
 
           IMPORTANT: Conduct your post-game review and learning process.
 
@@ -172,7 +174,7 @@ public class DotGameAgent extends Agent {
           • System Prompt: Decision-making philosophy, risk assessment, opponent analysis approach, general behavioral adjustments
 
           This post-game analysis is crucial for continuous improvement and better performance in future games.
-          """.formatted(agentId, agentName, gameId).stripIndent().stripIndent();
+          """.formatted(player.isWinner() ? "won" : "lost", player.player().id(), gameId, status).stripIndent().stripIndent();
     }
   }
 }

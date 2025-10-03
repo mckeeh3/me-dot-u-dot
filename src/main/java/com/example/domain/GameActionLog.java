@@ -8,7 +8,8 @@ public interface GameActionLog {
     empty,
     make_move,
     tool_call,
-    agent_response,
+    model_prompt,
+    model_response,
     forfeit_move
   }
 

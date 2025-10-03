@@ -61,8 +61,12 @@ public class GameActionLogger {
     log(GameActionLog.Type.tool_call, playerId, gameId, toolName + ": " + message);
   }
 
-  public void logAgentResponse(String gameId, String playerId, String message) {
-    log(GameActionLog.Type.agent_response, playerId, gameId, message);
+  public void logModelPrompt(String gameId, String playerId, String message) {
+    log(GameActionLog.Type.model_prompt, playerId, gameId, message);
+  }
+
+  public void logModelResponse(String gameId, String playerId, String message) {
+    log(GameActionLog.Type.model_response, playerId, gameId, message);
   }
 
   public void logForfeitMove(String gameId, String playerId, String message) {

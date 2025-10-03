@@ -217,7 +217,7 @@
   border-radius: calc(var(--layout-border-radius, 1rem) / 1.4);
   padding: 1rem 1.25rem;
   font-family: 'Fira Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   line-height: 1.6;
   color: var(--text);
   white-space: pre-wrap;

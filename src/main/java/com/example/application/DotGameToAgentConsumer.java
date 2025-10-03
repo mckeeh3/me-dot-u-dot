@@ -46,9 +46,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
           event.status(),
-          agentPlayer.player().id(),
-          agentPlayer.player().name(),
-          agentPlayer.player().model());
+          agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (1 game created)");
     }
@@ -68,9 +66,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
           event.status(),
-          agentPlayer.player().id(),
-          agentPlayer.player().name(),
-          agentPlayer.player().model());
+          agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (2 game in progress)");
 
@@ -85,9 +81,7 @@ public class DotGameToAgentConsumer extends Consumer {
         var prompt = new DotGameAgent.MakeMovePrompt(
             event.gameId(),
             event.status(),
-            agentPlayer.player().id(),
-            agentPlayer.player().name(),
-            agentPlayer.player().model());
+            agentPlayer);
 
         makeMove(sessionId, prompt, "Make move (3 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
@@ -99,9 +93,7 @@ public class DotGameToAgentConsumer extends Consumer {
         var prompt = new DotGameAgent.MakeMovePrompt(
             event.gameId(),
             event.status(),
-            agentPlayer.player().id(),
-            agentPlayer.player().name(),
-            agentPlayer.player().model());
+            agentPlayer);
 
         makeMove(sessionId, prompt, "Make move (4 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
@@ -122,9 +114,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
           event.status(),
-          agentPlayer.player().id(),
-          agentPlayer.player().name(),
-          agentPlayer.player().model());
+          agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (5 move forfeited)");
     }
@@ -140,9 +130,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
           event.status(),
-          agentPlayer.player().id(),
-          agentPlayer.player().name(),
-          agentPlayer.player().model());
+          agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (6 game canceled)");
     }
@@ -154,9 +142,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
           event.status(),
-          agentPlayer.player().id(),
-          agentPlayer.player().name(),
-          agentPlayer.player().model());
+          agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (7 game canceled)");
     }
@@ -176,7 +162,7 @@ public class DotGameToAgentConsumer extends Consumer {
   }
 
   boolean makeMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
-    log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.agentId());
+    log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.player().player().id());
 
     var response = "";
     try {
@@ -186,7 +172,7 @@ public class DotGameToAgentConsumer extends Consumer {
           .method(DotGameAgent::makeMove)
           .invoke(prompt);
     } catch (Throwable e) {
-      log.error("Exception making move attempt: {}, agentId: {}", i + 1, prompt.agentId(), e);
+      log.error("Exception making move attempt: {}, agentId: {}", i + 1, prompt.player().player().id(), e);
       return false;
     }
 
@@ -195,20 +181,20 @@ public class DotGameToAgentConsumer extends Consumer {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(prompt.agentId());
+    var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(prompt.player().player().id());
 
     log.debug("{}, agent response: {}", logMessage, response);
     log.debug("Game status: {}, game over or agent made move: {}", gameState.status(), agentMadeMove);
-    gameLog.logAgentResponse(prompt.gameId(), prompt.agentId(), response);
+    gameLog.logModelResponse(prompt.gameId(), prompt.player().player().id(), response);
 
     return agentMadeMove;
   }
 
   boolean forfeitMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
-    log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, prompt.agentId());
+    log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, prompt.player().player().id());
 
-    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(prompt.agentName(), i + 1);
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), prompt.agentId(), message);
+    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(prompt.player().player().id(), i + 1);
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), prompt.player().player().id(), message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId())
