@@ -41,7 +41,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
-      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+      var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -61,7 +61,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
-      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+      var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -76,7 +76,7 @@ public class DotGameToAgentConsumer extends Consumer {
     if (!event.status().equals(DotGame.Status.in_progress)) {
       if (event.player1Status().player().isAgent()) {
         var agentPlayer = event.player1Status();
-        var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+        var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
         var prompt = new DotGameAgent.MakeMovePrompt(
             event.gameId(),
@@ -88,7 +88,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
       if (event.player2Status().player().isAgent()) {
         var agentPlayer = event.player2Status();
-        var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+        var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
         var prompt = new DotGameAgent.MakeMovePrompt(
             event.gameId(),
@@ -111,7 +111,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = event.currentPlayerStatus().get();
-      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+      var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -127,7 +127,7 @@ public class DotGameToAgentConsumer extends Consumer {
   Effect onEvent(DotGame.Event.GameCanceled event) {
     if (event.player1Status().player().isAgent()) {
       var agentPlayer = event.player1Status();
-      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+      var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -139,7 +139,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     if (event.player2Status().player().isAgent()) {
       var agentPlayer = event.player2Status();
-      var sessionId = event.gameId() + "-" + agentPlayer.player().id();
+      var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
       var prompt = new DotGameAgent.MakeMovePrompt(
           event.gameId(),
@@ -207,5 +207,9 @@ public class DotGameToAgentConsumer extends Consumer {
         .invoke(command);
 
     return true;
+  }
+
+  static String sessionId(String gameId, String playerId) {
+    return gameId + "/" + playerId;
   }
 }
