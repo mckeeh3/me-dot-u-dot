@@ -25,24 +25,33 @@
     </appender>
 
     <!-- Use TRACE level for Akka Lang Chain 4j HTTP client -->
-    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="INFO">
+    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
     <!-- Use DEBUG level for Kalix runtime agent -->
-    <logger name="kalix.runtime.agent" level="INFO">
+    <logger name="kalix.runtime.agent" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
-    <logger name="com.example" level="DEBUG">
+    <logger name="com.example" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
-    <logger name="com.example.application.GameActionLogEntity" level="info">
+    <logger name="com.example.application.GameActionLogEntity" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
-    <logger name="com.example.application.SessionMemoryConsumer" level="debug">
+    <logger name="com.example.application.SessionMemoryConsumer" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
 </included>
