@@ -410,7 +410,7 @@ function formatDateTime(value) {
 
   try {
     const date = new Date(value);
-    return data.toISOString();
+    return date.toISOString();
   } catch (e) {
     return value;
   }

@@ -639,13 +639,29 @@ async function createPlayer(which) {
     }
   }
 
+  let player = await loadPlayer(which);
+  if (player) {
+    // Update player name if it has changed
+    if (player.name !== name) {
+      const updateCmd = { id, name };
+      await fetch('/player/update-player', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateCmd),
+      });
+      player = await loadPlayer(which);
+      applyPlayerSelection(which, player);
+    }
+    return;
+  }
+
   const cmd = { id, type, name, model };
   await fetch('/player/create-player', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(cmd),
   });
-  const player = await loadPlayer(which);
+  player = await loadPlayer(which);
   applyPlayerSelection(which, player);
 }
 
