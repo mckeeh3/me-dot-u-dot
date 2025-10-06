@@ -156,7 +156,9 @@ public class DotGameAgent extends Agent {
           Game Id: %s.
           Game Status: %s.
 
-          IMPORTANT: Conduct your post-game review and learning process.
+          IMPORTANT: Conduct your post-game review and learning process. Your crucial learning resource to improve your performance
+          in future games is you playbook.  After a game, you should update your playbook with new insights, successful moves, or
+          failure modes to avoid.
 
           Required Actions:
           1. Use GameMoveTool_getMoveHistory to analyze the complete game sequence and each player's moves and scoring moves
