@@ -223,10 +223,28 @@ function renderPlayerGames() {
     const createdTime = formatDateTime(game.createdAt);
     const status = getGameStatus(game);
 
-    row.innerHTML = `
-            <td>${createdTime}</td>
-            <td>${status}</td>
-        `;
+    const createdCell = document.createElement('td');
+    const createdLink = document.createElement('a');
+    createdLink.href = `/game-action-log.html?gameId=${encodeURIComponent(game.gameId)}&playerId=${encodeURIComponent(selectedPlayerId)}`;
+    createdLink.textContent = createdTime;
+    createdLink.classList.add('game-log-link');
+    createdLink.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+    createdCell.appendChild(createdLink);
+
+    const statusCell = document.createElement('td');
+    const statusLink = document.createElement('a');
+    statusLink.href = `/game-action-log.html?gameId=${encodeURIComponent(game.gameId)}&playerId=${encodeURIComponent(selectedPlayerId)}`;
+    statusLink.textContent = status;
+    statusLink.classList.add('game-log-link');
+    statusLink.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+    statusCell.appendChild(statusLink);
+
+    row.appendChild(createdCell);
+    row.appendChild(statusCell);
 
     tbody.appendChild(row);
   });

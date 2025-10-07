@@ -1,8 +1,10 @@
-const logPageSize = 20;
+const LOG_PAGE_SIZE = 20;
 
 let recentGames = [];
 let selectedGameId = null;
 let selectedLogId = null;
+const urlParams = new URLSearchParams(window.location.search);
+const initialGameId = urlParams.get('gameId');
 
 const logPageState = {
   pageIndex: 0,
@@ -12,7 +14,10 @@ const logPageState = {
 
 document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
-  loadRecentGames();
+  if (initialGameId) {
+    selectedGameId = initialGameId;
+  }
+  loadRecentGames({ preferredGameId: initialGameId });
 });
 
 function initEventListeners() {
@@ -34,7 +39,7 @@ function initEventListeners() {
 }
 
 async function loadRecentGames(options = {}) {
-  const { preserveSelection = false } = options;
+  const { preserveSelection = false, preferredGameId = null } = options;
   const previousSelectedGameId = selectedGameId;
 
   const tbody = $('recentGamesBody');
@@ -72,17 +77,28 @@ async function loadRecentGames(options = {}) {
       return;
     }
 
-    if (preserveSelection && previousSelectedGameId) {
-      const existingGame = recentGames.find((game) => game.gameId === previousSelectedGameId);
-      if (existingGame) {
-        selectedGameId = previousSelectedGameId;
-        updateRecentGameSelection();
-        await loadLogsForSelectedGame({ preserveSelection: true });
-        return;
-      }
+    let desiredGameId = null;
+
+    if (preserveSelection && previousSelectedGameId && recentGames.some((game) => game.gameId === previousSelectedGameId)) {
+      desiredGameId = previousSelectedGameId;
+    } else if (preferredGameId && recentGames.some((game) => game.gameId === preferredGameId)) {
+      desiredGameId = preferredGameId;
     }
 
-    selectGame(recentGames[0].gameId);
+    if (!desiredGameId) {
+      desiredGameId = recentGames[0]?.gameId ?? null;
+    }
+
+    if (desiredGameId) {
+      if (preserveSelection && desiredGameId === previousSelectedGameId) {
+        updateRecentGameSelection();
+        await loadLogsForSelectedGame({ preserveSelection: true });
+      } else {
+        selectGame(desiredGameId);
+      }
+    } else {
+      clearLogPanels();
+    }
   } catch (error) {
     console.error('Error loading recent games:', error);
     tbody.innerHTML = `
@@ -177,7 +193,7 @@ async function loadLogsForSelectedGame(options = {}) {
       },
       body: JSON.stringify({
         gameId: selectedGameId,
-        limit: logPageSize,
+        limit: LOG_PAGE_SIZE,
         offset: logPageState.offset,
       }),
     });
@@ -315,7 +331,6 @@ function renderLogDetail(log) {
   }
 
   const time = formatDateTime(log.time);
-
   detailContainer.innerHTML = `
       <div class="log-meta">
         <div class="log-meta-item">
@@ -358,8 +373,8 @@ function goToNextLogPage() {
   }
 
   logPageState.pageIndex += 1;
-  logPageState.offset = logPageState.pageIndex * logPageSize;
-  loadLogsForSelectedGame();
+  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
+  loadLogsForSelectedGame({ preserveSelection: true });
 }
 
 function goToPreviousLogPage() {
@@ -368,8 +383,8 @@ function goToPreviousLogPage() {
   }
 
   logPageState.pageIndex -= 1;
-  logPageState.offset = logPageState.pageIndex * logPageSize;
-  loadLogsForSelectedGame();
+  logPageState.offset = logPageState.pageIndex * LOG_PAGE_SIZE;
+  loadLogsForSelectedGame({ preserveSelection: true });
 }
 
 function updatePaginationControls() {
@@ -400,7 +415,7 @@ function clearLogPanels() {
 }
 
 async function refreshRecentGamesAndLogs() {
-  await loadRecentGames({ preserveSelection: true });
+  await loadRecentGames({ preserveSelection: true, preferredGameId: selectedGameId });
 }
 
 function formatDateTime(value) {
