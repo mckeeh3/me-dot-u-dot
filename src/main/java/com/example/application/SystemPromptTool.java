@@ -54,10 +54,13 @@ public class SystemPromptTool {
       - Critical: ALWAYS supply the full system prompt in one message; sending only the changes will wipe everything you omit.
       - Unique advantage: few agents can rewrite their own system prompt—treat this like a deliberate upgrade step that locks in stronger behaviors for every future move.
 
-      IMPORTANT: It is important to review system prompt after each game.
-      Consider updating your system prompt when you discover a stronger workflow or need to clarify how you should reason and respond.
-      Updating your system prompt enables you to improve your performance in future games. Preserve the trustworthy foundations while
-      evolving the areas that need refinement.
+      IMPORTANT: It is important to review your system prompt after each game. Reviewing the system prompt enables you consider opportunities
+      to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
+      When revising your system prompt, consider updating your system prompt when you discover a stronger workflow or need to clarify how you
+      should reason and respond. Consider updating your system prompt when you discover a stronger workflow or need to clarify how you should
+      reason and respond.
+
+      IMPORTANT: This tool completely replaces the system prompt, so you must provide the full updated prompt in one message.
       """)
   public Done writeSystemPrompt(
       @Description("The ID of your agent") String agentId,
