@@ -59,6 +59,7 @@ public class DotGameToAgentConsumer extends Consumer {
 
     gameLog.logMove(event);
 
+    // game in progress
     if (event.status() == DotGame.Status.in_progress && currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
       var agentPlayer = currentPlayer.get();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
@@ -73,6 +74,7 @@ public class DotGameToAgentConsumer extends Consumer {
       return effects().done();
     }
 
+    // game over
     if (!event.status().equals(DotGame.Status.in_progress)) {
       if (event.player1Status().player().isAgent()) {
         var agentPlayer = event.player1Status();
