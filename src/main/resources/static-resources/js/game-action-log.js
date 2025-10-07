@@ -260,12 +260,35 @@ function renderLogRows(logs) {
     const time = formatTime(log.time);
     const summary = summarizeMessage(log.message);
 
-    row.innerHTML = `
-        <td data-label="Time">${time}</td>
-        <td data-label="Player">${log.playerId || '—'}</td>
-        <td data-label="Type">${formatLogType(log.type)}</td>
-        <td data-label="Summary">${summary}</td>
-      `;
+    const timeCell = document.createElement('td');
+    timeCell.setAttribute('data-label', 'Time');
+    timeCell.textContent = time;
+
+    const playerCell = document.createElement('td');
+    playerCell.setAttribute('data-label', 'Player');
+    if (log.playerId) {
+      const playerLink = document.createElement('a');
+      playerLink.href = `/leader-board.html?playerId=${encodeURIComponent(log.playerId)}&gameId=${encodeURIComponent(log.gameId)}`;
+      playerLink.textContent = log.playerId;
+      playerLink.classList.add('log-player-link');
+      playerLink.addEventListener('click', (event) => event.stopPropagation());
+      playerCell.appendChild(playerLink);
+    } else {
+      playerCell.textContent = '—';
+    }
+
+    const typeCell = document.createElement('td');
+    typeCell.setAttribute('data-label', 'Type');
+    typeCell.textContent = formatLogType(log.type);
+
+    const summaryCell = document.createElement('td');
+    summaryCell.setAttribute('data-label', 'Summary');
+    summaryCell.innerHTML = summary;
+
+    row.appendChild(timeCell);
+    row.appendChild(playerCell);
+    row.appendChild(typeCell);
+    row.appendChild(summaryCell);
 
     row.addEventListener('click', () => selectLog(log.id, false));
 

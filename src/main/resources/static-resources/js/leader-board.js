@@ -4,6 +4,10 @@
 let leaderBoardData = [];
 let selectedPlayerId = null;
 let selectedGameId = null;
+const urlParams = new URLSearchParams(window.location.search);
+const initialPlayerId = urlParams.get('playerId');
+const initialGameId = urlParams.get('gameId');
+let initialSelectionApplied = false;
 let playerGamesData = [];
 let replayState = {
   gameState: null,
@@ -51,9 +55,18 @@ async function loadLeaderBoard() {
       leaderBoardData = data.playerGames || [];
       renderLeaderBoard();
 
-      // Auto-select top player and load their games
+      // Auto-select preferred player and game
       if (leaderBoardData.length > 0) {
-        selectPlayer(leaderBoardData[0].playerId);
+        if (!initialSelectionApplied) {
+          let preferredPlayerId = leaderBoardData[0].playerId;
+          if (initialPlayerId && leaderBoardData.some((player) => player.playerId === initialPlayerId)) {
+            preferredPlayerId = initialPlayerId;
+          }
+          initialSelectionApplied = true;
+          await selectPlayer(preferredPlayerId, { preferredGameId: initialGameId });
+        } else if (!selectedPlayerId) {
+          await selectPlayer(leaderBoardData[0].playerId);
+        }
       }
     } else {
       console.error('Failed to load leader board');
@@ -153,7 +166,7 @@ function applyGameInfoVisibility() {
 }
 
 // Select a player and load their games
-async function selectPlayer(playerId) {
+async function selectPlayer(playerId, options = {}) {
   selectedPlayerId = playerId;
   selectedGameId = null;
 
@@ -161,7 +174,7 @@ async function selectPlayer(playerId) {
   updateSelectedPlayerUI();
 
   // Load player's games
-  await loadPlayerGames(playerId);
+  await loadPlayerGames(playerId, options);
 }
 
 // Update UI to show selected player
@@ -182,7 +195,8 @@ function updateSelectedPlayerUI() {
 }
 
 // Load games for a specific player
-async function loadPlayerGames(playerId) {
+async function loadPlayerGames(playerId, options = {}) {
+  const { preferredGameId = null } = options;
   try {
     const response = await fetch('/game/get-games-by-player-id-paged', {
       method: 'POST',
@@ -198,9 +212,15 @@ async function loadPlayerGames(playerId) {
       playerGamesData = data.games || [];
       renderPlayerGames();
 
-      // Auto-select the last game played
       if (playerGamesData.length > 0) {
-        selectGame(playerGamesData[0].gameId);
+        let desiredGameId = null;
+        if (preferredGameId && playerGamesData.some((game) => game.gameId === preferredGameId)) {
+          desiredGameId = preferredGameId;
+        }
+        if (!desiredGameId) {
+          desiredGameId = playerGamesData[0].gameId;
+        }
+        selectGame(desiredGameId);
       }
     } else {
       console.error('Failed to load player games');
