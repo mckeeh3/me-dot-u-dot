@@ -330,7 +330,7 @@ function renderLogDetail(log) {
     return;
   }
 
-  const time = formatDateTime(log.time);
+  const time = formatTime(log.time);
   detailContainer.innerHTML = `
       <div class="log-meta">
         <div class="log-meta-item">
