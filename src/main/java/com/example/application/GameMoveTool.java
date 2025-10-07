@@ -43,7 +43,7 @@ public class GameMoveTool {
           The square (board coordinate) to claim (e.g., "C3"). Squares IDs start
           at A1 in the top-left and extend to the board size determined by level
           """) String squareId) {
-    log.debug("AgentId: {}, Make move: {} in game: {}", agentId, squareId, gameId);
+    log.debug("GameId: {}, AgentId: {}, Make move: {}", gameId, agentId, squareId);
 
     var command = new DotGame.Command.MakeMove(gameId, agentId, squareId);
 
@@ -103,7 +103,7 @@ public class GameMoveTool {
   public MoveHistory getMoveHistory(
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
-    log.debug("Get game move history: {}", gameId);
+    log.debug("GameId: {}, AgentId: {}, Get game move history", gameId, agentId);
 
     DotGame.State gameState = componentClient.forEventSourcedEntity(gameId)
         .method(DotGameEntity::getState)

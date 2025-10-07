@@ -3,6 +3,9 @@ package com.example.application;
 import java.time.Instant;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.domain.GameActionLog;
 
 import akka.javasdk.annotations.ComponentId;
@@ -13,6 +16,7 @@ import akka.javasdk.view.View;
 
 @ComponentId("game-action-log-view")
 public class GameActionLogView extends View {
+  static final Logger log = LoggerFactory.getLogger(GameActionLogView.class);
 
   @Query("""
       SELECT * AS logs, has_more() as hasMore
@@ -29,6 +33,12 @@ public class GameActionLogView extends View {
   @Consume.FromKeyValueEntity(GameActionLogEntity.class)
   public static class FromGameActionLogEntity extends TableUpdater<LogRow> {
     public Effect<LogRow> onChange(GameActionLog.State state) {
+      if (null == state.gameId()) {
+        log.warn("Game ID is null");
+        log.warn("State: {}", state);
+
+        return effects().ignore();
+      }
 
       return effects().updateRow(new LogRow(
           state.id(),

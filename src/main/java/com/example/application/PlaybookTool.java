@@ -33,7 +33,7 @@ public class PlaybookTool {
   public Playbook.State readPlaybook(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Player: {}, Read playbook", agentId);
+    log.debug("AgentId: {}, GameId: {}, Read playbook", agentId, gameId);
 
     var state = componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::getState)
@@ -67,7 +67,7 @@ public class PlaybookTool {
       @Description("The ID of your agent") String agentId,
       @Description("The revised playbook instructions you want to write") String instructions,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
-    log.debug("Player: {}, Write playbook", agentId);
+    log.debug("AgentId: {}, GameId: {}, Write playbook", agentId, gameId);
     gameLog.logToolCall(gameId, agentId, "writePlaybook", instructions);
 
     var command = new Playbook.Command.WritePlaybook(agentId, instructions);
