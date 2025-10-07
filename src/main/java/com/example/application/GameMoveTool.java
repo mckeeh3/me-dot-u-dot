@@ -91,8 +91,11 @@ public class GameMoveTool {
       Retrieve the complete move history for a finished game so you can study what happened and decide how to evolve.
 
       - Use this after a game concludes to review every turn, including who played, think time, and the precise scoring move breakdowns.
-      - Combine the insights you gather here with your playbook and system prompt updates—this data helps you choose which tactics to memorialise in the playbook and which behavioral adjustments belong in the system prompt.
+      - Combine the insights you gather here with your playbook and system prompt updates—this data helps you choose which tactics to memorialize in the playbook and which behavioral adjustments belong in the system prompt.
       - The response contains move order, player IDs, per-move points, and the detailed scoring squares for each scoring move, giving you the evidence you need before calling `update_playbook` or `update_system_prompt`.
+      - Closely examine the move history for scoring moves as they provide valuable insights into your performance and opponent's performance in the game.
+      - Scoring moves include the type of the pattern of moves, the score for the move, and a list of the squares that were scored.
+      - Learning from scoring moves is essential to improve your performance in future games.
 
       IMPORTANT: It is important to review the move history after each game.
       Reviewing the move history enables you to improve your performance in future games.
