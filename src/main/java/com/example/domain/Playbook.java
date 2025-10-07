@@ -18,7 +18,7 @@ public interface Playbook {
       return agentId.isEmpty();
     }
 
-    public Optional<Event> onCommand(Command.UpdatePlaybook command) {
+    public Optional<Event> onCommand(Command.WritePlaybook command) {
       return Optional.of(new Event.PlaybookUpdated(command.agentId, command.instructions, Instant.now()));
     }
 
@@ -28,7 +28,7 @@ public interface Playbook {
   }
 
   public sealed interface Command {
-    record UpdatePlaybook(String agentId, String instructions) implements Command {}
+    record WritePlaybook(String agentId, String instructions) implements Command {}
   }
 
   public sealed interface Event {

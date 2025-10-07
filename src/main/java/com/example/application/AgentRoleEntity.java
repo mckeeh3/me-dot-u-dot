@@ -26,7 +26,7 @@ public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRo
     return AgentRole.State.empty();
   }
 
-  public Effect<Done> updateAgentRole(AgentRole.Command.UpdateAgentRole command) {
+  public Effect<Done> writeAgentRole(AgentRole.Command.WriteAgentRole command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()

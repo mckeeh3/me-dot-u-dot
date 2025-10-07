@@ -25,8 +25,10 @@ public class PlaybookTool {
 
       - The playbook is your tactical memory: a persistent, self-authored document containing proven openings, counter-moves, and heuristics.
       - Use this tool before planning a move to anchor your reasoning in what already works.
-      - Also call it immediately before updating the playbook; copy forward the guidance you still trust and edit only what needs to change.
+      - Also call it immediately before revising the playbook; copy forward the guidance you still trust and edit only what needs to change.
       - Returns the full current playbook (plain text).
+
+      Use it immediately before submitting an revise via `writePlaybook` to ensure you copy forward the parts that should remain intact.
       """)
   public Playbook.State readPlaybook(
       @Description("The ID of your agent") String agentId,
@@ -51,14 +53,14 @@ public class PlaybookTool {
       - Remember: the playbook differs from the system prompt—the playbook focuses on situational tactics, while the system prompt
       governs your overall role. This call replaces the playbook entirely, so bring forward the advice that still works and revise
       the parts that should change.
-      - Critical: ALWAYS provide the fully updated playbook text on every call—partial snippets or diffs will overwrite the prior content
+      - Critical: ALWAYS provide the fully revised playbook text on every call—partial snippets or diffs will overwrite the prior content
       and erase everything you omit.
 
-      IMPORTANT: It is important to review and update your playbook after each game to capture your learnings and experience from the game
+      IMPORTANT: It is important to review and revise your playbook after each game to capture your learnings and experience from the game
       to improve your performance in future games.
-      Also, after interesting moves, such as scoring moves, you should consider updating your playbook to capture the move and the reason
+      Also, after interesting moves, such as scoring moves, you should consider revising your playbook to capture the move and the reason
       why it was successful.
-      If you don't update your playbook, you will not be able to improve your performance in future games. When you do update it, carry
+      If you don't revise your playbook, you will not be able to improve your performance in future games. When you do revise it, carry
       forward the proven guidance and only rewrite the specific sections that should evolve.
       """)
   public Done writePlaybook(
@@ -68,10 +70,10 @@ public class PlaybookTool {
     log.debug("Player: {}, Write playbook", agentId);
     gameLog.logToolCall(gameId, agentId, "writePlaybook", instructions);
 
-    var command = new Playbook.Command.UpdatePlaybook(agentId, instructions);
+    var command = new Playbook.Command.WritePlaybook(agentId, instructions);
 
     return componentClient.forEventSourcedEntity(agentId)
-        .method(PlaybookEntity::updatePlaybook)
+        .method(PlaybookEntity::writePlaybook)
         .invoke(command);
   }
 }

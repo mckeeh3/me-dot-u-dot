@@ -37,7 +37,7 @@ public interface AgentRole {
     // ============================================================
     // Command UpdateAgentRole
     // ============================================================
-    public Optional<Event> onCommand(Command.UpdateAgentRole command) {
+    public Optional<Event> onCommand(Command.WriteAgentRole command) {
       return Optional.of(new Event.AgentRoleUpdated(
           command.agentId,
           command.systemPrompt,
@@ -82,7 +82,7 @@ public interface AgentRole {
   public sealed interface Command {
     record CreateAgentRole(String agentId) implements Command {}
 
-    record UpdateAgentRole(String agentId, String systemPrompt) implements Command {}
+    record WriteAgentRole(String agentId, String systemPrompt) implements Command {}
 
     record ResetAgentRole(String agentId) implements Command {}
   }

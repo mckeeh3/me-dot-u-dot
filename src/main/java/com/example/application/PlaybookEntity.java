@@ -26,7 +26,7 @@ public class PlaybookEntity extends EventSourcedEntity<Playbook.State, Playbook.
     return Playbook.State.empty();
   }
 
-  public Effect<Done> updatePlaybook(Playbook.Command.UpdatePlaybook command) {
+  public Effect<Done> writePlaybook(Playbook.Command.WritePlaybook command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()

@@ -28,7 +28,7 @@ public class SystemPromptTool {
       - Also read it if you feel uncertain about your charter—it is the authoritative source of your mandate.
       - Returns the full current system prompt (plain text).
 
-      Use it immediately before submitting an update via `updateYourSystemPrompt` to ensure you copy forward the parts that should remain intact.
+      Use it immediately before submitting an revise via `writeSystemPrompt` to ensure you copy forward the parts that should remain intact.
       """)
   public AgentRole.State readSystemPrompt(
       @Description("The ID of your agent") String agentId,
@@ -47,7 +47,7 @@ public class SystemPromptTool {
   @FunctionTool(description = """
       Write your revised system prompt so your future turns reflect the lessons you just learned.
 
-      - Input: the complete, updated system prompt (include expectations, tone, mandatory tool order, and any new guardrails).
+      - Input: the complete, revised system prompt (include expectations, tone, mandatory tool order, and any new guardrails).
       - When to use: after you notice recurring mistakes, discover a stronger workflow, or need to clarify how you should reason and respond.
       - Goal: capture durable behavioral upgrades so every subsequent turn starts with the improved guidance.
       - Remember: this call replaces the old prompt entirely—copy forward the parts you still rely on and inject the refinements that will make you more effective.
@@ -56,11 +56,11 @@ public class SystemPromptTool {
 
       IMPORTANT: It is important to review your system prompt after each game. Reviewing the system prompt enables you consider opportunities
       to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
-      When revising your system prompt, consider updating your system prompt when you discover a stronger workflow or need to clarify how you
-      should reason and respond. Consider updating your system prompt when you discover a stronger workflow or need to clarify how you should
+      When revising your system prompt, consider revising your system prompt when you discover a stronger workflow or need to clarify how you
+      should reason and respond. Consider revising your system prompt when you discover a stronger workflow or need to clarify how you should
       reason and respond.
 
-      IMPORTANT: This tool completely replaces the system prompt, so you must provide the full updated prompt in one message.
+      IMPORTANT: This tool completely replaces the system prompt, so you must provide the full revised prompt in one message.
       """)
   public Done writeSystemPrompt(
       @Description("The ID of your agent") String agentId,
@@ -69,10 +69,10 @@ public class SystemPromptTool {
     log.debug("Agent: {}, Write system prompt", agentId);
     gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", instructions);
 
-    var command = new AgentRole.Command.UpdateAgentRole(agentId, instructions);
+    var command = new AgentRole.Command.WriteAgentRole(agentId, instructions);
 
     return componentClient.forEventSourcedEntity(agentId)
-        .method(AgentRoleEntity::updateAgentRole)
+        .method(AgentRoleEntity::writeAgentRole)
         .invoke(command);
   }
 }
