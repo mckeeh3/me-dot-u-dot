@@ -290,6 +290,10 @@ function renderLogRows(logs) {
     row.appendChild(typeCell);
     row.appendChild(summaryCell);
 
+    if (String(log.type).toLowerCase() === 'model_prompt') {
+      row.classList.add('log-row-model-prompt');
+    }
+
     row.addEventListener('click', () => selectLog(log.id, false));
 
     if (log.id === selectedLogId) {
