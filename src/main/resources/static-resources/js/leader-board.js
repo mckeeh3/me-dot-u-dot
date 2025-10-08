@@ -247,12 +247,16 @@ function renderPlayerGames() {
     createdCell.textContent = createdTime;
 
     const statusCell = document.createElement('td');
-    statusCell.appendChild(document.createTextNode(`${status} `));
+    statusCell.classList.add('status-cell');
+    const statusText = document.createElement('span');
+    statusText.textContent = status;
+    statusCell.appendChild(statusText);
     const statusLink = document.createElement('a');
     statusLink.href = `/game-action-log.html?gameId=${encodeURIComponent(game.gameId)}&playerId=${encodeURIComponent(selectedPlayerId)}`;
     statusLink.textContent = '📜';
     statusLink.classList.add('game-log-link');
     statusLink.setAttribute('aria-label', 'View game action log');
+    statusLink.title = 'View logs';
     statusLink.addEventListener('click', (event) => {
       event.stopPropagation();
     });

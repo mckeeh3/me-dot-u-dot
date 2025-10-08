@@ -160,6 +160,13 @@ body {
   white-space: nowrap;
 }
 
+.games-table tbody td.status-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .games-table tbody a.game-log-link {
   color: inherit;
   text-decoration: none;
