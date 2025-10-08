@@ -271,6 +271,7 @@ function renderLogRows(logs) {
       playerLink.href = `/leader-board.html?playerId=${encodeURIComponent(log.playerId)}&gameId=${encodeURIComponent(log.gameId)}`;
       playerLink.textContent = log.playerId;
       playerLink.classList.add('log-player-link');
+      playerLink.title = 'View Leader Board';
       playerLink.addEventListener('click', (event) => event.stopPropagation());
       playerCell.appendChild(playerLink);
     } else {
