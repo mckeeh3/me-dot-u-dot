@@ -3,14 +3,15 @@ package com.example.application;
 import java.time.Instant;
 import java.util.List;
 
-import akka.javasdk.annotations.ComponentId;
+import com.example.domain.PlaybookJournal;
+
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
-import com.example.domain.PlaybookJournal;
 
-@ComponentId("playbook-journal-view")
+@Component(id = "playbook-journal-view")
 public class PlaybookJournalView extends View {
 
   @Query("""

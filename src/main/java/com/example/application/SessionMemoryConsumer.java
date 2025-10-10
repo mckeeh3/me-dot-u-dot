@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import akka.javasdk.agent.SessionHistory;
 import akka.javasdk.agent.SessionMemoryEntity;
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@ComponentId("session-memory-consumer")
+@Component(id = "session-memory-consumer")
 @Consume.FromEventSourcedEntity(SessionMemoryEntity.class)
 public class SessionMemoryConsumer extends Consumer {
   static final Logger log = LoggerFactory.getLogger(SessionMemoryConsumer.class);

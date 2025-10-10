@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.AgentRole;
 import com.example.domain.AgentRoleJournal;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@ComponentId("agent-role-to-agent-role-journal-consumer")
+@Component(id = "agent-role-to-agent-role-journal-consumer")
 @Consume.FromEventSourcedEntity(AgentRoleEntity.class)
 public class AgentRoleToAgentRoleJournalConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());

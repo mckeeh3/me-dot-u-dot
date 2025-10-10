@@ -2,14 +2,15 @@ package com.example.application;
 
 import java.util.List;
 
-import akka.javasdk.annotations.ComponentId;
+import com.example.domain.Player;
+
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
-import com.example.domain.Player;
 
-@ComponentId("player-view")
+@Component(id = "player-view")
 public class PlayerView extends View {
 
   @Query("""

@@ -5,14 +5,14 @@ import static akka.Done.done;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.domain.AgentRole;
+
 import akka.Done;
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.eventsourcedentity.EventSourcedEntity;
 import akka.javasdk.eventsourcedentity.EventSourcedEntityContext;
 
-import com.example.domain.AgentRole;
-
-@ComponentId("agent-role-entity")
+@Component(id = "agent-role-entity")
 public class AgentRoleEntity extends EventSourcedEntity<AgentRole.State, AgentRole.Event> {
   final Logger log = LoggerFactory.getLogger(getClass());
   final String entityId;

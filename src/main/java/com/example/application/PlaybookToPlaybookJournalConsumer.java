@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.Playbook;
 import com.example.domain.PlaybookJournal;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@ComponentId("playbook-to-playbook-journal-consumer")
+@Component(id = "playbook-to-playbook-journal-consumer")
 @Consume.FromEventSourcedEntity(PlaybookEntity.class)
 public class PlaybookToPlaybookJournalConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());

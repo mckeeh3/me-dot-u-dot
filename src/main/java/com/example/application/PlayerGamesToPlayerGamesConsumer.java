@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.PlayerGames;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@ComponentId("player-games-to-player-games-consumer")
+@Component(id = "player-games-to-player-games-consumer")
 @Consume.FromEventSourcedEntity(PlayerGamesEntity.class)
 public class PlayerGamesToPlayerGamesConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());

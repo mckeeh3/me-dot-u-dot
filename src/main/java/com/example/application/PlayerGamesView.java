@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.PlayerGames;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
 
-@ComponentId("player-games-view")
+@Component(id = "player-games-view")
 public class PlayerGamesView extends View {
   static final Logger log = LoggerFactory.getLogger(PlayerGamesView.class);
 

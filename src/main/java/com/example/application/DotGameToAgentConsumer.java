@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@ComponentId("dot-game-to-agent-consumer")
+@Component(id = "dot-game-to-agent-consumer")
 @Consume.FromEventSourcedEntity(DotGameEntity.class)
 public class DotGameToAgentConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());

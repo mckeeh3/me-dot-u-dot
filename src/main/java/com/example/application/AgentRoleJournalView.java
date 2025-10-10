@@ -3,14 +3,15 @@ package com.example.application;
 import java.time.Instant;
 import java.util.List;
 
-import akka.javasdk.annotations.ComponentId;
+import com.example.domain.AgentRoleJournal;
+
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
-import com.example.domain.AgentRoleJournal;
 
-@ComponentId("agent-role-journal-view")
+@Component(id = "agent-role-journal-view")
 public class AgentRoleJournalView extends View {
 
   @Query("""

@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.GameActionLog;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
 
-@ComponentId("game-action-log-view")
+@Component(id = "game-action-log-view")
 public class GameActionLogView extends View {
   static final Logger log = LoggerFactory.getLogger(GameActionLogView.class);
 

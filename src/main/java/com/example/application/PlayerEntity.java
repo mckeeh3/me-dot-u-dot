@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.Player;
 
 import akka.Done;
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.keyvalueentity.KeyValueEntity;
 import akka.javasdk.keyvalueentity.KeyValueEntityContext;
 
-@ComponentId("player-entity")
+@Component(id = "player-entity")
 public class PlayerEntity extends KeyValueEntity<Player.State> {
   static final Logger log = LoggerFactory.getLogger(PlayerEntity.class);
   String entityId;

@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.PlayerGames;
 
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.eventsourcedentity.EventSourcedEntity;
 import akka.javasdk.eventsourcedentity.EventSourcedEntityContext;
 
-@ComponentId("player-games-entity")
+@Component(id = "player-games-entity")
 public class PlayerGamesEntity extends EventSourcedEntity<PlayerGames.State, PlayerGames.Event> {
   final Logger log = LoggerFactory.getLogger(getClass());
   final String entityId;
