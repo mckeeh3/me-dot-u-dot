@@ -4,6 +4,10 @@
 # Usage: ./agent-role-reset.sh <agentId>
 # Example: ./agent-role-reset.sh "my-agent-123"
 
+# This script is used to reset the agent role for a given agent ID.
+# It is used to reset the agent role to the initial system prompt.
+# This is needed when an agent mistakenly thinks it is appending to the system prompt instead of replacing it.
+
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <agentId>"
     echo "Example: $0 'my-agent-123'"

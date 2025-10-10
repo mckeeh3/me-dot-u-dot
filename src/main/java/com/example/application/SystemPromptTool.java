@@ -79,6 +79,9 @@ public class SystemPromptTool {
       var currentLength = currentPrompt.length();
       var revisedLength = revisedSystemPrompt.length();
 
+      // If the revised system prompt is less than 33% of the current system prompt, append it to the current system prompt.
+      // This is to avoid overwriting the current system prompt with a too short revised system prompt.
+      // There have been cases where an agent mistakenly thinks it is appending to the system prompt instead of replacing it.
       if (currentLength > 0 && revisedLength > 0 && revisedLength < (currentLength * 0.33)) {
         log.warn(
             "AgentId: {}, GameId: {}, Revised system prompt shorter than 33% of existing prompt. Appending instead of replacing.",
