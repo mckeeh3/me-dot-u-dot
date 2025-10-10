@@ -43,10 +43,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var agentPlayer = currentPlayer.get();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-      var prompt = new DotGameAgent.MakeMovePrompt(
-          event.gameId(),
-          event.status(),
-          agentPlayer);
+      var prompt = makeMovePromptFor(event, agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (1 game created)");
     }
@@ -64,10 +61,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var agentPlayer = currentPlayer.get();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-      var prompt = new DotGameAgent.MakeMovePrompt(
-          event.gameId(),
-          event.status(),
-          agentPlayer);
+      var prompt = makeMovePromptFor(event, agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (2 game in progress)");
 
@@ -80,10 +74,7 @@ public class DotGameToAgentConsumer extends Consumer {
         var agentPlayer = event.player1Status();
         var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-        var prompt = new DotGameAgent.MakeMovePrompt(
-            event.gameId(),
-            event.status(),
-            agentPlayer);
+        var prompt = makeMovePromptFor(event, agentPlayer);
 
         makeMove(sessionId, prompt, "Make move (3 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
@@ -92,10 +83,7 @@ public class DotGameToAgentConsumer extends Consumer {
         var agentPlayer = event.player2Status();
         var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-        var prompt = new DotGameAgent.MakeMovePrompt(
-            event.gameId(),
-            event.status(),
-            agentPlayer);
+        var prompt = makeMovePromptFor(event, agentPlayer);
 
         makeMove(sessionId, prompt, "Make move (4 game over, you " + (agentPlayer.isWinner() ? "won" : "lost") + ")");
       }
@@ -115,10 +103,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var agentPlayer = event.currentPlayerStatus().get();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-      var prompt = new DotGameAgent.MakeMovePrompt(
-          event.gameId(),
-          event.status(),
-          agentPlayer);
+      var prompt = makeMovePromptFor(event, agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (5 move forfeited)");
     }
@@ -131,10 +116,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var agentPlayer = event.player1Status();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-      var prompt = new DotGameAgent.MakeMovePrompt(
-          event.gameId(),
-          event.status(),
-          agentPlayer);
+      var prompt = makeMovePromptFor(event, agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (6 game canceled)");
     }
@@ -143,10 +125,7 @@ public class DotGameToAgentConsumer extends Consumer {
       var agentPlayer = event.player2Status();
       var sessionId = sessionId(event.gameId(), agentPlayer.player().id());
 
-      var prompt = new DotGameAgent.MakeMovePrompt(
-          event.gameId(),
-          event.status(),
-          agentPlayer);
+      var prompt = makeMovePromptFor(event, agentPlayer);
 
       makeMove(sessionId, prompt, "Make move (7 game canceled)");
     }
@@ -213,5 +192,48 @@ public class DotGameToAgentConsumer extends Consumer {
 
   static String sessionId(String gameId, String playerId) {
     return gameId + "/" + playerId;
+  }
+
+  DotGameAgent.MakeMovePrompt makeMovePromptFor(DotGame.Event.GameCreated event, DotGame.PlayerStatus agentPlayer) {
+    return new DotGameAgent.MakeMovePrompt(
+        event.gameId(),
+        event.status(),
+        agentPlayer,
+        0);
+  }
+
+  DotGameAgent.MakeMovePrompt makeMovePromptFor(DotGame.Event.MoveMade event, DotGame.PlayerStatus agentPlayer) {
+    var opponentScore = event.player1Status().score() + event.player2Status().score() - agentPlayer.score();
+
+    return new DotGameAgent.MakeMovePrompt(
+        event.gameId(),
+        event.status(),
+        agentPlayer,
+        opponentScore);
+  }
+
+  DotGameAgent.MakeMovePrompt makeMovePromptFor(DotGame.Event.MoveForfeited event, DotGame.PlayerStatus agentPlayer) {
+    var gameState = componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    var opponentScore = gameState.player1Status().score() + gameState.player2Status().score() - agentPlayer.score();
+
+    return new DotGameAgent.MakeMovePrompt(
+        event.gameId(),
+        event.status(),
+        agentPlayer,
+        opponentScore);
+  }
+
+  DotGameAgent.MakeMovePrompt makeMovePromptFor(DotGame.Event.GameCanceled event, DotGame.PlayerStatus agentPlayer) {
+    var opponentScore = event.player1Status().score() + event.player2Status().score() - agentPlayer.score();
+
+    return new DotGameAgent.MakeMovePrompt(
+        event.gameId(),
+        event.status(),
+        agentPlayer,
+        opponentScore);
   }
 }

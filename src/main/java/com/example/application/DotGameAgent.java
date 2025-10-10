@@ -17,10 +17,10 @@ import akka.javasdk.agent.ModelProvider;
 import akka.javasdk.agent.ModelTimeoutException;
 import akka.javasdk.agent.RateLimitException;
 import akka.javasdk.agent.ToolCallExecutionException;
-import akka.javasdk.annotations.ComponentId;
+import akka.javasdk.annotations.Component;
 import akka.javasdk.client.ComponentClient;
 
-@ComponentId("dot-game-agent")
+@Component(id = "dot-game-agent")
 public class DotGameAgent extends Agent {
   static final Logger log = LoggerFactory.getLogger(DotGameAgent.class);
   final ComponentClient componentClient;
@@ -118,9 +118,10 @@ public class DotGameAgent extends Agent {
   public record MakeMovePrompt(
       String gameId,
       DotGame.Status status,
-      PlayerStatus player) {
+      PlayerStatus player,
+      int opponentScore) {
 
-    public String toPrompt() {
+    public String oldToPrompt() {
       if (status == DotGame.Status.in_progress) {
         return """
             It's your turn to make a move.
@@ -147,7 +148,8 @@ public class DotGameAgent extends Agent {
             - Use SystemPromptTool_writeYourSystemPrompt if you need to adjust your decision-making approach
 
             Remember: You must make a move using GameMoveTool_makeMove - this is not optional.
-            """.formatted(player.player().id(), gameId, status).stripIndent().stripIndent();
+            """.formatted(player.player().id(), gameId, status)
+            .stripIndent();
       }
 
       return """
@@ -176,7 +178,82 @@ public class DotGameAgent extends Agent {
           • System Prompt: Decision-making philosophy, risk assessment, opponent analysis approach, general behavioral adjustments
 
           This post-game analysis is crucial for continuous improvement and better performance in future games.
-          """.formatted(player.isWinner() ? "won" : "lost", player.player().id(), gameId, status).stripIndent().stripIndent();
+          """.formatted(player.isWinner() ? "won" : "lost", player.player().id(), gameId, status)
+          .stripIndent();
+    }
+
+    public String toPrompt() {
+      if (status() == DotGame.Status.in_progress) {
+        return """
+            TURN BRIEFING — YOUR MOVE
+            Game Id: %s | Agent Id: %s | Game Status: %s | Your Score: %d | Opponent Score: %d
+
+            CORE REMINDERS
+            • You must read your latest playbook and the current game state before planning.
+            • Envision the board three moves ahead: identify scoring chances, opponent threats, and tempo shifts.
+            • Your response must include a single GameMoveTool_makeMove call plus concise strategic commentary.
+
+            REQUIRED FLOW FOR THIS TURN
+            1. PlaybookTool_readPlaybook to refresh applicable tactics.
+            2. GameStateTool_getGameState to inspect the precise board snapshot.
+            3. (Optional) GameMoveTool_getMoveHistory if you need pattern context.
+            4. Evaluate candidate moves: projected score, defensive coverage, future hooks.
+            5. Choose the move that best advances your long-term scoring plan while guarding against immediate counter play.
+            6. Call GameMoveTool_makeMove with the chosen coordinate.
+            7. Immediately articulate: current board summary, reason for the move, key risks, lessons for your playbook.
+
+            LEARNING PROMPT
+            • Note any new scoring formations, opponent habits, or mistakes worth memorializing after the turn.
+            • If you discover rules or counter strategies you do not yet master, flag them for post-game study.
+            • Capture concise hypotheses you will test in upcoming moves.
+
+            OUTPUT RULES
+            • Call GameMoveTool_makeMove exactly once.
+            • Follow with a short strategic reflection covering state, intent, and insights.
+            • Do not ask for user input; rely solely on tools and your memories.
+            • No free-form conversation outside this structure.
+            """
+            .formatted(
+                gameId(),
+                player().player().id(),
+                status().name(),
+                player().score(),
+                opponentScore())
+            .stripIndent();
+      }
+
+      return """
+          POST-GAME LEARNING REVIEW
+          Game Id: %s | Agent Id: %s | Result: %s | Your Score: %d | Opponent Score: %d
+
+          OBJECTIVE
+          Convert this match into enduring expertise by extracting actionable lessons and upgrading your playbook/system prompt.
+
+          REQUIRED ANALYSIS
+          1. GameMoveTool_getMoveHistory — replay every turn, noting scoring bursts, mistakes, and pivotal tempo swings.
+          2. Summarize the storyline: opening patterns, mid-game fights, end-game closures.
+          3. Identify three categories:
+             • Winning formations or counter plays you want to repeat
+             • Errors (your own or opponent’s) and how to prevent/exploit them
+             • New rules, scoring patterns, or timing nuances confirmed in this match
+
+          MEMORY UPDATES
+          • PlaybookTool_writePlaybook — add structured entries (Situation → Pattern → Move → Outcome → Guideline).
+          • SystemPromptTool_writeSystemPrompt — only if your core behavior charter needs a deliberate upgrade.
+          • Log any guardrail or anomaly observations so future matches start smarter.
+
+          OUTPUT DISCIPLINE
+          • Provide a concise result recap, top lessons, and the exact updates you plan to make.
+          • No tool calls needed in this reply, but specify which tools you will use next to capture learning.
+          • Do not request user input; every action is driven by your analysis and the provided tools.
+          """
+          .formatted(
+              gameId(),
+              player().player().id(),
+              player().isWinner() ? "You Won" : "You lost",
+              player().score(),
+              opponentScore())
+          .stripIndent();
     }
   }
 }

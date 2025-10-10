@@ -672,6 +672,9 @@ async function loadPlayer(which) {
     return;
   }
   const res = await fetch(`/player/get-player/${encodeURIComponent(id)}`);
+  if (!res.ok) {
+    return null;
+  }
   const player = await res.json();
   if (which === 'p1') state.p1 = player;
   else state.p2 = player;
