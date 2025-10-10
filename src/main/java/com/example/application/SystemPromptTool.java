@@ -65,11 +65,32 @@ public class SystemPromptTool {
   public Done writeSystemPrompt(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
-      @Description("The revised system prompt instructions you want to write") String instructions) {
+      @Description("The revised system prompt you want to write") String revisedSystemPrompt) {
     log.debug("AgentId: {}, GameId: {}, Write system prompt", agentId, gameId);
-    gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", instructions);
 
-    var command = new AgentRole.Command.WriteAgentRole(agentId, instructions);
+    var currentState = componentClient.forEventSourcedEntity(agentId)
+        .method(AgentRoleEntity::getState)
+        .invoke();
+
+    var currentPrompt = currentState.systemPrompt();
+    var finalPrompt = revisedSystemPrompt;
+
+    if (currentPrompt != null && !currentPrompt.isBlank() && revisedSystemPrompt != null) {
+      var currentLength = currentPrompt.length();
+      var revisedLength = revisedSystemPrompt.length();
+
+      if (currentLength > 0 && revisedLength > 0 && revisedLength < (currentLength * 0.33)) {
+        log.info(
+            "AgentId: {}, GameId: {}, Revised system prompt shorter than 33% of existing prompt. Appending instead of replacing.",
+            agentId,
+            gameId);
+        finalPrompt = currentPrompt + "\n\n" + revisedSystemPrompt;
+      }
+    }
+
+    gameLog.logToolCall(gameId, agentId, "writeSystemPrompt", finalPrompt);
+
+    var command = new AgentRole.Command.WriteAgentRole(agentId, finalPrompt);
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(AgentRoleEntity::writeAgentRole)
