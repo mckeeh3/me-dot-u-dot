@@ -10,7 +10,8 @@ public interface GameActionLog {
     tool_call,
     model_prompt,
     model_response,
-    forfeit_move
+    forfeit_move,
+    guardrail_event
   }
 
   public record State(

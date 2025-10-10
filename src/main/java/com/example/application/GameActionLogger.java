@@ -97,6 +97,10 @@ public class GameActionLogger {
     log(GameActionLog.Type.forfeit_move, time, playerId, gameId, message);
   }
 
+  public void logGuardrailEvent(String gameId, String playerId, String message) {
+    log(GameActionLog.Type.guardrail_event, playerId, gameId, message);
+  }
+
   String json(DotGame.ScoringMoves scoringMoves) {
     var om = JsonSupport.getObjectMapper();
     try {

@@ -80,11 +80,13 @@ public class SystemPromptTool {
       var revisedLength = revisedSystemPrompt.length();
 
       if (currentLength > 0 && revisedLength > 0 && revisedLength < (currentLength * 0.33)) {
-        log.info(
+        log.warn(
             "AgentId: {}, GameId: {}, Revised system prompt shorter than 33% of existing prompt. Appending instead of replacing.",
             agentId,
             gameId);
         finalPrompt = currentPrompt + "\n\n" + revisedSystemPrompt;
+        var message = "System prompt revision too short (%d vs %d chars). Appended instead of replacing.".formatted(revisedLength, currentLength);
+        gameLog.logGuardrailEvent(gameId, agentId, message);
       }
     }
 
