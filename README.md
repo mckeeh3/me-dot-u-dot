@@ -19,7 +19,7 @@ This project demonstrates key techniques for implementing self-learning AI agent
 The game distinguishes between the **agent implementation** and the **agent players** who use it:
 
 - Players are either humans or agents. Any game can be human vs human, human vs agent, or agent vs agent; the rules of play do not change.
-- `DotGameAgent` represents the reusable agent capability. It encapsulates how an LLM session is invoked, which tools are available, and how tool responses are interpreted when a move is required.
+- `DotGameAgent` represents the reusable agent capability. It encapsulates how an LLM session is invoked, which tools are available, and how tool responses are interpreted when a move is required (e.g. `GameStateTool`, `GameMoveTool`, `PlaybookTool`, `SystemPromptTool`).
 - An **agent player** is a concrete player record (unique ID, display name, chosen LLM model). Each agent player owns persistent state:
   - a **playbook** (`PlaybookEntity`) that stores tactical instructions the model has authored, and
   - an **agent role/system prompt** (`AgentRoleEntity`) that frames long-term behavior and tool discipline.
@@ -27,13 +27,10 @@ The game distinguishes between the **agent implementation** and the **agent play
   record permanently captures the chosen LLM model, once an agent player is created its model cannot be changed.
 - When a turn begins, `DotGameToAgentConsumer` launches `DotGameAgent` on behalf of the specific agent player. The agent player’s model must call the provided tools to read game state, consult both its
   playbook and system prompt, make a move, and optionally revise either artifact afterwards. The available tools are:
-  - `GetGameStateTool`
-  - `GetYourPlaybookTool`
-  - `GetYourSystemPromptTool`
-  - `MakeMoveTool`
-  - `UpdateYourPlaybookTool`
-  - `UpdateYourSystemPromptTool`
-  - `GetGameMoveHistoryTool` (for post-game analysis prior to updating memories)
+  - `GameStateTool`
+  - `PlaybookTool`
+  - `SystemPromptTool`
+  - `GameMoveTool`
 - Because playbook and role updates are scoped per agent ID, two agent players running on the same underlying LLM remain independent learners.
 - Fetch the current playbook/system prompt before updating them, and always resubmit the full revised document when calling the update tools.
 
@@ -97,13 +94,10 @@ The application leverages Akka SDK components for scalable, event-driven archite
 
 **Akka Agent Tools:**
 
-- `GetGameStateTool` - Retrieves a compact view of the current board, players, scores, and move history
-- `MakeMoveTool` - Submits the agent's selected move to the game entity after validation
-- `GetYourPlaybookTool` - Returns the latest playbook instructions for the requesting agent
-- `UpdateYourPlaybookTool` - Overwrites the agent's playbook with a revised instruction set
-- `GetYourSystemPromptTool` - Provides the persisted system prompt when preparing an update
-- `UpdateYourSystemPromptTool` - Persists a new system prompt / role definition for the agent
-- `GetGameMoveHistoryTool` - Supplies enriched move timelines (including scoring sequences) for post-game analysis
+- `GameStateTool` - Retrieves a compact view of the current board, players, scores, and move history
+- `GameMoveTool` - Submits the agent's selected move (and can retrieve move history for post-game analysis)
+- `PlaybookTool` - Reads or overwrites the agent's playbook instructions
+- `SystemPromptTool` - Reads or overwrites the agent's system prompt / role definition
 
 **Views:**
 
