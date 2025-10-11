@@ -49,7 +49,7 @@ async function loadRecentGames(options = {}) {
 
   tbody.innerHTML = `
       <tr class="game-list-empty-row">
-        <td>Loading recent games…</td>
+        <td colspan="3">Loading recent games…</td>
       </tr>
     `;
 
@@ -103,7 +103,7 @@ async function loadRecentGames(options = {}) {
     console.error('Error loading recent games:', error);
     tbody.innerHTML = `
         <tr class="game-list-empty-row">
-          <td>Unable to load recent games.</td>
+          <td colspan="3">Unable to load recent games.</td>
         </tr>
       `;
   }
@@ -120,7 +120,7 @@ function renderRecentGames() {
   if (recentGames.length === 0) {
     tbody.innerHTML = `
         <tr class="game-list-empty-row">
-          <td>No recent games found.</td>
+          <td colspan="3">No recent games found.</td>
         </tr>
       `;
     return;
@@ -131,9 +131,41 @@ function renderRecentGames() {
     row.dataset.gameId = game.gameId;
     const created = formatDateTime(game.createdAt);
 
-    row.innerHTML = `
-        <td data-label="Started">${created}</td>
-      `;
+    const startCell = document.createElement('td');
+    startCell.setAttribute('data-label', 'Started');
+    startCell.textContent = created;
+
+    const player1Cell = document.createElement('td');
+    player1Cell.setAttribute('data-label', 'Player 1');
+    if (game.player1Id) {
+      const p1Link = document.createElement('a');
+      p1Link.href = `/leader-board.html?playerId=${encodeURIComponent(game.player1Id)}&gameId=${encodeURIComponent(game.gameId)}`;
+      p1Link.textContent = game.player1Winner ? '🏆' : '❌';
+      p1Link.classList.add('game-list-player-link');
+      p1Link.title = 'View Player 1 on Leader Board';
+      p1Link.addEventListener('click', (event) => event.stopPropagation());
+      player1Cell.appendChild(p1Link);
+    } else {
+      player1Cell.textContent = '—';
+    }
+
+    const player2Cell = document.createElement('td');
+    player2Cell.setAttribute('data-label', 'Player 2');
+    if (game.player2Id) {
+      const p2Link = document.createElement('a');
+      p2Link.href = `/leader-board.html?playerId=${encodeURIComponent(game.player2Id)}&gameId=${encodeURIComponent(game.gameId)}`;
+      p2Link.textContent = game.player2Winner ? '🏆' : '❌';
+      p2Link.classList.add('game-list-player-link');
+      p2Link.title = 'View Player 2 on Leader Board';
+      p2Link.addEventListener('click', (event) => event.stopPropagation());
+      player2Cell.appendChild(p2Link);
+    } else {
+      player2Cell.textContent = '—';
+    }
+
+    row.appendChild(startCell);
+    row.appendChild(player1Cell);
+    row.appendChild(player2Cell);
 
     row.addEventListener('click', () => selectGame(game.gameId));
 
@@ -266,16 +298,20 @@ function renderLogRows(logs) {
 
     const playerCell = document.createElement('td');
     playerCell.setAttribute('data-label', 'Player');
+    playerCell.textContent = log.playerId || '—';
+
+    const linkCell = document.createElement('td');
+    linkCell.setAttribute('data-label', 'Links');
     if (log.playerId) {
-      const playerLink = document.createElement('a');
-      playerLink.href = `/leader-board.html?playerId=${encodeURIComponent(log.playerId)}&gameId=${encodeURIComponent(log.gameId)}`;
-      playerLink.textContent = log.playerId;
-      playerLink.classList.add('log-player-link');
-      playerLink.title = 'View Leader Board';
-      playerLink.addEventListener('click', (event) => event.stopPropagation());
-      playerCell.appendChild(playerLink);
+      const leaderLink = document.createElement('a');
+      leaderLink.href = `/leader-board.html?playerId=${encodeURIComponent(log.playerId)}&gameId=${encodeURIComponent(log.gameId)}`;
+      leaderLink.textContent = '📜';
+      leaderLink.classList.add('log-player-link');
+      leaderLink.title = 'View Leader Board';
+      leaderLink.addEventListener('click', (event) => event.stopPropagation());
+      linkCell.appendChild(leaderLink);
     } else {
-      playerCell.textContent = '—';
+      linkCell.textContent = '—';
     }
 
     const typeCell = document.createElement('td');
@@ -288,6 +324,7 @@ function renderLogRows(logs) {
 
     row.appendChild(timeCell);
     row.appendChild(playerCell);
+    row.appendChild(linkCell);
     row.appendChild(typeCell);
     row.appendChild(summaryCell);
 
