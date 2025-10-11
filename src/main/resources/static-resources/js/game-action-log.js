@@ -300,20 +300,6 @@ function renderLogRows(logs) {
     playerCell.setAttribute('data-label', 'Player');
     playerCell.textContent = log.playerId || '—';
 
-    const linkCell = document.createElement('td');
-    linkCell.setAttribute('data-label', 'Links');
-    if (log.playerId) {
-      const leaderLink = document.createElement('a');
-      leaderLink.href = `/leader-board.html?playerId=${encodeURIComponent(log.playerId)}&gameId=${encodeURIComponent(log.gameId)}`;
-      leaderLink.textContent = '📜';
-      leaderLink.classList.add('log-player-link');
-      leaderLink.title = 'View Leader Board';
-      leaderLink.addEventListener('click', (event) => event.stopPropagation());
-      linkCell.appendChild(leaderLink);
-    } else {
-      linkCell.textContent = '—';
-    }
-
     const typeCell = document.createElement('td');
     typeCell.setAttribute('data-label', 'Type');
     typeCell.textContent = formatLogType(log.type);
@@ -324,7 +310,6 @@ function renderLogRows(logs) {
 
     row.appendChild(timeCell);
     row.appendChild(playerCell);
-    row.appendChild(linkCell);
     row.appendChild(typeCell);
     row.appendChild(summaryCell);
 
