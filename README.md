@@ -139,6 +139,17 @@ The playbook journal provides a unique window into agent cognition:
 
 Access agent learning progression through the web interface's "View Journal" feature for any AI player.
 
+### Game Action Log Viewer
+
+Use `/game-action-log.html` to inspect every move and tool call in chronological order:
+
+- **Recent games list** – jump straight into a match or open either player’s leader-board record via the scroll icons.
+- **Action stream** – see timestamps, actors, tool invocations, prompts, and responses with pagination for long games.
+- **Detail pane** – select any row to read the full payload (including model prompts, responses, and guardrail events) in a fixed-width panel.
+- **Cross-page navigation** – player links route back to `/leader-board.html` with the relevant player/game preselected, keeping investigation flows tight.
+
+This viewer is invaluable when auditing odd agent behaviour, verifying tool discipline, or tracing how lessons should feed into the playbook and system prompt.
+
 ### Agent Role Journal System
 
 The agent role journal complements the playbook history by recording every version of the system prompt that governs an agent's behavior:
@@ -169,6 +180,7 @@ View historical agent roles via `/agent-role.html`, which mirrors the playbook j
 - **LLM Integration** - OpenAI GPT-4o (pluggable architecture for other providers)
 - **Structured Prompting** - Engineered system prompts for optimal learning
 - **Tool Integration** - Agents use tools for game analysis, decision support, move execution, and maintaining playbooks/system prompts
+- **Guardrail Logging** - Automatic detection of suspicious prompt updates with append-only fallbacks recorded in the action log
 
 ## 🚀 Installation & Setup
 
