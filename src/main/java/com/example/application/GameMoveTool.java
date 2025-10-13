@@ -139,7 +139,15 @@ public class GameMoveTool {
 
     record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
       static ScoringMove from(DotGame.ScoringMove scoringMove) {
-        return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
+        var type = switch (scoringMove.type()) {
+          case horizontal -> "horizontal line";
+          case vertical -> "vertical line";
+          case diagonal -> "diagonal line";
+          case adjacent -> "multiple adjacent squares";
+          case topToBottom -> "connected squares from top edge to bottom edge";
+          case leftToRight -> "connected squares from left edge to right edge";
+        };
+        return new ScoringMove(scoringMove.move().squareId(), type, scoringMove.score(), scoringMove.scoringSquares());
       }
     }
 
@@ -155,11 +163,14 @@ public class GameMoveTool {
 
     record MoveScore(int delta, ScoringMoves scoringMoves) {
       static MoveScore from(String agentId, String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
-        var delta = stateAfterMove.player1Status().score() - stateBeforeMove.player1Status().score()
-            + stateAfterMove.player2Status().score() - stateBeforeMove.player2Status().score();
         var scoringMoves = agentId.equals(stateAfterMove.player1Status().player().id())
             ? stateAfterMove.player1Status().scoringMoves()
             : stateAfterMove.player2Status().scoringMoves();
+        var delta = scoringMoves.scoringMoves()
+            .stream()
+            .filter(m -> m.move().squareId().equals(squareId))
+            .map(m -> m.score())
+            .reduce(0, Integer::sum);
 
         return new MoveScore(delta, ScoringMoves.from(squareId, scoringMoves));
       }

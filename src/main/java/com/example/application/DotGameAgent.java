@@ -196,11 +196,10 @@ public class DotGameAgent extends Agent {
             REQUIRED FLOW FOR THIS TURN
             1. PlaybookTool_readPlaybook to refresh applicable tactics.
             2. GameStateTool_getGameState to inspect the precise board snapshot.
-            3. (Optional) GameMoveTool_getMoveHistory if you need pattern context.
-            4. Evaluate candidate moves: projected score, defensive coverage, future hooks.
-            5. Choose the move that best advances your long-term scoring plan while guarding against immediate counter play.
-            6. Call GameMoveTool_makeMove with the chosen coordinate.
-            7. Immediately articulate: current board summary, reason for the move, key risks, lessons for your playbook.
+            3. Evaluate candidate moves: projected score, defensive coverage, future hooks.
+            4. Choose the move that best advances your long-term scoring plan while guarding against immediate counter play.
+            5. Call GameMoveTool_makeMove with the chosen coordinate.
+            6. Immediately articulate: current board summary, reason for the move, key risks, lessons for your playbook.
 
             LEARNING PROMPT
             • Note any new scoring formations, opponent habits, or mistakes worth memorializing after the turn.
@@ -227,9 +226,9 @@ public class DotGameAgent extends Agent {
           Game Id: %s | Agent Id: %s | Result: %s | Your Score: %d | Opponent Score: %d
 
           OBJECTIVE
-          Convert this match into enduring expertise by extracting actionable lessons and upgrading your playbook/system prompt.
+          Convert this match into enduring expertise by extracting actionable lessons and upgrading your playbook and system prompt.
 
-          REQUIRED ANALYSIS
+          REQUIRED GAME MOVE ANALYSIS
           1. GameMoveTool_getMoveHistory — replay every turn, noting scoring bursts, mistakes, and pivotal tempo swings.
           2. Summarize the storyline: opening patterns, mid-game fights, end-game closures.
           3. Identify three categories:
@@ -237,10 +236,15 @@ public class DotGameAgent extends Agent {
              • Errors (your own or opponent’s) and how to prevent/exploit them
              • New rules, scoring patterns, or timing nuances confirmed in this match
 
-          MEMORY UPDATES
-          • PlaybookTool_writePlaybook — add structured entries (Situation → Pattern → Move → Outcome → Guideline).
-          • SystemPromptTool_writeSystemPrompt — only if your core behavior charter needs a deliberate upgrade.
-          • Log any guardrail or anomaly observations so future matches start smarter.
+          REQUIRED PLAYBOOK REVIEW AND OPTIONAL UPDATE
+          It is important to learn the scoring move types and how to score them.
+          You should update your playbook to capture the scoring move types and how to score them.
+          1. PlaybookTool_readPlaybook — review your playbook to see if there are any new insights or patterns you want to add.
+          2. PlaybookTool_writePlaybook — add structured entries (Situation → Pattern → Move → Outcome → Guideline).
+
+          REQUIRED SYSTEM PROMPT REVIEW AND OPTIONAL UPDATE
+          1. SystemPromptTool_readSystemPrompt — review your system prompt to see if there are any new insights or patterns you want to add.
+          2. SystemPromptTool_writeSystemPrompt — only if your core behavior charter needs a deliberate upgrade.
 
           OUTPUT DISCIPLINE
           • Provide a concise result recap, top lessons, and the exact updates you plan to make.
