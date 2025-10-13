@@ -198,7 +198,7 @@ public class DotGameAgent extends Agent {
             2. GameStateTool_getGameState to inspect the precise board snapshot.
             3. Evaluate candidate moves: projected score, defensive coverage, future hooks.
             4. Choose the move that best advances your long-term scoring plan while guarding against immediate counter play.
-            5. Call GameMoveTool_makeMove with the chosen coordinate.
+            5. IMPORTANT: Call GameMoveTool_makeMove with the chosen square to make your move.
             6. Immediately articulate: current board summary, reason for the move, key risks, lessons for your playbook.
 
             LEARNING PROMPT
@@ -227,6 +227,8 @@ public class DotGameAgent extends Agent {
 
           OBJECTIVE
           Convert this match into enduring expertise by extracting actionable lessons and upgrading your playbook and system prompt.
+          It is important to learn the scoring move types and how to score them.
+          When you observe new scoring moves, you should update your playbook to capture the scoring move types and how to score them.
 
           REQUIRED GAME MOVE ANALYSIS
           1. GameMoveTool_getMoveHistory — replay every turn, noting scoring bursts, mistakes, and pivotal tempo swings.
@@ -237,8 +239,6 @@ public class DotGameAgent extends Agent {
              • New rules, scoring patterns, or timing nuances confirmed in this match
 
           REQUIRED PLAYBOOK REVIEW AND OPTIONAL UPDATE
-          It is important to learn the scoring move types and how to score them.
-          You should update your playbook to capture the scoring move types and how to score them.
           1. PlaybookTool_readPlaybook — review your playbook to see if there are any new insights or patterns you want to add.
           2. PlaybookTool_writePlaybook — add structured entries (Situation → Pattern → Move → Outcome → Guideline).
 
