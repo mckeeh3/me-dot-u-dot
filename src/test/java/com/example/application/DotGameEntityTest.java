@@ -511,60 +511,6 @@ public class DotGameEntityTest {
 
   @Test
   void testRealGame() {
-    // move history
-    // {
-    // "squareId": "C3",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "B3",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "C2",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "C1",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "C4",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "C5",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "D3",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "E3",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "B2",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "B1",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "D4",
-    // "playerId": "agent-gemini-2-5-pro"
-    // },
-    // {
-    // "squareId": "E4",
-    // "playerId": "agent-gemini-2-5-flash"
-    // },
-    // {
-    // "squareId": "D2",
-    // "playerId": "agent-gemini-2-5-pro"
-    // }
-
     var testKit = EventSourcedTestKit.of(DotGameEntity::new);
     var gameId = "game-1111";
     var player1 = new DotGame.Player("player1", DotGame.PlayerType.human, "Alice", "model1");

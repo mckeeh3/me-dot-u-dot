@@ -9,7 +9,6 @@ import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.application.GameMoveTool;
-import com.example.application.GameMoveTool.MoveHistory;
 import com.example.application.GameStateTool;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
@@ -161,9 +160,15 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
-  public MoveHistory getGameMoveHistoryTool(String gameId) {
+  public GameMoveTool.GetMoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
     return new GameMoveTool(componentClient).getMoveHistory(gameId, "");
+  }
+
+  @Get("/make-move-tool-test/{gameId}/{agentId}/{squareId}")
+  public GameMoveTool.MakeMoveTool.Response getMakeMoveTool(String gameId, String agentId, String squareId) {
+    log.debug("Get make move tool: {}, {}, {}", gameId, agentId, squareId);
+    return new GameMoveTool(componentClient).makeMove(gameId, agentId, squareId);
   }
 
   public record CreateGame(String gameId, Player player1, Player player2, Board.Level level) {}

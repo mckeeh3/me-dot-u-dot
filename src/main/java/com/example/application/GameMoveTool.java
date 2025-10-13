@@ -36,7 +36,7 @@ public class GameMoveTool {
 
       The tool will return "Move completed" if the move was successful, otherwise it will return "Move rejected".
       """)
-  public String makeMove(
+  public MakeMoveTool.Response makeMove(
       @Description("The ID of the game you are making a move in") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId,
       @Description("""
@@ -57,34 +57,144 @@ public class GameMoveTool {
 
     var gameOver = stateAfterMove.status() != DotGame.Status.in_progress;
     var moveCompleted = stateBeforeMove.moveHistory().size() < stateAfterMove.moveHistory().size();
-    var areYouCurrentPlayer = stateAfterMove.currentPlayer().isPresent() && stateAfterMove.currentPlayer().get().player().id().equals(agentId);
+    // var areYouCurrentPlayer = stateAfterMove.currentPlayer().isPresent() &&
+    // stateAfterMove.currentPlayer().get().player().id().equals(agentId);
+    // var moveScorePlayer1 = stateAfterMove.player1Status().score() - stateBeforeMove.player1Status().score();
+    // var moveScorePlayer2 = stateAfterMove.player2Status().score() - stateBeforeMove.player2Status().score();
+    // var moveScore = moveScorePlayer1 + moveScorePlayer2;
+    // var moveScoreMsg = moveScore < 1 ? "" : ", move scored %s point%s".formatted(moveScore, moveScore > 1 ? "s" : "");
 
     if (moveCompleted && gameOver) {
-      var result = "Move to %s completed, game over, you %s".formatted(squareId, stateAfterMove.status() == DotGame.Status.won_by_player ? "won" : "lost");
-      log.debug(result);
+      // var playerStatus = stateAfterMove.status() == DotGame.Status.won_by_player ? "won" : "lost";
+      // var result = "Move to %s completed%s, game over, you %s".formatted(squareId, moveScoreMsg, playerStatus);
+      var result = MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
+      log.debug(json(result));
+      gameLog.logToolCall(gameId, agentId, "makeMove", json(result));
 
-      return result;
+      return MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
     }
 
     if (moveCompleted) {
-      var result = "Move to %s completed, it's your opponent's turn".formatted(squareId);
-      log.debug(result);
-      gameLog.logToolCall(gameId, agentId, "makeMove", result);
+      // var result = "Move to %s completed%s, it's your opponent's turn".formatted(squareId, moveScoreMsg);
+      var result = MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
+      log.debug(json(result));
+      gameLog.logToolCall(gameId, agentId, "makeMove", json(result));
 
-      return result;
+      return MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
     }
 
-    var moveResult = "Move to %s %s, you %s the current player, %s"
-        .formatted(
-            squareId,
-            (moveCompleted ? "completed" : "rejected"),
-            (areYouCurrentPlayer ? "are" : "are not"),
-            (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
+    // var moveResult = "Move to %s rejected, you %s the current player, %s"
+    // .formatted(
+    // squareId,
+    // (areYouCurrentPlayer ? "are" : "are not"),
+    // (areYouCurrentPlayer ? "it's still your turn, try again" : "it's your opponent's turn"));
 
-    log.debug(moveResult);
-    gameLog.logToolCall(gameId, agentId, "makeMove", moveResult);
+    var result = MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
 
-    return moveResult;
+    log.debug(json(result));
+    gameLog.logToolCall(gameId, agentId, "makeMove", json(result));
+
+    return MakeMoveTool.Response.from(agentId, squareId, stateBeforeMove, stateAfterMove);
+  }
+
+  static String json(MakeMoveTool.Response response) {
+    var om = JsonSupport.getObjectMapper();
+    try {
+      return om.writerWithDefaultPrettyPrinter().writeValueAsString(response);
+    } catch (JsonProcessingException e) {
+      return "Make move tool response failed: %s".formatted(e.getMessage());
+    }
+  }
+
+  public interface MakeMoveTool {
+    record MoveDetails(String squareId, String moveWas, String reason) {
+      static MoveDetails from(String squareId, DotGame.State stateBeforeMove, DotGame.State gameState) {
+        var moveCompleted = stateBeforeMove.moveHistory().size() < gameState.moveHistory().size();
+        var moveWas = moveCompleted ? "completed" : "rejected";
+        var squareNotAvailable = stateBeforeMove.moveHistory().stream().noneMatch(m -> m.squareId().equals(squareId));
+        var reason = "Legal move, moved to an available square";
+
+        if (!moveCompleted && squareNotAvailable) {
+          reason = "Illegal move, it's not your turn";
+        }
+        if (!moveCompleted && !squareNotAvailable) {
+          reason = "Illegal move, square %s is not available".formatted(squareId);
+        }
+
+        return new MoveDetails(squareId, moveWas, reason);
+      }
+    }
+
+    record CumulativeScore(int you, int opponent) {
+      static CumulativeScore from(String agentId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
+        var player1Id = stateBeforeMove.player1Status().player().id();
+        var p1Score = stateAfterMove.player1Status().score();
+        var p2Score = stateAfterMove.player2Status().score();
+        var you = agentId.equals(player1Id) ? p1Score : p2Score;
+        var opponent = agentId.equals(player1Id) ? p2Score : p1Score;
+
+        return new CumulativeScore(you, opponent);
+      }
+    }
+
+    record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
+      static ScoringMove from(DotGame.ScoringMove scoringMove) {
+        return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
+      }
+    }
+
+    record ScoringMoves(List<ScoringMove> scoringMoves) {
+      static ScoringMoves from(String squareId, DotGame.ScoringMoves scoringMoves) {
+        return new ScoringMoves(scoringMoves.scoringMoves()
+            .stream()
+            .filter(sm -> sm.move().squareId().equals(squareId))
+            .map(ScoringMove::from)
+            .toList());
+      }
+    }
+
+    record MoveScore(int delta, ScoringMoves scoringMoves) {
+      static MoveScore from(String agentId, String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
+        var delta = stateAfterMove.player1Status().score() - stateBeforeMove.player1Status().score()
+            + stateAfterMove.player2Status().score() - stateBeforeMove.player2Status().score();
+        var scoringMoves = agentId.equals(stateAfterMove.player1Status().player().id())
+            ? stateAfterMove.player1Status().scoringMoves()
+            : stateAfterMove.player2Status().scoringMoves();
+
+        return new MoveScore(delta, ScoringMoves.from(squareId, scoringMoves));
+      }
+    }
+
+    record NextPlayer(String playerId, String reason) {
+      static NextPlayer from(String agentId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
+        var agentPlayerStatus = stateAfterMove.player1Status().player().id().equals(agentId)
+            ? stateAfterMove.player1Status()
+            : stateAfterMove.player2Status();
+
+        if (stateAfterMove.status() != DotGame.Status.in_progress) {
+          var reason = "The game is over, you %s".formatted(agentPlayerStatus.isWinner() ? "won" : "lost");
+          return new NextPlayer("", reason);
+        }
+
+        var nextPlayerId = stateAfterMove.currentPlayer().get().player().id();
+        var reason = nextPlayerId.equals(agentId)
+            ? "It's still your turn, try again"
+            : "It's your opponent's turn";
+
+        return new NextPlayer(nextPlayerId, reason);
+      }
+    }
+
+    public record Response(MoveDetails moveDetails, CumulativeScore cumulativeScore, MoveScore moveScore, NextPlayer nextPlayer) {
+      static Response from(String agentId, String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
+        var moveDetails = MoveDetails.from(squareId, stateBeforeMove, stateAfterMove);
+        var cumulativeScore = CumulativeScore.from(agentId, stateBeforeMove, stateAfterMove);
+        var moveScore = MoveScore.from(agentId, squareId, stateBeforeMove, stateAfterMove);
+        var nextPlayer = NextPlayer.from(agentId, stateBeforeMove, stateAfterMove);
+
+        return new Response(moveDetails, cumulativeScore, moveScore, nextPlayer);
+      }
+    }
   }
 
   @FunctionTool(description = """
@@ -103,7 +213,7 @@ public class GameMoveTool {
       Updating your playbook and system prompt enables you to improve your performance in future games.
       Preserve the trustworthy foundations while evolving the areas that need refinement.
       """)
-  public MoveHistory getMoveHistory(
+  public GetMoveHistoryTool.Response getMoveHistory(
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("GameId: {}, AgentId: {}, Get game move history", gameId, agentId);
@@ -112,7 +222,7 @@ public class GameMoveTool {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var moveHistory = MoveHistory.from(gameState);
+    var moveHistory = GetMoveHistoryTool.Response.from(gameState);
 
     if (!agentId.isEmpty()) {
       gameLog.logToolCall(gameId, agentId, "getMoveHistory", json(moveHistory));
@@ -121,7 +231,7 @@ public class GameMoveTool {
     return moveHistory;
   }
 
-  String json(MoveHistory moveHistory) {
+  static String json(GetMoveHistoryTool.Response moveHistory) {
     var om = JsonSupport.getObjectMapper();
     try {
       return om.writerWithDefaultPrettyPrinter().writeValueAsString(moveHistory);
@@ -130,39 +240,41 @@ public class GameMoveTool {
     }
   }
 
-  record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
-    static ScoringMove from(DotGame.ScoringMove scoringMove) {
-      return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
+  public interface GetMoveHistoryTool {
+    record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
+      static ScoringMove from(DotGame.ScoringMove scoringMove) {
+        return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
+      }
     }
-  }
 
-  record Move(String squareId, String playerId, int moveScore, long thinkMs, List<ScoringMove> scoringMoves) {
-    static Move from(DotGame.Move move, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
-      var p1ScoringMoves = player1ScoringMoves.scoringMoves()
-          .stream()
-          .filter(sm -> sm.move().squareId().equals(move.squareId()))
-          .map(ScoringMove::from).toList();
-      var p2ScoringMoves = player2ScoringMoves.scoringMoves()
-          .stream()
-          .filter(sm -> sm.move().squareId().equals(move.squareId()))
-          .map(ScoringMove::from).toList();
-      var scoringMoves = Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList();
+    record Move(String squareId, String playerId, int moveScore, long thinkMs, List<ScoringMove> scoringMoves) {
+      static Move from(DotGame.Move move, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
+        var p1ScoringMoves = player1ScoringMoves.scoringMoves()
+            .stream()
+            .filter(sm -> sm.move().squareId().equals(move.squareId()))
+            .map(ScoringMove::from).toList();
+        var p2ScoringMoves = player2ScoringMoves.scoringMoves()
+            .stream()
+            .filter(sm -> sm.move().squareId().equals(move.squareId()))
+            .map(ScoringMove::from).toList();
+        var scoringMoves = Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList();
 
-      var newMoveScore = scoringMoves.stream().map(sm -> sm.score()).reduce(0, Integer::sum);
+        var newMoveScore = scoringMoves.stream().map(sm -> sm.score()).reduce(0, Integer::sum);
 
-      return new Move(move.squareId(), move.playerId(), newMoveScore, move.thinkMs(), scoringMoves);
+        return new Move(move.squareId(), move.playerId(), newMoveScore, move.thinkMs(), scoringMoves);
+      }
     }
-  }
 
-  public record MoveHistory(GameInfo gameInfo, BoardInfo boardInfo, List<Move> moves) {
-    static MoveHistory from(DotGame.State gameState) {
-      var p1ScoringMoves = gameState.player1Status().scoringMoves();
-      var p2ScoringMoves = gameState.player2Status().scoringMoves();
+    public record Response(GameInfo gameInfo, BoardInfo boardInfo, List<Move> moves) {
+      static Response from(DotGame.State gameState) {
+        var p1ScoringMoves = gameState.player1Status().scoringMoves();
+        var p2ScoringMoves = gameState.player2Status().scoringMoves();
 
-      return new MoveHistory(GameInfo.from(gameState), BoardInfo.from(gameState.board()), gameState.moveHistory()
-          .stream()
-          .map(m -> Move.from(m, p1ScoringMoves, p2ScoringMoves))
-          .toList());
+        return new Response(GameInfo.from(gameState), BoardInfo.from(gameState.board()), gameState.moveHistory()
+            .stream()
+            .map(m -> Move.from(m, p1ScoringMoves, p2ScoringMoves))
+            .toList());
+      }
     }
   }
 }
