@@ -145,7 +145,7 @@ public class DotGameToAgentConsumer extends Consumer {
   }
 
   boolean makeMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
-    log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.player().player().id());
+    log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.playerStatus().player().id());
 
     var response = "";
     try {
@@ -155,7 +155,7 @@ public class DotGameToAgentConsumer extends Consumer {
           .method(DotGameAgent::makeMove)
           .invoke(prompt);
     } catch (Throwable e) {
-      log.error("Exception making move attempt: {}, agentId: {}", i + 1, prompt.player().player().id(), e);
+      log.error("Exception making move attempt: {}, agentId: {}", i + 1, prompt.playerStatus().player().id(), e);
       return false;
     }
 
@@ -164,7 +164,7 @@ public class DotGameToAgentConsumer extends Consumer {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var playerId = prompt.player().player().id();
+    var playerId = prompt.playerStatus().player().id();
     var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(playerId);
 
     log.debug("{}, agent response: {}", logMessage, response);
@@ -176,7 +176,7 @@ public class DotGameToAgentConsumer extends Consumer {
   }
 
   boolean forfeitMoveAttempt(int i, String sessionId, DotGameAgent.MakeMovePrompt prompt, String logMessage) {
-    var playerId = prompt.player().player().id();
+    var playerId = prompt.playerStatus().player().id();
     log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, playerId);
 
     var message = "Agent: %s, forfeited move after %d failed attempts".formatted(playerId, i + 1);

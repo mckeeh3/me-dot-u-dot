@@ -108,8 +108,8 @@ public class GameMoveTool {
 
   public interface MakeMoveTool {
     record MoveDetails(String squareId, String moveWas, String reason) {
-      static MoveDetails from(String squareId, DotGame.State stateBeforeMove, DotGame.State gameState) {
-        var moveCompleted = stateBeforeMove.moveHistory().size() < gameState.moveHistory().size();
+      static MoveDetails from(String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
+        var moveCompleted = stateBeforeMove.moveHistory().size() < stateAfterMove.moveHistory().size();
         var moveWas = moveCompleted ? "completed" : "rejected";
         var squareNotAvailable = stateBeforeMove.moveHistory().stream().noneMatch(m -> m.squareId().equals(squareId));
         var reason = "Legal move, moved to an available square";
@@ -126,10 +126,10 @@ public class GameMoveTool {
     }
 
     record CumulativeScore(int you, int opponent) {
-      static CumulativeScore from(String agentId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
-        var player1Id = stateBeforeMove.player1Status().player().id();
-        var p1Score = stateAfterMove.player1Status().score();
-        var p2Score = stateAfterMove.player2Status().score();
+      static CumulativeScore from(String agentId, DotGame.State gameState) {
+        var player1Id = gameState.player1Status().player().id();
+        var p1Score = gameState.player1Status().score();
+        var p2Score = gameState.player2Status().score();
         var you = agentId.equals(player1Id) ? p1Score : p2Score;
         var opponent = agentId.equals(player1Id) ? p2Score : p1Score;
 
@@ -162,10 +162,10 @@ public class GameMoveTool {
     }
 
     record MoveScore(int delta, ScoringMoves scoringMoves) {
-      static MoveScore from(String agentId, String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
-        var scoringMoves = agentId.equals(stateAfterMove.player1Status().player().id())
-            ? stateAfterMove.player1Status().scoringMoves()
-            : stateAfterMove.player2Status().scoringMoves();
+      static MoveScore from(String agentId, String squareId, DotGame.State gameState) {
+        var scoringMoves = agentId.equals(gameState.player1Status().player().id())
+            ? gameState.player1Status().scoringMoves()
+            : gameState.player2Status().scoringMoves();
         var delta = scoringMoves.scoringMoves()
             .stream()
             .filter(m -> m.move().squareId().equals(squareId))
@@ -177,17 +177,17 @@ public class GameMoveTool {
     }
 
     record NextPlayer(String playerId, String reason) {
-      static NextPlayer from(String agentId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
-        var agentPlayerStatus = stateAfterMove.player1Status().player().id().equals(agentId)
-            ? stateAfterMove.player1Status()
-            : stateAfterMove.player2Status();
+      static NextPlayer from(String agentId, DotGame.State gameState) {
+        var agentPlayerStatus = gameState.player1Status().player().id().equals(agentId)
+            ? gameState.player1Status()
+            : gameState.player2Status();
 
-        if (stateAfterMove.status() != DotGame.Status.in_progress) {
+        if (gameState.status() != DotGame.Status.in_progress) {
           var reason = "The game is over, you %s".formatted(agentPlayerStatus.isWinner() ? "won" : "lost");
           return new NextPlayer("", reason);
         }
 
-        var nextPlayerId = stateAfterMove.currentPlayer().get().player().id();
+        var nextPlayerId = gameState.currentPlayer().get().player().id();
         var reason = nextPlayerId.equals(agentId)
             ? "It's still your turn, try again"
             : "It's your opponent's turn";
@@ -199,9 +199,9 @@ public class GameMoveTool {
     public record Response(MoveDetails moveDetails, CumulativeScore cumulativeScore, MoveScore moveScore, NextPlayer nextPlayer) {
       static Response from(String agentId, String squareId, DotGame.State stateBeforeMove, DotGame.State stateAfterMove) {
         var moveDetails = MoveDetails.from(squareId, stateBeforeMove, stateAfterMove);
-        var cumulativeScore = CumulativeScore.from(agentId, stateBeforeMove, stateAfterMove);
-        var moveScore = MoveScore.from(agentId, squareId, stateBeforeMove, stateAfterMove);
-        var nextPlayer = NextPlayer.from(agentId, stateBeforeMove, stateAfterMove);
+        var cumulativeScore = CumulativeScore.from(agentId, stateAfterMove);
+        var moveScore = MoveScore.from(agentId, squareId, stateAfterMove);
+        var nextPlayer = NextPlayer.from(agentId, stateAfterMove);
 
         return new Response(moveDetails, cumulativeScore, moveScore, nextPlayer);
       }

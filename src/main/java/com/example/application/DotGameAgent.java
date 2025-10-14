@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.PlayerStatus;
 import com.example.domain.Playbook;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
@@ -38,14 +39,16 @@ public class DotGameAgent extends Agent {
   }
 
   public Effect<String> makeMove(MakeMovePrompt prompt) {
+    var promptFormatted = prompt.toPrompt(componentClient);
+
     log.debug("MakeMovePrompt: {}", prompt);
-    gameLog.logModelPrompt(prompt.gameId, prompt.player().player().id(), prompt.toPrompt());
+    gameLog.logModelPrompt(prompt.gameId, prompt.playerStatus().player().id(), promptFormatted);
 
     return effects()
-        .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.player().player().model()))
+        .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.playerStatus().player().model()))
         .tools(functionTools)
-        .systemMessage(systemPrompt(prompt.player().player().id()))
-        .userMessage(prompt.toPrompt())
+        .systemMessage(systemPrompt(prompt.playerStatus().player().id()))
+        .userMessage(promptFormatted)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
   }
@@ -72,14 +75,14 @@ public class DotGameAgent extends Agent {
   }
 
   String tryAgain(MakeMovePrompt prompt, Throwable exception) {
-    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.player().player().id(), exception.getMessage());
+    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.playerStatus().player().id(), exception.getMessage());
   }
 
   String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
     log.error("Forfeiting move due to agent error: %s".formatted(exception.getMessage()), exception);
 
-    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.player().player().id(), exception.getMessage());
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.player().player().id(), message);
+    var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.playerStatus().player().id(), exception.getMessage());
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.playerStatus().player().id(), message);
 
     componentClient
         .forEventSourcedEntity(prompt.gameId)
@@ -118,7 +121,7 @@ public class DotGameAgent extends Agent {
   public record MakeMovePrompt(
       String gameId,
       DotGame.Status status,
-      PlayerStatus player,
+      PlayerStatus playerStatus,
       int opponentScore) {
 
     public String oldToPrompt() {
@@ -148,7 +151,7 @@ public class DotGameAgent extends Agent {
             - Use SystemPromptTool_writeYourSystemPrompt if you need to adjust your decision-making approach
 
             Remember: You must make a move using GameMoveTool_makeMove - this is not optional.
-            """.formatted(player.player().id(), gameId, status)
+            """.formatted(playerStatus.player().id(), gameId, status)
             .stripIndent();
       }
 
@@ -178,11 +181,16 @@ public class DotGameAgent extends Agent {
           • System Prompt: Decision-making philosophy, risk assessment, opponent analysis approach, general behavioral adjustments
 
           This post-game analysis is crucial for continuous improvement and better performance in future games.
-          """.formatted(player.isWinner() ? "won" : "lost", player.player().id(), gameId, status)
+          """.formatted(playerStatus.isWinner() ? "won" : "lost", playerStatus.player().id(), gameId, status)
           .stripIndent();
     }
 
-    public String toPrompt() {
+    public String toPrompt(ComponentClient componentClient) {
+      var gameState = componentClient
+          .forEventSourcedEntity(gameId())
+          .method(DotGameEntity::getState)
+          .invoke();
+
       if (status() == DotGame.Status.in_progress) {
         return """
             TURN BRIEFING — YOUR MOVE
@@ -211,13 +219,18 @@ public class DotGameAgent extends Agent {
             • Follow with a short strategic reflection covering state, intent, and insights.
             • Do not ask for user input; rely solely on tools and your memories.
             • No free-form conversation outside this structure.
+
+            <OPPONENTS_LAST_MOVE_JSON>
+            %s
+            </OPPONENTS_LAST_MOVE_JSON>
             """
             .formatted(
                 gameId(),
-                player().player().id(),
+                playerStatus().player().id(),
                 status().name(),
-                player().score(),
-                opponentScore())
+                playerStatus().score(),
+                opponentScore(),
+                json(OpponentLastMove.Summary.from(playerStatus().player().id(), gameState)))
             .stripIndent();
       }
 
@@ -250,14 +263,102 @@ public class DotGameAgent extends Agent {
           • Provide a concise result recap, top lessons, and the exact updates you plan to make.
           • No tool calls needed in this reply, but specify which tools you will use next to capture learning.
           • Do not request user input; every action is driven by your analysis and the provided tools.
+
+          <OPPONENTS_LAST_MOVE_JSON>
+          %s
+          </OPPONENTS_LAST_MOVE_JSON>
           """
           .formatted(
               gameId(),
-              player().player().id(),
-              player().isWinner() ? "You Won" : "You lost",
-              player().score(),
-              opponentScore())
+              playerStatus().player().id(),
+              playerStatus().isWinner() ? "You Won" : "You lost",
+              playerStatus().score(),
+              opponentScore(),
+              json(OpponentLastMove.Summary.from(playerStatus().player().id(), gameState)))
           .stripIndent();
+    }
+  }
+
+  static String json(OpponentLastMove.Summary response) {
+    var om = JsonSupport.getObjectMapper();
+    try {
+      return om.writerWithDefaultPrettyPrinter().writeValueAsString(response);
+    } catch (JsonProcessingException e) {
+      return "Opponent last move summary failed: %s".formatted(e.getMessage());
+    }
+  }
+
+  interface OpponentLastMove {
+    record Move(String squareId) {
+      static Move from(String agentId, DotGame.State gameState) {
+        var squareId = gameState.moveHistory().stream()
+            .filter(move -> !move.playerId().equals(agentId))
+            .reduce((first, second) -> second)
+            .map(DotGame.Move::squareId)
+            .orElse("");
+        return new Move(squareId);
+      }
+    }
+
+    record CumulativeScore(int you, int opponent) {
+      static CumulativeScore from(String agentId, DotGame.State gameState) {
+        var player1Id = gameState.player1Status().player().id();
+        var p1Score = gameState.player1Status().score();
+        var p2Score = gameState.player2Status().score();
+        var you = agentId.equals(player1Id) ? p1Score : p2Score;
+        var opponent = agentId.equals(player1Id) ? p2Score : p1Score;
+
+        return new CumulativeScore(you, opponent);
+      }
+    }
+
+    record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
+      static ScoringMove from(DotGame.ScoringMove scoringMove) {
+        var type = switch (scoringMove.type()) {
+          case horizontal -> "horizontal line";
+          case vertical -> "vertical line";
+          case diagonal -> "diagonal line";
+          case adjacent -> "multiple adjacent squares";
+          case topToBottom -> "connected squares from top edge to bottom edge";
+          case leftToRight -> "connected squares from left edge to right edge";
+        };
+        return new ScoringMove(scoringMove.move().squareId(), type, scoringMove.score(), scoringMove.scoringSquares());
+      }
+    }
+
+    record ScoringMoves(List<ScoringMove> scoringMoves) {
+      static ScoringMoves from(String squareId, DotGame.ScoringMoves scoringMoves) {
+        return new ScoringMoves(scoringMoves.scoringMoves()
+            .stream()
+            .filter(sm -> sm.move().squareId().equals(squareId))
+            .map(ScoringMove::from)
+            .toList());
+      }
+    }
+
+    record MoveScore(int delta, ScoringMoves scoringMoves) {
+      static MoveScore from(String agentId, String squareId, DotGame.State gameState) {
+        var scoringMoves = !agentId.equals(gameState.player1Status().player().id())
+            ? gameState.player1Status().scoringMoves()
+            : gameState.player2Status().scoringMoves();
+        var delta = scoringMoves.scoringMoves()
+            .stream()
+            .filter(m -> m.move().squareId().equals(squareId))
+            .map(m -> m.score())
+            .reduce(0, Integer::sum);
+
+        return new MoveScore(delta, ScoringMoves.from(squareId, scoringMoves));
+      }
+    }
+
+    record Summary(Move move, CumulativeScore cumulativeScore, MoveScore moveScore) {
+      static Summary from(String agentId, DotGame.State gameState) {
+        var move = Move.from(agentId, gameState);
+        var cumulativeScore = CumulativeScore.from(agentId, gameState);
+        var moveScore = MoveScore.from(agentId, move.squareId(), gameState);
+
+        return new Summary(move, cumulativeScore, moveScore);
+      }
     }
   }
 }
