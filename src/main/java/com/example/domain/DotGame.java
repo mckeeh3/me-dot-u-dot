@@ -124,7 +124,7 @@ public interface DotGame {
       var madeMoveEvent = new Event.MoveMade(
           gameId,
           newStatus,
-          Instant.now(),
+          updatedAt, // not updated on move
           newPlayer1Status,
           newPlayer2Status,
           newCurrentPlayer,
@@ -136,13 +136,14 @@ public interface DotGame {
         var eventGameResults = new Event.GameResults(gameId, newStatus, Instant.now(), newPlayer1Status, newPlayer2Status);
 
         if (isHumanPlayer(command.playerId, this)) {
+          var newTurnCompletedAt = Instant.now();
           return List.of(madeMoveEvent, eventGameFinished, eventGameResults,
               new Event.PlayerTurnCompleted(
                   new State(
                       madeMoveEvent.gameId,
                       madeMoveEvent.status,
                       createdAt,
-                      madeMoveEvent.updatedAt,
+                      newTurnCompletedAt,
                       eventGameFinished.finishedAt,
                       madeMoveEvent.player1Status,
                       madeMoveEvent.player2Status,
@@ -155,13 +156,14 @@ public interface DotGame {
       }
 
       if (isHumanPlayer(command.playerId, this)) {
+        var newTurnCompletedAt = Instant.now();
         return List.of(madeMoveEvent,
             new Event.PlayerTurnCompleted(
                 new State(
                     madeMoveEvent.gameId,
                     madeMoveEvent.status,
                     createdAt,
-                    madeMoveEvent.updatedAt,
+                    newTurnCompletedAt,
                     finishedAt,
                     madeMoveEvent.player1Status,
                     madeMoveEvent.player2Status,
@@ -174,14 +176,14 @@ public interface DotGame {
     }
 
     List<Event> forfeitMove(String playerId, String message) {
-      var newUpdatedAt = Instant.now();
+      var newTurnCompletedAt = Instant.now();
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
       return List.of(
           new Event.MoveForfeited(
               gameId,
               status,
-              newUpdatedAt,
+              newTurnCompletedAt,
               newCurrentPlayer,
               message),
           new Event.PlayerTurnCompleted(
@@ -189,7 +191,7 @@ public interface DotGame {
                   gameId,
                   status,
                   createdAt,
-                  newUpdatedAt,
+                  newTurnCompletedAt,
                   finishedAt,
                   player1Status,
                   player2Status,
@@ -208,6 +210,20 @@ public interface DotGame {
     // ============================================================
     public Event onCommand(Command.PlayerTurnCompleted command) {
       var newUpdatedAt = Instant.now();
+      var lastMove = moveHistory.get(moveHistory.size() - 1);
+      var newMoveHistory = moveHistory;
+      if (lastMove.playerId().equals(command.playerId())) {
+        newMoveHistory = moveHistory.stream()
+            .map(move -> {
+              if (move.squareId().equals(lastMove.squareId())) {
+                var thinkMs = Duration.between(updatedAt, newUpdatedAt).toMillis();
+                var newMove = new Move(move.squareId, move.playerId, thinkMs);
+                return newMove;
+              }
+              return move;
+            })
+            .toList();
+      }
 
       return new Event.PlayerTurnCompleted(
           new State(
@@ -219,7 +235,7 @@ public interface DotGame {
               player1Status,
               player2Status,
               currentPlayer,
-              moveHistory,
+              newMoveHistory,
               board));
     }
 
@@ -339,7 +355,7 @@ public interface DotGame {
     }
 
     public State onEvent(Event.PlayerTurnCompleted event) {
-      return this;
+      return event.gameState();
     }
 
     public State onEvent(Event.GameFinished event) {
