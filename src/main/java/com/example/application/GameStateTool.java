@@ -53,11 +53,11 @@ public class GameStateTool {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var compactState = CompactGameState.from(fullState);
+    var compactGameState = CompactGameState.from(agentId, fullState);
 
-    gameLog.logToolCall(gameId, agentId, "getGameState", json(compactState));
+    gameLog.logToolCall(gameId, agentId, "getGameState", json(compactGameState));
 
-    return compactState;
+    return compactGameState;
   }
 
   String json(CompactGameState compactGameState) {
@@ -69,52 +69,62 @@ public class GameStateTool {
     }
   }
 
-  /**
-   * Compact game state with minimal token overhead.
-   *
-   * @param gameId  Game identifier
-   * @param created Game creation timestamp (ISO-8601)
-   * @param status  Game status: empty|in_progress|won_by_player|draw|canceled
-   * @param level   Board level (one=5x5, two=7x7, ..., nine=21x21)
-   * @param board   Compact board representation as "A1:p1,B2:p2,C3:p1" where only occupied dots are listed
-   * @param p1      Player 1 info: "id|name|type|moves|score|winner"
-   * @param p2      Player 2 info: "id|name|type|moves|score|winner"
-   * @param turn    Current player ID (null if game not in progress)
-   * @param moves   Move history as "A1:p1,B2:p2,C3:p1"
-   */
   public record CompactGameState(
       GameInfo gameInfo,
-      Players players,
+      CumulativeScore cumulativeScore,
+      CurrentPlayer currentPlayer,
       BoardInfo boardInfo,
-      EmptySquares emptySquares,
+      AvailableSquares availableSquares,
       MoveHistory moveHistory) {
 
-    /**
-     * Convert from full DotGame.State to compact representation
-     */
-    static CompactGameState from(DotGame.State gameState) {
+    static CompactGameState from(String agentId, DotGame.State gameState) {
       return new CompactGameState(
           GameInfo.from(gameState),
-          Players.from(gameState),
+          CumulativeScore.from(agentId, gameState),
+          CurrentPlayer.from(agentId, gameState),
           BoardInfo.from(gameState.board()),
-          EmptySquares.from(gameState.board()),
-          MoveHistory.from(gameState));
+          AvailableSquares.from(gameState.board()),
+          MoveHistory.from(agentId, gameState));
     }
   }
 
-  record GameInfo(String gameId, String createdAt, String status, String currentPlayerId) {
+  record GameInfo(String gameId, String status) {
     static GameInfo from(DotGame.State gameState) {
-      return new GameInfo(
-          gameState.gameId(),
-          gameState.createdAt().toString(),
-          gameState.status().name(),
-          gameState.currentPlayer().map(p -> p.player().id()).orElse(null));
+      var status = switch (gameState.status()) {
+        case empty -> "empty";
+        case in_progress -> "in progress";
+        case won_by_player -> "won by player";
+        case draw -> "draw";
+        case canceled -> "canceled";
+      };
+
+      return new GameInfo(gameState.gameId(), status);
+    }
+  }
+
+  record CumulativeScore(int you, int opponent) {
+    static CumulativeScore from(String agentId, DotGame.State gameState) {
+      var player1Id = gameState.player1Status().player().id();
+      var p1Score = gameState.player1Status().score();
+      var p2Score = gameState.player2Status().score();
+      var you = agentId.equals(player1Id) ? p1Score : p2Score;
+      var opponent = agentId.equals(player1Id) ? p2Score : p1Score;
+
+      return new CumulativeScore(you, opponent);
+    }
+  }
+
+  record CurrentPlayer(String who, String playerId) {
+    static CurrentPlayer from(String agentId, DotGame.State gameState) {
+      var who = gameState.currentPlayer().map(p -> p.player().id().equals(agentId) ? "you" : "opponent").orElse("none");
+      var playerId = gameState.currentPlayer().map(p -> p.player().id()).orElse("");
+      return new CurrentPlayer(who, playerId);
     }
   }
 
   record Square(String squareId, int row, int column) {
-    static Square from(DotGame.Square dot) {
-      return new Square(dot.squareId(), dot.row(), dot.col());
+    static Square from(DotGame.Square square) {
+      return new Square(square.squareId(), square.row(), square.col());
     }
   }
 
@@ -127,73 +137,58 @@ public class GameStateTool {
     }
   }
 
-  record Player(String id, String name, String type, int moves, int score, boolean winner) {
-    static Player from(DotGame.PlayerStatus playerStatus) {
-      return new Player(
-          playerStatus.player().id(),
-          playerStatus.player().name(),
-          playerStatus.player().type().name(),
-          playerStatus.moves(),
-          playerStatus.score(),
-          playerStatus.isWinner());
-    }
-  }
-
-  record Players(List<Player> players) {
-    static Players from(DotGame.State gameState) {
-      return new Players(List.of(Player.from(gameState.player1Status()), Player.from(gameState.player2Status())));
-    }
-  }
-
-  record EmptySquares(List<String> emptySquareIds) {
-    static EmptySquares from(DotGame.Board board) {
-      return new EmptySquares(board.squares()
+  record AvailableSquares(List<String> availableSquareIds) {
+    static AvailableSquares from(DotGame.Board board) {
+      return new AvailableSquares(board.squares()
           .stream()
-          .filter(d -> d.playerId().isEmpty())
-          .map(DotGame.Square::squareId)
+          .filter(square -> square.playerId().isEmpty())
+          .map(square -> square.squareId())
           .toList());
     }
   }
 
-  record Move(String squareId, String playerId, int moveScore, long thinkMs, List<ScoringMove> scoringMoves) {
-    static Move from(DotGame.Move move, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
+  record Move(String squareId, String who, String playerId, int moveScore, List<ScoringMove> scoringMoves) {
+    static Move from(DotGame.Move move, String agentId, DotGame.ScoringMoves player1ScoringMoves, DotGame.ScoringMoves player2ScoringMoves) {
+      var who = agentId.equals(move.playerId()) ? "you" : "opponent";
       var p1ScoringMoves = player1ScoringMoves.scoringMoves()
           .stream()
-          .filter(sm -> sm.move().squareId().equals(move.squareId()))
+          .filter(scoringMove -> scoringMove.move().squareId().equals(move.squareId()))
           .map(ScoringMove::from).toList();
       var p2ScoringMoves = player2ScoringMoves.scoringMoves()
           .stream()
-          .filter(sm -> sm.move().squareId().equals(move.squareId()))
+          .filter(scoringMove -> scoringMove.move().squareId().equals(move.squareId()))
           .map(ScoringMove::from).toList();
       var scoringMoves = Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList();
 
       var newMoveScore = scoringMoves.stream().map(sm -> sm.score()).reduce(0, Integer::sum);
 
-      return new Move(move.squareId(), move.playerId(), newMoveScore, move.thinkMs(), scoringMoves);
+      return new Move(move.squareId(), who, move.playerId(), newMoveScore, scoringMoves);
     }
   }
 
   public record MoveHistory(List<Move> moves) {
-    static MoveHistory from(DotGame.State gameState) {
+    static MoveHistory from(String agentId, DotGame.State gameState) {
       var p1ScoringMoves = gameState.player1Status().scoringMoves();
       var p2ScoringMoves = gameState.player2Status().scoringMoves();
 
       return new MoveHistory(gameState.moveHistory()
           .stream()
-          .map(m -> Move.from(m, p1ScoringMoves, p2ScoringMoves))
+          .map(move -> Move.from(move, agentId, p1ScoringMoves, p2ScoringMoves))
           .toList());
     }
   }
 
   record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
     static ScoringMove from(DotGame.ScoringMove scoringMove) {
-      return new ScoringMove(scoringMove.move().squareId(), scoringMove.type().name(), scoringMove.score(), scoringMove.scoringSquares());
-    }
-  }
-
-  record ScoringMoves(String playerId, int totalScore, List<ScoringMove> scoringMoves) {
-    static ScoringMoves from(DotGame.ScoringMoves scoringMoves) {
-      return new ScoringMoves(scoringMoves.playerId(), scoringMoves.totalScore(), scoringMoves.scoringMoves().stream().map(ScoringMove::from).toList());
+      var type = switch (scoringMove.type()) {
+        case horizontal -> "horizontal line";
+        case vertical -> "vertical line";
+        case diagonal -> "diagonal line";
+        case adjacent -> "multiple adjacent squares";
+        case topToBottom -> "connected squares from top edge to bottom edge";
+        case leftToRight -> "connected squares from left edge to right edge";
+      };
+      return new ScoringMove(scoringMove.move().squareId(), type, scoringMove.score(), scoringMove.scoringSquares());
     }
   }
 }

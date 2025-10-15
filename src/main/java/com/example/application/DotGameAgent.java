@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.PlayerStatus;
-import com.example.domain.Playbook;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import akka.javasdk.JsonSupport;
@@ -90,32 +89,6 @@ public class DotGameAgent extends Agent {
         .invoke(command);
 
     return "Forfeited move due to agent error: %s".formatted(exception.getMessage());
-  }
-
-  String gameStateAsJson(String gameId) {
-    var result = componentClient
-        .forEventSourcedEntity(gameId)
-        .method(DotGameEntity::getState)
-        .invoke();
-
-    if (result instanceof DotGame.State) {
-      return JsonSupport.encodeToString(GameStateTool.CompactGameState.from((DotGame.State) result));
-    }
-
-    return "Error getting game state for gameId: %s".formatted(gameId);
-  }
-
-  String playbookAsJson(String agentId) {
-    var playbook = componentClient
-        .forEventSourcedEntity(agentId)
-        .method(PlaybookEntity::getState)
-        .invoke();
-
-    if (playbook instanceof Playbook.State) {
-      return JsonSupport.encodeToString(playbook);
-    }
-
-    return "Error getting playbook for agentId: %s".formatted(agentId);
   }
 
   public record MakeMovePrompt(
