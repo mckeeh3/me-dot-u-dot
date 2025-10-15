@@ -164,6 +164,14 @@ public class DotGameToAgentConsumer extends Consumer {
         .method(DotGameEntity::getState)
         .invoke();
 
+    if (gameState.status() == DotGame.Status.in_progress) {
+      var command = new DotGame.Command.PlayerTurnCompleted(prompt.gameId(), prompt.playerStatus().player().id());
+      componentClient
+          .forEventSourcedEntity(prompt.gameId())
+          .method(DotGameEntity::playerTurnCompleted)
+          .invoke(command);
+    }
+
     var playerId = prompt.playerStatus().player().id();
     var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(playerId);
 

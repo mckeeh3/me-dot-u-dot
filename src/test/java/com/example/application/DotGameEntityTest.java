@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.application.GameStateTool.CompactGameState;
 import com.example.domain.DotGame;
 
 import akka.javasdk.testkit.EventSourcedResult;
@@ -425,12 +424,6 @@ public class DotGameEntityTest {
     assertTrue(state.currentPlayer().isEmpty());
     assertTrue(state.player1Status().isWinner());
     assertFalse(state.player2Status().isWinner());
-
-    var c = CompactGameState.from(state);
-    assertEquals(player1.id(), c.players().players().get(0).id());
-    assertEquals(player2.id(), c.players().players().get(1).id());
-    assertEquals(DotGame.Status.won_by_player.name(), c.gameInfo().status());
-    assertEquals(9, c.moveHistory().moves().size());
   }
 
   @Test

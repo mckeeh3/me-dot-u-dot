@@ -7,7 +7,7 @@
 <!-- ====================================================================== -->
 <!-- ====================================================================== -->
 <!--                                                                        -->
-<!-- Effective POM for project 'com.example:me-dot-u-dot:jar:1.0-SNAPSHOT'  -->
+<!-- Effective POM for project 'com.example:me-dot-u-dot:jar:1.0.0'         -->
 <!--                                                                        -->
 <!-- ====================================================================== -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -19,7 +19,7 @@
   </parent>
   <groupId>com.example</groupId>
   <artifactId>me-dot-u-dot</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>me-dot-u-dot</name>
   <description>This is the parent pom for Akka services. It contains all dependencies and plugins to build an Akka service using the Akka SDK for Java.</description>
   <url>https://www.akka.io/me-dot-u-dot</url>
@@ -50,7 +50,7 @@
     <docker.base.image>alpine:3.14</docker.base.image>
     <docker.image>me-dot-u-dot</docker.image>
     <docker.platform>linux/amd64</docker.platform>
-    <docker.tag>1.0-SNAPSHOT-20251010130252</docker.tag>
+    <docker.tag>1.0.0-20251015110301</docker.tag>
     <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -164,7 +164,7 @@
       </testResource>
     </testResources>
     <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target</directory>
-    <finalName>me-dot-u-dot-1.0-SNAPSHOT</finalName>
+    <finalName>me-dot-u-dot-1.0.0</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -225,7 +225,7 @@
                         <platform>linux/amd64</platform>
                       </buildOptions>
                       <tags>
-                        <tag>1.0-SNAPSHOT-20251010130252</tag>
+                        <tag>1.0.0-20251015110301</tag>
                       </tags>
                       <assembly>
                         <inline>
@@ -314,7 +314,7 @@
                     <platform>linux/amd64</platform>
                   </buildOptions>
                   <tags>
-                    <tag>1.0-SNAPSHOT-20251010130252</tag>
+                    <tag>1.0.0-20251015110301</tag>
                   </tags>
                   <assembly>
                     <inline>
@@ -713,7 +713,7 @@
                       <platform>linux/amd64</platform>
                     </buildOptions>
                     <tags>
-                      <tag>1.0-SNAPSHOT-20251010130252</tag>
+                      <tag>1.0.0-20251015110301</tag>
                     </tags>
                     <assembly>
                       <inline>
@@ -802,7 +802,7 @@
                   <platform>linux/amd64</platform>
                 </buildOptions>
                 <tags>
-                  <tag>1.0-SNAPSHOT-20251010130252</tag>
+                  <tag>1.0.0-20251015110301</tag>
                 </tags>
                 <assembly>
                   <inline>

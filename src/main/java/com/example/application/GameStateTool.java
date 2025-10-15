@@ -72,7 +72,7 @@ public class GameStateTool {
   public record CompactGameState(
       GameInfo gameInfo,
       CumulativeScore cumulativeScore,
-      CurrentPlayer currentPlayer,
+      ActivePlayer activePlayer,
       BoardInfo boardInfo,
       AvailableSquares availableSquares,
       MoveHistory moveHistory) {
@@ -81,7 +81,7 @@ public class GameStateTool {
       return new CompactGameState(
           GameInfo.from(gameState),
           CumulativeScore.from(agentId, gameState),
-          CurrentPlayer.from(agentId, gameState),
+          ActivePlayer.from(agentId, gameState),
           BoardInfo.from(gameState.board()),
           AvailableSquares.from(gameState.board()),
           MoveHistory.from(agentId, gameState));
@@ -114,11 +114,11 @@ public class GameStateTool {
     }
   }
 
-  record CurrentPlayer(String who, String playerId) {
-    static CurrentPlayer from(String agentId, DotGame.State gameState) {
+  record ActivePlayer(String who, String playerId) {
+    static ActivePlayer from(String agentId, DotGame.State gameState) {
       var who = gameState.currentPlayer().map(p -> p.player().id().equals(agentId) ? "you" : "opponent").orElse("none");
       var playerId = gameState.currentPlayer().map(p -> p.player().id()).orElse("");
-      return new CurrentPlayer(who, playerId);
+      return new ActivePlayer(who, playerId);
     }
   }
 

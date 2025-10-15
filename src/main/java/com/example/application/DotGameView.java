@@ -65,7 +65,8 @@ public class DotGameView extends View {
     public Effect<DotGameRow> onEvent(DotGame.Event event) {
       return switch (event) {
         case DotGame.Event.GameCreated e -> effects().updateRow(onEvent(e));
-        case DotGame.Event.MoveMade e -> effects().updateRow(onEvent(e));
+        case DotGame.Event.MoveMade e -> effects().ignore(); // updateRow(onEvent(e));
+        case DotGame.Event.PlayerTurnCompleted e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameCanceled e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveForfeited e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameFinished e -> effects().updateRow(onEvent(e));
@@ -76,6 +77,7 @@ public class DotGameView extends View {
     public enum LastAction {
       game_created,
       move_made,
+      player_turn_completed,
       game_canceled,
       move_forfeited,
       game_finished
@@ -137,6 +139,36 @@ public class DotGameView extends View {
           currentPlayerName,
           winnerId,
           LastAction.move_made.name(),
+          "");
+    }
+
+    DotGameRow onEvent(DotGame.Event.PlayerTurnCompleted event) {
+      var player1 = event.gameState().player1Status();
+      var player2 = event.gameState().player2Status();
+      var currentPlayerId = event.gameState().currentPlayer().map(ps -> ps.player().id()).orElse("");
+      var currentPlayerName = event.gameState().currentPlayer().map(ps -> ps.player().name()).orElse("");
+      var winnerId = player1.isWinner() ? Optional.of(player1.player().id()) : player2.isWinner() ? Optional.of(player2.player().id()) : Optional.<String>empty();
+
+      return new DotGameRow(
+          event.gameState().gameId(),
+          rowState().createdAt(),
+          event.gameState().updatedAt(),
+          event.gameState().status().toString(),
+          rowState().level(),
+          player1.player().id(),
+          event.gameState().player1Status().player().name(),
+          player1.moves(),
+          player1.score(),
+          player1.isWinner(),
+          player2.player().id(),
+          event.gameState().player2Status().player().name(),
+          player2.moves(),
+          player2.score(),
+          player2.isWinner(),
+          currentPlayerId,
+          currentPlayerName,
+          winnerId,
+          LastAction.player_turn_completed.name(),
           "");
     }
 

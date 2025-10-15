@@ -135,44 +135,129 @@ public interface DotGame {
         var eventGameFinished = new Event.GameFinished(gameId, newStatus, Instant.now(), Optional.of(Instant.now()));
         var eventGameResults = new Event.GameResults(gameId, newStatus, Instant.now(), newPlayer1Status, newPlayer2Status);
 
+        if (isHumanPlayer(command.playerId, this)) {
+          return List.of(madeMoveEvent, eventGameFinished, eventGameResults,
+              new Event.PlayerTurnCompleted(
+                  new State(
+                      madeMoveEvent.gameId,
+                      madeMoveEvent.status,
+                      createdAt,
+                      madeMoveEvent.updatedAt,
+                      eventGameFinished.finishedAt,
+                      madeMoveEvent.player1Status,
+                      madeMoveEvent.player2Status,
+                      madeMoveEvent.currentPlayerStatus,
+                      madeMoveEvent.moveHistory,
+                      madeMoveEvent.board)));
+        }
+
         return List.of(madeMoveEvent, eventGameFinished, eventGameResults);
+      }
+
+      if (isHumanPlayer(command.playerId, this)) {
+        return List.of(madeMoveEvent,
+            new Event.PlayerTurnCompleted(
+                new State(
+                    madeMoveEvent.gameId,
+                    madeMoveEvent.status,
+                    createdAt,
+                    madeMoveEvent.updatedAt,
+                    finishedAt,
+                    madeMoveEvent.player1Status,
+                    madeMoveEvent.player2Status,
+                    madeMoveEvent.currentPlayerStatus,
+                    madeMoveEvent.moveHistory,
+                    madeMoveEvent.board)));
       }
 
       return List.of(madeMoveEvent);
     }
 
     List<Event> forfeitMove(String playerId, String message) {
+      var newUpdatedAt = Instant.now();
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
-      return List.of(new Event.MoveForfeited(
-          gameId,
-          status,
-          Instant.now(),
-          newCurrentPlayer,
-          message));
+      return List.of(
+          new Event.MoveForfeited(
+              gameId,
+              status,
+              newUpdatedAt,
+              newCurrentPlayer,
+              message),
+          new Event.PlayerTurnCompleted(
+              new State(
+                  gameId,
+                  status,
+                  createdAt,
+                  newUpdatedAt,
+                  finishedAt,
+                  player1Status,
+                  player2Status,
+                  newCurrentPlayer,
+                  moveHistory,
+                  board)));
+    }
+
+    boolean isHumanPlayer(String playerId, State state) {
+      var player = playerId.equals(state.player1Status().player().id()) ? state.player1Status() : state.player2Status();
+      return player.player().type() == PlayerType.human;
+    }
+
+    // ============================================================
+    // Command PlayerTurnCompleted
+    // ============================================================
+    public Event onCommand(Command.PlayerTurnCompleted command) {
+      var newUpdatedAt = Instant.now();
+
+      return new Event.PlayerTurnCompleted(
+          new State(
+              gameId,
+              status,
+              createdAt,
+              newUpdatedAt,
+              finishedAt,
+              player1Status,
+              player2Status,
+              currentPlayer,
+              moveHistory,
+              board));
     }
 
     // ============================================================
     // Command ForfeitMove
     // ============================================================
-    public Optional<Event> onCommand(Command.ForfeitMove command) {
+    public List<Event> onCommand(Command.ForfeitMove command) {
       if (!status.equals(Status.in_progress)) {
-        return Optional.empty();
+        return List.of();
       }
 
       // Check if it's the player's turn
       if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
-        return Optional.empty();
+        return List.of();
       }
 
+      var newUpdatedAt = Instant.now();
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
-      return Optional.of(new Event.MoveForfeited(
-          gameId,
-          status,
-          Instant.now(),
-          newCurrentPlayer,
-          command.message));
+      return List.of(
+          new Event.MoveForfeited(
+              gameId,
+              status,
+              newUpdatedAt,
+              newCurrentPlayer,
+              command.message),
+          new Event.PlayerTurnCompleted(
+              new State(
+                  gameId,
+                  status,
+                  createdAt,
+                  newUpdatedAt,
+                  finishedAt,
+                  player1Status,
+                  player2Status,
+                  newCurrentPlayer,
+                  moveHistory,
+                  board)));
     }
 
     // ============================================================
@@ -251,6 +336,10 @@ public interface DotGame {
           event.currentPlayerStatus,
           moveHistory,
           board);
+    }
+
+    public State onEvent(Event.PlayerTurnCompleted event) {
+      return this;
     }
 
     public State onEvent(Event.GameFinished event) {
@@ -344,6 +433,10 @@ public interface DotGame {
         String playerId,
         String squareId) implements Command {}
 
+    public record PlayerTurnCompleted(
+        String gameId,
+        String playerId) implements Command {}
+
     public record ForfeitMove(
         String gameId,
         String playerId,
@@ -383,6 +476,10 @@ public interface DotGame {
         Optional<PlayerStatus> currentPlayerStatus,
         List<Move> moveHistory,
         Board board) implements Event {}
+
+    @TypeName("player-turn-completed")
+    public record PlayerTurnCompleted(
+        State gameState) implements Event {}
 
     @TypeName("game-canceled")
     public record GameCanceled(

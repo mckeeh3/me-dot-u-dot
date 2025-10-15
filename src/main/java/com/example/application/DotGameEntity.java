@@ -39,6 +39,14 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
         .thenReply(newState -> newState);
   }
 
+  public Effect<DotGame.State> playerTurnCompleted(DotGame.Command.PlayerTurnCompleted command) {
+    log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
+
+    return effects()
+        .persist(currentState().onCommand(command))
+        .thenReply(newState -> newState);
+  }
+
   public Effect<DotGame.State> cancelGame(DotGame.Command.CancelGame command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
@@ -72,6 +80,7 @@ public class DotGameEntity extends EventSourcedEntity<DotGame.State, DotGame.Eve
     return switch (event) {
       case DotGame.Event.GameCreated e -> currentState().onEvent(e);
       case DotGame.Event.MoveMade e -> currentState().onEvent(e);
+      case DotGame.Event.PlayerTurnCompleted e -> currentState().onEvent(e);
       case DotGame.Event.GameCanceled e -> currentState().onEvent(e);
       case DotGame.Event.MoveForfeited e -> currentState().onEvent(e);
       case DotGame.Event.GameFinished e -> currentState().onEvent(e);
