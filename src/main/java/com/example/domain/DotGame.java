@@ -355,7 +355,17 @@ public interface DotGame {
     }
 
     public State onEvent(Event.PlayerTurnCompleted event) {
-      return event.gameState();
+      return new State(
+          gameId,
+          status,
+          createdAt,
+          event.gameState.updatedAt,
+          finishedAt,
+          player1Status,
+          player2Status,
+          currentPlayer,
+          event.gameState.moveHistory,
+          board);
     }
 
     public State onEvent(Event.GameFinished event) {

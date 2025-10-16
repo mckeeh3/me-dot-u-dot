@@ -65,7 +65,7 @@ public class DotGameView extends View {
     public Effect<DotGameRow> onEvent(DotGame.Event event) {
       return switch (event) {
         case DotGame.Event.GameCreated e -> effects().updateRow(onEvent(e));
-        case DotGame.Event.MoveMade e -> effects().ignore(); // updateRow(onEvent(e));
+        case DotGame.Event.MoveMade e -> effects().updateRow(onEvent(e));
         case DotGame.Event.PlayerTurnCompleted e -> effects().updateRow(onEvent(e));
         case DotGame.Event.GameCanceled e -> effects().updateRow(onEvent(e));
         case DotGame.Event.MoveForfeited e -> effects().updateRow(onEvent(e));
@@ -122,7 +122,7 @@ public class DotGameView extends View {
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
-          event.updatedAt(),
+          rowState().updatedAt(),
           event.status().toString(),
           rowState().level(),
           player1.player().id(),
@@ -228,7 +228,7 @@ public class DotGameView extends View {
           event.gameId(),
           rowState().createdAt(),
           event.finishedAt().orElse(Instant.now()),
-          rowState().status(),
+          event.status().toString(),
           rowState().level(),
           rowState().player1Id(),
           rowState().player1Name(),
