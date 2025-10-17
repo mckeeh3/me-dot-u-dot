@@ -139,17 +139,10 @@ public interface DotGame {
           var newTurnCompletedAt = Instant.now();
           return List.of(madeMoveEvent, eventGameFinished, eventGameResults,
               new Event.PlayerTurnCompleted(
-                  new State(
-                      madeMoveEvent.gameId,
-                      madeMoveEvent.status,
-                      createdAt,
-                      newTurnCompletedAt,
-                      eventGameFinished.finishedAt,
-                      madeMoveEvent.player1Status,
-                      madeMoveEvent.player2Status,
-                      madeMoveEvent.currentPlayerStatus,
-                      madeMoveEvent.moveHistory,
-                      madeMoveEvent.board)));
+                  madeMoveEvent.gameId,
+                  madeMoveEvent.status,
+                  newTurnCompletedAt,
+                  madeMoveEvent.moveHistory));
         }
 
         return List.of(madeMoveEvent, eventGameFinished, eventGameResults);
@@ -159,17 +152,10 @@ public interface DotGame {
         var newTurnCompletedAt = Instant.now();
         return List.of(madeMoveEvent,
             new Event.PlayerTurnCompleted(
-                new State(
-                    madeMoveEvent.gameId,
-                    madeMoveEvent.status,
-                    createdAt,
-                    newTurnCompletedAt,
-                    finishedAt,
-                    madeMoveEvent.player1Status,
-                    madeMoveEvent.player2Status,
-                    madeMoveEvent.currentPlayerStatus,
-                    madeMoveEvent.moveHistory,
-                    madeMoveEvent.board)));
+                madeMoveEvent.gameId,
+                madeMoveEvent.status,
+                newTurnCompletedAt,
+                madeMoveEvent.moveHistory));
       }
 
       return List.of(madeMoveEvent);
@@ -187,17 +173,10 @@ public interface DotGame {
               newCurrentPlayer,
               message),
           new Event.PlayerTurnCompleted(
-              new State(
-                  gameId,
-                  status,
-                  createdAt,
-                  newTurnCompletedAt,
-                  finishedAt,
-                  player1Status,
-                  player2Status,
-                  newCurrentPlayer,
-                  moveHistory,
-                  board)));
+              gameId,
+              status,
+              newTurnCompletedAt,
+              moveHistory));
     }
 
     boolean isHumanPlayer(String playerId, State state) {
@@ -209,14 +188,14 @@ public interface DotGame {
     // Command PlayerTurnCompleted
     // ============================================================
     public Event onCommand(Command.PlayerTurnCompleted command) {
-      var newUpdatedAt = Instant.now();
+      var newTurnCompletedAt = Instant.now();
       var lastMove = moveHistory.get(moveHistory.size() - 1);
       var newMoveHistory = moveHistory;
       if (lastMove.playerId().equals(command.playerId())) {
         newMoveHistory = moveHistory.stream()
             .map(move -> {
               if (move.squareId().equals(lastMove.squareId())) {
-                var thinkMs = Duration.between(updatedAt, newUpdatedAt).toMillis();
+                var thinkMs = Duration.between(updatedAt, newTurnCompletedAt).toMillis();
                 var newMove = new Move(move.squareId, move.playerId, thinkMs);
                 return newMove;
               }
@@ -226,17 +205,10 @@ public interface DotGame {
       }
 
       return new Event.PlayerTurnCompleted(
-          new State(
-              gameId,
-              status,
-              createdAt,
-              newUpdatedAt,
-              finishedAt,
-              player1Status,
-              player2Status,
-              currentPlayer,
-              newMoveHistory,
-              board));
+          gameId,
+          status,
+          newTurnCompletedAt,
+          newMoveHistory);
     }
 
     // ============================================================
@@ -252,28 +224,21 @@ public interface DotGame {
         return List.of();
       }
 
-      var newUpdatedAt = Instant.now();
+      var newTurnCompletedAt = Instant.now();
       var newCurrentPlayer = Optional.of(getNextPlayer());
 
       return List.of(
           new Event.MoveForfeited(
               gameId,
               status,
-              newUpdatedAt,
+              newTurnCompletedAt,
               newCurrentPlayer,
               command.message),
           new Event.PlayerTurnCompleted(
-              new State(
-                  gameId,
-                  status,
-                  createdAt,
-                  newUpdatedAt,
-                  finishedAt,
-                  player1Status,
-                  player2Status,
-                  newCurrentPlayer,
-                  moveHistory,
-                  board)));
+              gameId,
+              status,
+              newTurnCompletedAt,
+              moveHistory));
     }
 
     // ============================================================
@@ -359,12 +324,12 @@ public interface DotGame {
           gameId,
           status,
           createdAt,
-          event.gameState.updatedAt,
+          event.updatedAt,
           finishedAt,
           player1Status,
           player2Status,
           currentPlayer,
-          event.gameState.moveHistory,
+          event.moveHistory,
           board);
     }
 
@@ -505,7 +470,10 @@ public interface DotGame {
 
     @TypeName("player-turn-completed")
     public record PlayerTurnCompleted(
-        State gameState) implements Event {}
+        String gameId,
+        Status status,
+        Instant updatedAt,
+        List<Move> moveHistory) implements Event {}
 
     @TypeName("game-canceled")
     public record GameCanceled(

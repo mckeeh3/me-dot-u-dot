@@ -171,11 +171,18 @@ public class DotGameEntityTest {
     assertEquals(testKit.getState(), result.getReply());
 
     // Should not emit any events since the coordinates are invalid
-    assertEquals(1, result.getAllEvents().size());
-    var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
-    assertEquals(gameId, event.gameId());
-    assertTrue(event.currentPlayerStatus().isPresent());
-    assertEquals(player2, event.currentPlayerStatus().get().player());
+    assertEquals(2, result.getAllEvents().size());
+    {
+      var event = result.getNextEventOfType(DotGame.Event.MoveForfeited.class);
+      assertEquals(gameId, event.gameId());
+      assertTrue(event.currentPlayerStatus().isPresent());
+      assertEquals(player2, event.currentPlayerStatus().get().player());
+    }
+    {
+      var event = result.getNextEventOfType(DotGame.Event.PlayerTurnCompleted.class);
+      assertEquals(gameId, event.gameId());
+      assertEquals(DotGame.Status.in_progress, event.status());
+    }
   }
 
   @Test
@@ -391,7 +398,7 @@ public class DotGameEntityTest {
     assertTrue(result.isReply());
     assertEquals(DotGame.Status.won_by_player, result.getReply().status());
 
-    assertEquals(3, result.getAllEvents().size());
+    assertEquals(4, result.getAllEvents().size());
 
     {
       var event = result.getNextEventOfType(DotGame.Event.MoveMade.class);
@@ -414,6 +421,15 @@ public class DotGameEntityTest {
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(player1, event.player1Status().player());
       assertEquals(player2, event.player2Status().player());
+    }
+
+    {
+      var event = result.getNextEventOfType(DotGame.Event.PlayerTurnCompleted.class);
+      assertEquals(gameId, event.gameId());
+      assertEquals(DotGame.Status.won_by_player, event.status());
+      assertEquals(9, event.moveHistory().size());
+      assertEquals("A5", event.moveHistory().get(event.moveHistory().size() - 1).squareId());
+      assertEquals("player1", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
     var state = testKit.getState();
@@ -449,7 +465,7 @@ public class DotGameEntityTest {
     assertTrue(result.isReply());
     assertEquals(DotGame.Status.won_by_player, result.getReply().status());
 
-    assertEquals(3, result.getAllEvents().size());
+    assertEquals(4, result.getAllEvents().size());
 
     {
       var event = result.getNextEventOfType(DotGame.Event.MoveMade.class);
@@ -472,6 +488,15 @@ public class DotGameEntityTest {
       assertEquals(DotGame.Status.won_by_player, event.status());
       assertEquals(player1, event.player1Status().player());
       assertEquals(player2, event.player2Status().player());
+    }
+
+    {
+      var event = result.getNextEventOfType(DotGame.Event.PlayerTurnCompleted.class);
+      assertEquals(gameId, event.gameId());
+      assertEquals(DotGame.Status.won_by_player, event.status());
+      assertEquals(10, event.moveHistory().size());
+      assertEquals("B5", event.moveHistory().get(event.moveHistory().size() - 1).squareId());
+      assertEquals("player2", event.moveHistory().get(event.moveHistory().size() - 1).playerId());
     }
 
     var state = testKit.getState();
