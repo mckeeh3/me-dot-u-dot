@@ -735,12 +735,15 @@ function openMoveStream(gameId) {
   evtSrc = new EventSource(url);
   evtSrc.onmessage = (e) => {
     try {
-      const event = JSON.parse(e.data); // we received an event; now fetch full state to render board
+      const event = JSON.parse(e.data);
+      // console.log(`${new Date().toISOString()} lastAction: ${event.lastAction}`);
       if (event.lastAction === 'move_forfeited') {
         playSound('game-alarm.wav');
         alert(event.message);
       }
-      refreshGameState();
+      if (!('move_made' === event.lastAction)) {
+        refreshGameState();
+      }
     } catch {}
   };
 }

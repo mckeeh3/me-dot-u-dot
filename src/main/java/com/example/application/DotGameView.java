@@ -146,7 +146,7 @@ public class DotGameView extends View {
       return new DotGameRow(
           event.gameId(),
           rowState().createdAt(),
-          event.updatedAt(),
+          event.turnCompletedAt(),
           event.status().toString(),
           rowState().level(),
           rowState().player1Id(),
