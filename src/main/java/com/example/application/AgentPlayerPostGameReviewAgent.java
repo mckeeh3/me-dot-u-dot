@@ -1,12 +1,15 @@
 package com.example.application;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.DotGame;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
 import akka.javasdk.agent.JsonParsingException;
 import akka.javasdk.agent.ModelException;
@@ -119,10 +122,105 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
           .formatted(
               gameId(),
               agent().id(),
-              agentPlayerStatus.isWinner() ? "You Won" : "You lost",
+              agentPlayerStatus.isWinner() ? "You won" : "You lost",
               agentPlayerStatus.score(),
               opponentPlayerStatus.score(),
               LastGameMove.json(LastGameMove.Summary.from(agentPlayerStatus.player().id(), gameState)));
+    }
+  }
+
+  interface LastGameMove {
+    record Move(String squareId, String who) {
+      static Move from(String agentId, DotGame.State gameState) {
+        if (gameState.moveHistory().isEmpty()) {
+          return new Move("", "none");
+        }
+        var lastMove = gameState.moveHistory().stream()
+            .reduce((first, second) -> second)
+            .orElse(null);
+        var who = lastMove.playerId().equals(agentId) ? "you" : "opponent";
+        return new Move(lastMove.squareId(), who);
+      }
+    }
+
+    record CumulativeScore(int you, int opponent) {
+      static CumulativeScore from(String agentId, DotGame.State gameState) {
+        if (gameState.moveHistory().isEmpty()) {
+          return new CumulativeScore(0, 0);
+        }
+        var player1Id = gameState.player1Status().player().id();
+        var p1Score = gameState.player1Status().score();
+        var p2Score = gameState.player2Status().score();
+        var you = agentId.equals(player1Id) ? p1Score : p2Score;
+        var opponent = agentId.equals(player1Id) ? p2Score : p1Score;
+
+        return new CumulativeScore(you, opponent);
+      }
+    }
+
+    record ScoringMove(String moveSquareId, String type, int score, List<String> scoringSquareIds) {
+      static ScoringMove from(DotGame.ScoringMove scoringMove) {
+        var type = switch (scoringMove.type()) {
+          case horizontal -> "horizontal line";
+          case vertical -> "vertical line";
+          case diagonal -> "diagonal line";
+          case adjacent -> "multiple adjacent squares";
+          case topToBottom -> "connected squares from top edge to bottom edge";
+          case leftToRight -> "connected squares from left edge to right edge";
+        };
+        return new ScoringMove(scoringMove.move().squareId(), type, scoringMove.score(), scoringMove.scoringSquares());
+      }
+    }
+
+    record ScoringMoves(List<ScoringMove> scoringMoves) {
+      static ScoringMoves from(String squareId, List<DotGame.ScoringMove> scoringMoves) {
+        return new ScoringMoves(scoringMoves
+            .stream()
+            .filter(sm -> sm.move().squareId().equals(squareId))
+            .map(ScoringMove::from)
+            .toList());
+      }
+    }
+
+    record MoveScore(int delta, ScoringMoves scoringMoves) {
+      static MoveScore from(String squareId, DotGame.State gameState) {
+        if (gameState.moveHistory().isEmpty()) {
+          return new MoveScore(0, new ScoringMoves(List.of()));
+        }
+        var lastMove = gameState.moveHistory().get(gameState.moveHistory().size() - 1);
+        var p1ScoringMoves = gameState.player1Status().scoringMoves().scoringMoves()
+            .stream()
+            .filter(scoringMove -> scoringMove.move().squareId().equals(lastMove.squareId()))
+            .toList();
+        var p2ScoringMoves = gameState.player2Status().scoringMoves().scoringMoves()
+            .stream()
+            .filter(scoringMove -> scoringMove.move().squareId().equals(lastMove.squareId()))
+            .toList();
+        var scoringMoves = ScoringMoves.from(squareId, Stream.concat(p1ScoringMoves.stream(), p2ScoringMoves.stream()).toList());
+        var delta = scoringMoves.scoringMoves().stream()
+            .map(m -> m.score())
+            .reduce(0, Integer::sum);
+        return new MoveScore(delta, scoringMoves);
+      }
+    }
+
+    record Summary(Move move, CumulativeScore cumulativeScore, MoveScore moveScore) {
+      static Summary from(String agentId, DotGame.State gameState) {
+        var move = Move.from(agentId, gameState);
+        var cumulativeScore = CumulativeScore.from(agentId, gameState);
+        var moveScore = MoveScore.from(move.squareId(), gameState);
+
+        return new Summary(move, cumulativeScore, moveScore);
+      }
+    }
+
+    static String json(LastGameMove.Summary response) {
+      var om = JsonSupport.getObjectMapper();
+      try {
+        return om.writerWithDefaultPrettyPrinter().writeValueAsString(response);
+      } catch (JsonProcessingException e) {
+        return "Opponent last move summary failed: %s".formatted(e.getMessage());
+      }
     }
   }
 }

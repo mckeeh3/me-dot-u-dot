@@ -103,7 +103,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
           playbook. The write playbook tool will overwrite the existing playbook, so you must read the existing playbook first to avoid losing any
           existing content. You must use the game review to revise your playbook.
           IMPORTANT: you must use the provided game review to identify the opportunities to revise your playbook.
-          IMPORTANT: you must write your revised playbook before you submit your response.
+          IMPORTANT: you must write your revised playbook before you return your response.
 
           <GAME_REVIEW>
           %s

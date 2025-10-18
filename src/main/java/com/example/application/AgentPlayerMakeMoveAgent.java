@@ -138,17 +138,8 @@ public class AgentPlayerMakeMoveAgent extends Agent {
               gameState.status().name(),
               agentPlayerStatus.score(),
               opponentPlayerStatus.score(),
-              json(OpponentLastMove.Summary.from(agentPlayerStatus.player().id(), gameState)))
+              OpponentLastMove.json(OpponentLastMove.Summary.from(agentPlayerStatus.player().id(), gameState)))
           .stripIndent();
-    }
-  }
-
-  static String json(OpponentLastMove.Summary response) {
-    var om = JsonSupport.getObjectMapper();
-    try {
-      return om.writerWithDefaultPrettyPrinter().writeValueAsString(response);
-    } catch (JsonProcessingException e) {
-      return "Opponent last move summary failed: %s".formatted(e.getMessage());
     }
   }
 
@@ -222,6 +213,15 @@ public class AgentPlayerMakeMoveAgent extends Agent {
         var moveScore = MoveScore.from(agentId, move.squareId(), gameState);
 
         return new Summary(move, cumulativeScore, moveScore);
+      }
+    }
+
+    static String json(OpponentLastMove.Summary response) {
+      var om = JsonSupport.getObjectMapper();
+      try {
+        return om.writerWithDefaultPrettyPrinter().writeValueAsString(response);
+      } catch (JsonProcessingException e) {
+        return "Opponent last move summary failed: %s".formatted(e.getMessage());
       }
     }
   }

@@ -107,7 +107,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
           tool to write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the
           existing system prompt first to avoid losing any existing content. You must use the game review to revise your system prompt.
           IMPORTANT: you must use the provided game review to identify the opportunities to revise your system prompt.
-          IMPORTANT: you must write your revised system prompt before you submit your response.
+          IMPORTANT: you must write your revised system prompt before you return your response.
 
           <GAME_REVIEW>
           %s
