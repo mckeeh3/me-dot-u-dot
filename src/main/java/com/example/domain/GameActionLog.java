@@ -11,7 +11,9 @@ public interface GameActionLog {
     model_prompt,
     model_response,
     forfeit_move,
-    guardrail_event
+    guardrail_event,
+    game_finished,
+    game_canceled
   }
 
   public record State(
