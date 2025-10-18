@@ -6,7 +6,7 @@
 .metals
 .bloop
 .idea
-*.db
+db.mv.db*
 .cp.txt
 akka-context/
 
