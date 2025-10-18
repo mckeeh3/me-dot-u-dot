@@ -87,10 +87,10 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
           Your mission: Examine the game review for evidence of systematic behavioral issues, decision-making flaws, or breakthrough
           approaches that should be encoded into your core operational charter.
 
-          The system prompt is NOT your tactical playbook — it's your fundamental behavioral framework that governs HOW you think, reason, and
-          approach problems. It is important to review your system prompt after each game. Reviewing the system prompt enables you consider
-          opportunities to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need
-          refinement.
+          The system prompt is NOT your tactical playbook — it's your fundamental behavioral framework that governs HOW you think, reason,
+          and approach problems. It is important to review your system prompt after each game. Reviewing the system prompt enables you to
+          consider opportunities to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas
+          that need refinement.
 
           Look for these system prompt opportunities in the game review:
           • Decision-making process improvements — patterns showing your reasoning approach needs refinement
@@ -100,13 +100,14 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
           • Tool usage discipline — patterns showing you need better protocols for when/how to use specific tools
           • Meta-cognitive improvements — discoveries about how you should monitor and adjust your own thinking
 
-          Only recommend system prompt changes when the game review reveals fundamental behavioral patterns that need systematic correction, not
-          tactical knowledge (that belongs in the playbook).
+          Only revise your system prompt when the game review reveals fundamental behavioral patterns that need systematic correction. Do not
+          revise your system prompt for tactical knowledge (that belongs in the playbook).
 
-          IMPORTANT: use the SystemPromptTool_readSystemPrompt tool to read your system prompt and the SystemPromptTool_writeSystemPrompt tool to
-          write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the existing system prompt
-          first to avoid losing any existing content. You must use the game review to update your system prompt.
-          IMPORTANT: you must use the game review to identify the opportunities to update your system prompt.
+          IMPORTANT: use the SystemPromptTool_readSystemPrompt tool to read your system prompt and the SystemPromptTool_writeSystemPrompt
+          tool to write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the
+          existing system prompt first to avoid losing any existing content. You must use the game review to revise your system prompt.
+          IMPORTANT: you must use the provided game review to identify the opportunities to revise your system prompt.
+          IMPORTANT: you must write your revised system prompt before you submit your response.
 
           <GAME_REVIEW>
           %s
