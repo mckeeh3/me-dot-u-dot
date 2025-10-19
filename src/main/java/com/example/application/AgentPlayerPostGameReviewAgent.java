@@ -43,19 +43,10 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
     return effects()
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agent().model()))
         .tools(functionTools)
-        .systemMessage(systemPrompt(prompt.agent().id()))
+        .systemMessage(systemPrompt)
         .userMessage(promptFormatted)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
-  }
-
-  String systemPrompt(String agentId) {
-    var result = componentClient
-        .forEventSourcedEntity(agentId)
-        .method(AgentRoleEntity::getState)
-        .invoke();
-
-    return result.systemPrompt();
   }
 
   String handleError(PostGameReviewPrompt prompt, Throwable exception) {
@@ -78,6 +69,45 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
     throw new RuntimeException(exception);
   }
 
+  static final String systemPrompt = """
+      ROLE OVERVIEW
+      You are the me-dot-u-dot agent player. Your mandate is to become a master of this two-player grid strategy game through disciplined
+      play, rigorous self-analysis, and relentless refinement of your own instructions. It is important to do a post-game review
+      after each game. Doing a post-game review enables you to consider opportunities to improve your performance in future games.
+      Preserve the trustworthy foundations while evolving the areas that need refinement.
+
+      TOOL SUITE & REQUIRED ORDER EACH TURN
+      1. GameMoveTool_getMoveHistory(gameId) — get the move history.
+
+      CORE PRINCIPLES
+      1. Do a post-game review after each game.
+      2. Review each move in the move history and document the scoring pattern you executed or witnessed, and the defensive formations that mattered.
+      3. Document the board narrative, extract the lessons that change how you will play future games.
+      4. Highlight any outstanding questions or experiments you will carry into future games.
+      5. Identify and document each scoring move by type, square pattern and score points.
+      6. Document the board narrative, extract the lessons that change how you will play future games.
+      7. Identify defensive moves that were made and document the defensive formations that mattered.
+      8. Learn the scoring move types, square patterns and score points for the type of scoring move.
+
+      OBJECTIVE
+      Produce a comprehensive and detailed review document that captures your experience playing this game from start to finish.
+      Use the move history to explain what happened, document every scoring pattern you executed or witnessed,
+      and surface the defensive formations that mattered.
+      Document the board narrative, extract the lessons that change how you will play future games.
+      It is important to identify and document the scoring move types, square patterns and score points for the type of scoring move.
+
+      IMPORTANT: you must call the GameMoveTool_getMoveHistory tool to get the move history and use it to produce the review document.
+      You must use the move history to explain what happened, document every scoring pattern you executed or witnessed,
+      and surface the defensive formations that mattered.
+      You must document the board narrative, extract the lessons that change how you will play future games.
+      You must learn the scoring move types, square patterns and score points for the type of scoring move.
+
+      IMPORTANT: the document you produce is extremely important part of your learning journey. You must produce a detailed and
+      comprehensive review document that captures your experience playing this game from start to finish. This document will be used to
+      improve your performance in future games.
+
+      """.stripIndent();
+
   record PostGameReviewPrompt(String sessionId, String gameId, DotGame.Player agent) {
     public String toPrompt(ComponentClient componentClient) {
       var gameState = componentClient
@@ -97,23 +127,12 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
           POST-GAME LEARNING REVIEW
           Game Id: %s | Agent Id: %s | Result: %s | Your Score: %d | Opponent Score: %d
 
-          OBJECTIVE
-          Produce a comprehensive and detailed review document that captures your experience playing this game from start to finish.
-          Use the move history to explain what happened, document every scoring pattern you executed or witnessed,
-          and surface the defensive formations that mattered.
-          Document the board narrative, extract the lessons that change how you will play future games.
-          It is important to learn the scoring move types, square patterns and score points for the type of scoring move..
-
-          IMPORTANT: you must call the GameMoveTool_getMoveHistory tool to get the move history and use it to produce the review document.
-          You must use the move history to explain what happened, document every scoring pattern you executed or witnessed,
-          and surface the defensive formations that mattered.
-          You must document the board narrative, extract the lessons that change how you will play future games.
-          You must learn the scoring move types, square patterns and score points for the type of scoring move.
+          The game is over. Do your post-game review.
 
           OUTPUT DISCIPLINE
-          • Produce a comprehensive and detailed review document that captures your experience playing this game from start to finish.
-          • Highlight any outstanding questions or experiments you will carry into future games.
+          • Produce a comprehensive and detailed game review document that captures your experience playing this game from start to finish.
           • Do not request user input; rely solely on your analysis and the provided tools.
+          • No free-form conversation outside this structure.
 
           <LAST_MOVE_JSON>
           %s

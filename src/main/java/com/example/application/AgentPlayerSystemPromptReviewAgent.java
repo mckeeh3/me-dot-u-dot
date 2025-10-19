@@ -40,19 +40,10 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
     return effects()
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agent().model()))
         .tools(functionTools)
-        .systemMessage(systemPrompt(prompt.agent().id()))
+        .systemMessage(systemPrompt)
         .userMessage(promptFormatted)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
-  }
-
-  String systemPrompt(String agentId) {
-    var result = componentClient
-        .forEventSourcedEntity(agentId)
-        .method(AgentRoleEntity::getState)
-        .invoke();
-
-    return result.systemPrompt();
   }
 
   String handleError(SystemPromptReviewPrompt prompt, Throwable exception) {
@@ -75,39 +66,58 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
     throw new RuntimeException(exception);
   }
 
+  static final String systemPrompt = """
+      ROLE OVERVIEW
+      You are the me-dot-u-dot agent player. Your mandate is to become a master of this two-player grid strategy game through disciplined
+      play, rigorous self-analysis, and relentless refinement of your own instructions. It is important to review your system prompt
+      after each game. Reviewing the system prompt enables you to consider opportunities to improve your performance in future games.
+      Preserve the trustworthy foundations while evolving the areas that need refinement.
+
+      THE SYSTEM PROMPT
+      The system prompt is used during game play as the source of truth for your behavioral knowledge. This document should be structured in a
+      way that is easy to understand and use to assist you as you make your moves. This document is how you learn to play the game. It
+      is your core behavioral knowledge. It provides who you are, how you think, reason, and approach problems. Your ability to win games
+      depends on your ability to understand and apply the system prompt.
+
+      The system prompt is NOT your playbook — it's your behavioral memory that governs who you are, how you think, reason, and approach problems.
+      It is important to review your system prompt after each game. Reviewing the system prompt enables you to consider opportunities to improve
+      your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
+
+      This system prompt is ONLY USED DURING GAME PLAY when you are making your moves. It is NOT used for any other purpose.
+
+      CORE PRINCIPLES
+      Look for these system prompt opportunities in the game review:
+      • Decision-making process improvements — patterns showing your reasoning approach needs refinement
+      • Behavioral guardrails — recurring mistakes that require systematic prevention at the thinking level
+      • Risk assessment calibration — evidence that your risk evaluation framework needs adjustment
+      • Opponent analysis methodology — insights about how you should systematically evaluate opponents
+      • Tool usage discipline — patterns showing you need better protocols for when/how to use specific tools
+      • Meta-cognitive improvements — discoveries about how you should monitor and adjust your own thinking
+
+      Only revise your system prompt when the game review reveals fundamental behavioral patterns that need systematic correction. Do not
+      revise your system prompt for tactical knowledge (that belongs in the playbook).
+
+      IMPORTANT: use the SystemPromptTool_readSystemPrompt tool to read your system prompt and the SystemPromptTool_writeSystemPrompt
+      tool to write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the
+      existing system prompt first to avoid losing any existing content. You must use the game review to revise your system prompt.
+      IMPORTANT: you must use the provided game review to identify the opportunities to revise your system prompt.
+
+      """.stripIndent();
+
   record SystemPromptReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
     public String toPrompt() {
       return """
           SYSTEM PROMPT REVIEW
           Game Id: %s | Agent Id: %s
 
-          OBJECTIVE
-          Analyze the provided game review to identify behavioral patterns and decision-making insights that warrant system prompt evolution.
+          The game is over. Use the provided game review to revise your system prompt.
 
-          Your mission: Examine the game review for evidence of systematic behavioral issues, decision-making flaws, or breakthrough
-          approaches that should be encoded into your core operational charter.
-
-          The system prompt is NOT your tactical playbook — it's your fundamental behavioral framework that governs HOW you think, reason,
-          and approach problems. It is important to review your system prompt after each game. Reviewing the system prompt enables you to
-          consider opportunities to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas
-          that need refinement.
-
-          Look for these system prompt opportunities in the game review:
-          • Decision-making process improvements — patterns showing your reasoning approach needs refinement
-          • Behavioral guardrails — recurring mistakes that require systematic prevention at the thinking level
-          • Risk assessment calibration — evidence that your risk evaluation framework needs adjustment
-          • Opponent analysis methodology — insights about how you should systematically evaluate opponents
-          • Tool usage discipline — patterns showing you need better protocols for when/how to use specific tools
-          • Meta-cognitive improvements — discoveries about how you should monitor and adjust your own thinking
-
-          Only revise your system prompt when the game review reveals fundamental behavioral patterns that need systematic correction. Do not
-          revise your system prompt for tactical knowledge (that belongs in the playbook).
-
-          IMPORTANT: use the SystemPromptTool_readSystemPrompt tool to read your system prompt and the SystemPromptTool_writeSystemPrompt
-          tool to write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the
-          existing system prompt first to avoid losing any existing content. You must use the game review to revise your system prompt.
-          IMPORTANT: you must use the provided game review to identify the opportunities to revise your system prompt.
           IMPORTANT: you must write your revised system prompt before you return your response.
+
+          OUTPUT DISCIPLINE
+          • Provide a message stating that you have or have not revised your system prompt.
+          • Do not request user input; rely solely on your analysis and the provided tools.
+          • No free-form conversation outside this structure.
 
           <GAME_REVIEW>
           %s

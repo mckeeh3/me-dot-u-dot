@@ -62,6 +62,8 @@ public class DotGameToAgentConsumer extends Consumer {
           .forWorkflow(sessionId)
           .method(AgentPlayerWorkflow::moveMade)
           .invoke(event);
+    } else {
+      gameLog.logLastMove(event);
     }
 
     return effects().done();

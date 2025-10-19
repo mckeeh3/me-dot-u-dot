@@ -104,27 +104,14 @@ public class AgentPlayerMakeMoveAgent extends Agent {
           TURN BRIEFING — YOUR MOVE
           Game Id: %s | Agent Id: %s | Game Status: %s | Your Score: %d | Opponent Score: %d
 
-          CORE REMINDERS
-          • You must read your latest playbook and the current game state before planning.
-          • Envision the board three moves ahead: identify scoring chances, opponent threats, and tempo shifts.
-          • Your response must include a single GameMoveTool_makeMove call plus concise strategic commentary.
-
-          REQUIRED FLOW FOR THIS TURN
-          1. PlaybookTool_readPlaybook to refresh applicable tactics.
-          2. GameStateTool_getGameState to inspect the precise board snapshot.
-          3. Evaluate candidate moves: projected score, defensive coverage, future hooks.
-          4. Choose the move that best advances your long-term scoring plan while guarding against immediate counter play.
-          5. IMPORTANT: Call GameMoveTool_makeMove with the chosen square to make your move.
-          6. Immediately articulate: current board summary, reason for the move, key risks, lessons for your playbook.
-
-          LEARNING PROMPT
+          LEARNING OPPORTUNITIES
           • Note any new scoring formations, opponent habits, or mistakes worth memorializing after the turn.
           • If you discover rules or counter strategies you do not yet master, flag them for post-game study.
           • Capture concise hypotheses you will test in upcoming moves.
 
           OUTPUT RULES
           • Call GameMoveTool_makeMove exactly once.
-          • Follow with a short strategic reflection covering state, intent, and insights.
+          • Follow with a detailed strategic reflection covering state, intent, and insights.
           • Do not ask for user input; rely solely on tools and your memories.
           • No free-form conversation outside this structure.
 
