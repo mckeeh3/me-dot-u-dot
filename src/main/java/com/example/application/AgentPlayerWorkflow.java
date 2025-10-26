@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.domain.AgentPlayer;
+import com.example.domain.AgentPlayer.State;
 import com.example.domain.DotGame;
 
 import akka.Done;
@@ -34,6 +35,11 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     return WorkflowSettings.builder()
         .defaultStepTimeout(ofMinutes(10))
         .build();
+  }
+
+  @Override
+  public State emptyState() {
+    return AgentPlayer.State.empty();
   }
 
   public Effect<Done> gameCreated(DotGame.Event.GameCreated event) {
@@ -90,7 +96,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     makeMove(sessionId, prompt, "Make move (1 game created)");
 
     return stepEffects()
-        .updateState(state().with(sessionId, event.gameId(), agentPlayer.player()))
+        .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()))
         .thenPause();
   }
 
@@ -105,7 +111,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     makeMove(sessionId, prompt, "Make move (2 game in progress)");
 
     return stepEffects()
-        .updateState(state().with(sessionId, event.gameId(), agentPlayer.player()))
+        .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()))
         .thenPause();
   }
 
@@ -127,73 +133,73 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect canceledGameReviewStep(DotGame.Event.GameCanceled event) {
-    gameLog.logGameCanceled(state().agent().id(), event);
+    gameLog.logGameCanceled(currentState().agent().id(), event);
 
-    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(state().sessionId(), state().gameId(), state().agent());
+    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 
     var gameReview = componentClient
         .forAgent()
-        .inSession(state().sessionId())
+        .inSession(currentState().sessionId())
         .method(AgentPlayerPostGameReviewAgent::postGameReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(state().gameId(), state().agent().id(), gameReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
 
     return stepEffects()
-        .updateState(state().withGameReview(gameReview))
+        .updateState(currentState().withGameReview(gameReview))
         .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
         .withInput(gameReview);
   }
 
   StepEffect postGameReviewStep(DotGame.Event.GameFinished event) {
-    gameLog.logGameFinished(state().agent().id(), event);
+    gameLog.logGameFinished(currentState().agent().id(), event);
 
-    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(state().sessionId(), state().gameId(), state().agent());
+    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 
     var gameReview = componentClient
         .forAgent()
-        .inSession(state().sessionId())
+        .inSession(currentState().sessionId())
         .method(AgentPlayerPostGameReviewAgent::postGameReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(state().gameId(), state().agent().id(), gameReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
 
     return stepEffects()
-        .updateState(state().withGameReview(gameReview))
+        .updateState(currentState().withGameReview(gameReview))
         .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
         .withInput(gameReview);
   }
 
   StepEffect postGamePlaybookReviewStep(String gameReview) {
-    var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(state().sessionId(), state().gameId(), state().agent(), gameReview);
+    var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), gameReview);
 
     var playbookReview = componentClient
         .forAgent()
-        .inSession(state().sessionId())
+        .inSession(currentState().sessionId())
         .method(AgentPlayerPlaybookReviewAgent::playbookReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(state().gameId(), state().agent().id(), playbookReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview);
 
     return stepEffects()
-        .updateState(state().withPlaybookReview(playbookReview))
+        .updateState(currentState().withPlaybookReview(playbookReview))
         .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
         .withInput(gameReview);
   }
 
   StepEffect postGameSystemPromptReviewStep(String gameReview) {
-    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(state().sessionId(), state().gameId(), state().agent(), gameReview);
+    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), gameReview);
 
     var systemPromptReview = componentClient
         .forAgent()
-        .inSession(state().sessionId())
+        .inSession(currentState().sessionId())
         .method(AgentPlayerSystemPromptReviewAgent::systemPromptReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(state().gameId(), state().agent().id(), systemPromptReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), systemPromptReview);
 
     return stepEffects()
-        .updateState(state().withSystemPromptReview(systemPromptReview))
+        .updateState(currentState().withSystemPromptReview(systemPromptReview))
         .thenEnd();
   }
 
@@ -267,9 +273,5 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         sessionId,
         gameId,
         agent);
-  }
-
-  AgentPlayer.State state() {
-    return null == currentState() ? AgentPlayer.State.empty() : currentState();
   }
 }
