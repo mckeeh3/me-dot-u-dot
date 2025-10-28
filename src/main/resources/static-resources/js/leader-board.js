@@ -311,7 +311,8 @@ function updateSelectedGameUI() {
 // Load game details and render game board
 async function loadGameDetails(gameId) {
   try {
-    const [stateResponse, historyResponse] = await Promise.all([fetch(`/game/get-state/${gameId}`), fetch(`/game/get-game-move-history-tool/${gameId}`)]);
+    // const [stateResponse, historyResponse] = await Promise.all([fetch(`/game/get-state/${gameId}`), fetch(`/game/get-game-move-history-tool/${gameId}`)]);
+    const [stateResponse, historyResponse] = await Promise.all([fetch(`/game/get-state/${gameId}`), fetch(`/game/get-game-move-history/${gameId}`)]);
 
     if (!stateResponse.ok || !historyResponse.ok) {
       console.error('Failed to load game details');
@@ -590,13 +591,13 @@ function renderGameBoardAtIndex(snapshot) {
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       const rowChar = String.fromCharCode('A'.charCodeAt(0) + r);
-      const id = rowChar + (c + 1);
+      const squareId = rowChar + (c + 1);
 
       const squareEl = document.createElement('div');
       squareEl.className = 'square';
-      squareEl.dataset.squareId = id;
+      squareEl.dataset.squareId = squareId;
 
-      const moveData = snapshot.occupancy.get(id);
+      const moveData = snapshot.occupancy.get(squareId);
 
       if (moveData) {
         const playerMeta = replayState.players[moveData.playerId];
@@ -606,7 +607,7 @@ function renderGameBoardAtIndex(snapshot) {
 
         squareEl.innerHTML = `
           <div class="square-layer square-layer-top">
-            <span class="square-id">${id}</span>
+            <span class="square-id">${squareId}</span>
             <span class="game-move-count">${moveData.gameMove}</span>
           </div>
           <div class="square-layer square-layer-middle">
@@ -633,11 +634,11 @@ function renderGameBoardAtIndex(snapshot) {
         `;
       }
 
-      if (snapshot.currentMove && snapshot.currentMove.squareId === id) {
+      if (snapshot.currentMove && snapshot.currentMove.squareId === squareId) {
         squareEl.classList.add('last-move');
       }
 
-      if (scoringSquares.has(id)) {
+      if (scoringSquares.has(squareId)) {
         squareEl.classList.add('scoring-square');
       }
 
