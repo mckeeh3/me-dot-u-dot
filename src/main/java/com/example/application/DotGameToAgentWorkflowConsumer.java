@@ -11,14 +11,14 @@ import akka.javasdk.annotations.Consume;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.consumer.Consumer;
 
-@Component(id = "dot-game-to-agent-consumer")
+@Component(id = "dot-game-to-agent-workflow-consumer")
 @Consume.FromEventSourcedEntity(DotGameEntity.class)
-public class DotGameToAgentConsumer extends Consumer {
+public class DotGameToAgentWorkflowConsumer extends Consumer {
   final Logger log = LoggerFactory.getLogger(getClass());
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
 
-  public DotGameToAgentConsumer(ComponentClient componentClient) {
+  public DotGameToAgentWorkflowConsumer(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
   }

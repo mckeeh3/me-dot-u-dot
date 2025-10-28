@@ -95,7 +95,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
           .method(DotGameEntity::getState)
           .invoke();
 
-      var agentPlayerStatus = gameState.currentPlayer().get();
+      var agentPlayerStatus = gameState.currentPlayerStatus().get();
       var opponentPlayerStatus = gameState.player1Status().player().id().equals(agent.id())
           ? gameState.player2Status()
           : gameState.player1Status();

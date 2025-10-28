@@ -116,8 +116,8 @@ public class GameStateTool {
 
   record ActivePlayer(String who, String playerId) {
     static ActivePlayer from(String agentId, DotGame.State gameState) {
-      var who = gameState.currentPlayer().map(p -> p.player().id().equals(agentId) ? "you" : "opponent").orElse("none");
-      var playerId = gameState.currentPlayer().map(p -> p.player().id()).orElse("");
+      var who = gameState.currentPlayerStatus().map(p -> p.player().id().equals(agentId) ? "you" : "opponent").orElse("none");
+      var playerId = gameState.currentPlayerStatus().map(p -> p.player().id()).orElse("");
       return new ActivePlayer(who, playerId);
     }
   }

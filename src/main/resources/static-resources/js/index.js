@@ -209,12 +209,12 @@ function renderGameInfo() {
   const p2 = state.game.player2Status;
 
   // Update status with turn and game state info
-  const turnName = state.game.currentPlayer?.player?.name || '';
+  const turnName = state.game.currentPlayerStatus?.player?.name || '';
   const p1Type = p1.player.type === 'agent' ? '🤖' : '👤';
   const p2Type = p2.player.type === 'agent' ? '🤖' : '👤';
 
   if (state.game.status === 'in_progress') {
-    const currentType = state.game.currentPlayer?.player?.type === 'agent' ? '🤖' : '👤';
+    const currentType = state.game.currentPlayerStatus?.player?.type === 'agent' ? '🤖' : '👤';
 
     // Show reset and cancel buttons
     $('resetBtn').style.display = 'flex';
@@ -243,7 +243,7 @@ function renderGameInfo() {
     startGameDurationTimer();
 
     // Start timer for current player
-    const currentPlayerId = state.game.currentPlayer?.player?.id;
+    const currentPlayerId = state.game.currentPlayerStatus?.player?.id;
     if (currentPlayerId === state.p1?.id) {
       startTimer('p1');
     } else if (currentPlayerId === state.p2?.id) {
@@ -437,7 +437,7 @@ function renderGameBoard() {
         squareEl.classList.add('scoring-square');
       }
 
-      const isAgentsTurn = state.game && state.game.currentPlayer && state.game.currentPlayer.player && state.game.currentPlayer.player.type === 'agent';
+      const isAgentsTurn = state.game && state.game.currentPlayerStatus && state.game.currentPlayerStatus.player && state.game.currentPlayerStatus.player.type === 'agent';
       const isInProgress = state.game && state.game.status === 'in_progress';
       const isOccupied = !!(square && square.playerId);
 
@@ -712,7 +712,7 @@ async function fetchAiModels() {
 
 async function onSquareClick(squareId) {
   if (!state.game || state.game.status !== 'in_progress') return;
-  const current = state.game.currentPlayer?.player?.id;
+  const current = state.game.currentPlayerStatus?.player?.id;
   if (!current) return;
 
   const req = { gameId: state.game.gameId, playerId: current, squareId };
@@ -1358,7 +1358,7 @@ function updateGameDurationDisplay() {
   // Only update if we're in an active game
   if (!state.game || state.game.status !== 'in_progress') return;
 
-  const currentPlayer = state.game.currentPlayer?.player;
+  const currentPlayer = state.game.currentPlayerStatus?.player;
   if (!currentPlayer) return;
 
   const currentType = currentPlayer.type === 'agent' ? '🤖' : '👤';

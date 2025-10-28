@@ -235,7 +235,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .invoke();
 
     var playerId = prompt.agent().id();
-    var agentMadeMove = gameState.currentPlayer().isEmpty() || !gameState.currentPlayer().get().player().id().equals(playerId);
+    var agentMadeMove = gameState.currentPlayerStatus().isEmpty() || !gameState.currentPlayerStatus().get().player().id().equals(playerId);
 
     log.debug("{}, agent response: {}", logMessage, response);
     log.debug("Game status: {}, game over or agent: {} made move: {}", gameState.status(), playerId, agentMadeMove);

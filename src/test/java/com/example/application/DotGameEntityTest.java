@@ -43,8 +43,8 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.in_progress, state.status());
     assertEquals(player1Status, state.player1Status());
     assertEquals(player2Status, state.player2Status());
-    assertTrue(state.currentPlayer().isPresent());
-    assertEquals(player1Status, state.currentPlayer().get());
+    assertTrue(state.currentPlayerStatus().isPresent());
+    assertEquals(player1Status, state.currentPlayerStatus().get());
     assertTrue(state.moveHistory().isEmpty());
 
     // Verify the board was properly initialized
@@ -84,8 +84,8 @@ public class DotGameEntityTest {
     var state = testKit.getState();
     assertEquals(gameId, state.gameId());
     assertEquals(DotGame.Status.in_progress, state.status());
-    assertTrue(state.currentPlayer().isPresent());
-    assertEquals(player2Status, state.currentPlayer().get()); // Should be player2's turn
+    assertTrue(state.currentPlayerStatus().isPresent());
+    assertEquals(player2Status, state.currentPlayerStatus().get()); // Should be player2's turn
     assertEquals(1, state.moveHistory().size());
 
     // Verify the square was placed in the board
@@ -254,8 +254,8 @@ public class DotGameEntityTest {
     assertTrue(board.squareAt("D4").isPresent());
 
     // Verify current player (should be player1's turn after 4 moves)
-    assertTrue(state.currentPlayer().isPresent());
-    assertEquals(player1, state.currentPlayer().get().player());
+    assertTrue(state.currentPlayerStatus().isPresent());
+    assertEquals(player1, state.currentPlayerStatus().get().player());
   }
 
   @Test
@@ -437,7 +437,7 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.won_by_player, state.status());
     assertEquals(player1, state.player1Status().player());
     assertEquals(player2, state.player2Status().player());
-    assertTrue(state.currentPlayer().isEmpty());
+    assertTrue(state.currentPlayerStatus().isEmpty());
     assertTrue(state.player1Status().isWinner());
     assertFalse(state.player2Status().isWinner());
   }
@@ -504,7 +504,7 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.won_by_player, state.status());
     assertEquals(player1, state.player1Status().player());
     assertEquals(player2, state.player2Status().player());
-    assertTrue(state.currentPlayer().isEmpty());
+    assertTrue(state.currentPlayerStatus().isEmpty());
     assertFalse(state.player1Status().isWinner());
     assertTrue(state.player2Status().isWinner());
   }
@@ -555,7 +555,7 @@ public class DotGameEntityTest {
     assertEquals(DotGame.Status.won_by_player, state.status());
     assertEquals(player1, state.player1Status().player());
     assertEquals(player2, state.player2Status().player());
-    assertTrue(state.currentPlayer().isEmpty());
+    assertTrue(state.currentPlayerStatus().isEmpty());
     assertTrue(state.player1Status().isWinner());
     assertFalse(state.player2Status().isWinner());
   }

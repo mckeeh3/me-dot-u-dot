@@ -170,7 +170,7 @@ public class GameMoveTool {
           return new ActivePlayer("", "", reason);
         }
 
-        var nextPlayerId = gameState.currentPlayer().get().player().id();
+        var nextPlayerId = gameState.currentPlayerStatus().get().player().id();
         var who = nextPlayerId.equals(agentId) ? "you" : "opponent";
         var reason = nextPlayerId.equals(agentId)
             ? "It's still your turn, try again"

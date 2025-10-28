@@ -70,7 +70,7 @@ public class GameActionLogger {
 
     var player1id = state.player1Status().player().id();
     var player2id = state.player2Status().player().id();
-    var currentPlayerId = state.currentPlayer().isPresent() ? state.currentPlayer().get().player().id() : "";
+    var currentPlayerId = state.currentPlayerStatus().isPresent() ? state.currentPlayerStatus().get().player().id() : "";
 
     var time = event.updatedAt();
     var playerId = currentPlayerId.equals(player1id) ? player2id : player1id; // current player is NOT the one who forfeited the move

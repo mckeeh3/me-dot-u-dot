@@ -30,7 +30,7 @@ public interface DotGame {
       Optional<Instant> finishedAt,
       PlayerStatus player1Status,
       PlayerStatus player2Status,
-      Optional<PlayerStatus> currentPlayer,
+      Optional<PlayerStatus> currentPlayerStatus,
       List<Move> moveHistory,
       Board board) {
 
@@ -96,11 +96,11 @@ public interface DotGame {
         return List.of(); // No state change tells the agent to try again
       }
 
-      if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
+      if (currentPlayerStatus.isEmpty() || !command.playerId.equals(currentPlayerStatus.get().player().id())) {
         return List.of(); // No state change tells the agent to try again
       }
 
-      var newBoard = board.withSquare(command.squareId, currentPlayer.get().player());
+      var newBoard = board.withSquare(command.squareId, currentPlayerStatus.get().player());
 
       var newPlayer1Status = isPlayer1Turn() ? player1Status.makeMove(command.squareId, board.level(), moveHistory) : player1Status;
       var newPlayer2Status = isPlayer2Turn() ? player2Status.makeMove(command.squareId, board.level(), moveHistory) : player2Status;
@@ -146,6 +146,9 @@ public interface DotGame {
                   madeMoveEvent.gameId,
                   madeMoveEvent.status,
                   newTurnCompletedAt,
+                  newPlayer1Status,
+                  newPlayer2Status,
+                  newCurrentPlayer,
                   madeMoveEvent.moveHistory));
         }
 
@@ -159,6 +162,9 @@ public interface DotGame {
                 madeMoveEvent.gameId,
                 madeMoveEvent.status,
                 newTurnCompletedAt,
+                newPlayer1Status,
+                newPlayer2Status,
+                newCurrentPlayer,
                 madeMoveEvent.moveHistory));
       }
 
@@ -181,6 +187,9 @@ public interface DotGame {
               gameId,
               status,
               newTurnCompletedAt,
+              player1Status,
+              player2Status,
+              newCurrentPlayer,
               moveHistory));
     }
 
@@ -213,6 +222,9 @@ public interface DotGame {
           gameId,
           status,
           newTurnCompletedAt,
+          player1Status,
+          player2Status,
+          currentPlayerStatus,
           newMoveHistory);
     }
 
@@ -225,7 +237,7 @@ public interface DotGame {
       }
 
       // Check if it's the player's turn
-      if (currentPlayer.isEmpty() || !command.playerId.equals(currentPlayer.get().player().id())) {
+      if (currentPlayerStatus.isEmpty() || !command.playerId.equals(currentPlayerStatus.get().player().id())) {
         return List.of();
       }
 
@@ -244,6 +256,9 @@ public interface DotGame {
               gameId,
               status,
               newTurnCompletedAt,
+              player1Status,
+              player2Status,
+              newCurrentPlayer,
               moveHistory));
     }
 
@@ -339,7 +354,7 @@ public interface DotGame {
           finishedAt,
           player1Status,
           player2Status,
-          currentPlayer,
+          currentPlayerStatus,
           event.moveHistory,
           board);
     }
@@ -385,11 +400,11 @@ public interface DotGame {
     }
 
     boolean isCurrentPlayer(Player player) {
-      return currentPlayer.isPresent() && currentPlayer.get().player().id().equals(player.id());
+      return currentPlayerStatus.isPresent() && currentPlayerStatus.get().player().id().equals(player.id());
     }
 
     Optional<PlayerStatus> getCurrentPlayer() {
-      return currentPlayer;
+      return currentPlayerStatus;
     }
 
     String getCurrentPlayerName() {
@@ -400,11 +415,11 @@ public interface DotGame {
     }
 
     PlayerStatus getNextPlayer() {
-      if (currentPlayer.isEmpty()) {
+      if (currentPlayerStatus.isEmpty()) {
         return player1Status;
       }
 
-      if (currentPlayer.get().player().id().equals(player1Status.player().id())) {
+      if (currentPlayerStatus.get().player().id().equals(player1Status.player().id())) {
         return player2Status;
       }
 
@@ -412,11 +427,11 @@ public interface DotGame {
     }
 
     boolean isPlayer1Turn() {
-      return currentPlayer.isEmpty() || currentPlayer.get().player().id().equals(player1Status.player().id());
+      return currentPlayerStatus.isEmpty() || currentPlayerStatus.get().player().id().equals(player1Status.player().id());
     }
 
     boolean isPlayer2Turn() {
-      return !currentPlayer.isEmpty() && currentPlayer.get().player().id().equals(player2Status.player().id());
+      return !currentPlayerStatus.isEmpty() && currentPlayerStatus.get().player().id().equals(player2Status.player().id());
     }
   }
 
@@ -486,6 +501,9 @@ public interface DotGame {
         String gameId,
         Status status,
         Instant turnCompletedAt,
+        PlayerStatus player1Status,
+        PlayerStatus player2Status,
+        Optional<PlayerStatus> currentPlayerStatus,
         List<Move> moveHistory) implements Event {}
 
     @TypeName("game-canceled")
