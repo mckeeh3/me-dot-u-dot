@@ -45,14 +45,14 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   public Effect<Done> playerTurnCompleted(DotGame.Event.PlayerTurnCompleted event) {
     log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
 
-    if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) {
+    if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
       return effects()
           .transitionTo(AgentPlayerWorkflow::turnMakeMoveStep)
           .withInput(event)
           .thenReply(Done.getInstance());
     }
 
-    if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) {
+    if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
       return effects()
           .transitionTo(AgentPlayerWorkflow::turnStartGameReviewStep)
           .withInput(event)
@@ -60,51 +60,6 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     }
 
     return effects().reply(Done.getInstance()); // ignore duplicate messages
-  }
-
-  public Effect<Done> gameCreated(DotGame.Event.GameCreated event) {
-    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
-
-    return effects()
-        .transitionTo(AgentPlayerWorkflow::gameCreatedStep)
-        .withInput(event)
-        .thenReply(Done.getInstance());
-  }
-
-  public Effect<Done> moveMade(DotGame.Event.MoveMade event) {
-    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
-
-    return effects()
-        .transitionTo(AgentPlayerWorkflow::makeMoveStep)
-        .withInput(event)
-        .thenReply(Done.getInstance());
-  }
-
-  public Effect<Done> moveForfeited(DotGame.Event.MoveForfeited event) {
-    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
-
-    return effects()
-        .transitionTo(AgentPlayerWorkflow::forfeitMoveStep)
-        .withInput(event)
-        .thenReply(Done.getInstance());
-  }
-
-  public Effect<Done> postGameReview(DotGame.Event.GameFinished event) {
-    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
-
-    return effects()
-        .transitionTo(AgentPlayerWorkflow::postGameReviewStep)
-        .withInput(event)
-        .thenReply(Done.getInstance());
-  }
-
-  public Effect<Done> canceledGameReview(DotGame.Event.GameCanceled event) {
-    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
-
-    return effects()
-        .transitionTo(AgentPlayerWorkflow::canceledGameReviewStep)
-        .withInput(event)
-        .thenReply(Done.getInstance());
   }
 
   StepEffect turnMakeMoveStep(DotGame.Event.PlayerTurnCompleted event) {
@@ -132,89 +87,6 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
   StepEffect turnStartGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
     log.debug("Turn start game review step: {}, move count: {}", event.gameId(), event.moveHistory().size());
-
-    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
-
-    var gameReview = componentClient
-        .forAgent()
-        .inSession(currentState().sessionId())
-        .method(AgentPlayerPostGameReviewAgent::postGameReview)
-        .invoke(prompt);
-
-    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
-
-    return stepEffects()
-        .updateState(currentState().withGameReview(gameReview))
-        .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-        .withInput(gameReview);
-  }
-
-  StepEffect gameCreatedStep(DotGame.Event.GameCreated event) {
-    var agentPlayer = event.currentPlayerStatus().get();
-    var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-
-    var prompt = makeMovePromptFor(sessionId, event.gameId(), agentPlayer.player());
-
-    makeMove(sessionId, prompt, "Make move (1 game created)");
-
-    return stepEffects()
-        .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()))
-        .thenPause();
-  }
-
-  StepEffect makeMoveStep(DotGame.Event.MoveMade event) {
-    gameLog.logLastMove(event);
-
-    var agentPlayer = event.currentPlayerStatus().get();
-    var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-
-    var prompt = makeMovePromptFor(sessionId, event.gameId(), agentPlayer.player());
-
-    makeMove(sessionId, prompt, "Make move (2 game in progress)");
-
-    return stepEffects()
-        .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()))
-        .thenPause();
-  }
-
-  StepEffect forfeitMoveStep(DotGame.Event.MoveForfeited event) {
-    gameLog.logForfeitMove(event);
-
-    var currentPlayer = event.currentPlayerStatus();
-
-    if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var agentPlayer = currentPlayer.get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-
-      var prompt = makeMovePromptFor(sessionId, event.gameId(), agentPlayer.player());
-
-      makeMove(sessionId, prompt, "Make move (3 move forfeited)");
-    }
-
-    return stepEffects().thenPause();
-  }
-
-  StepEffect canceledGameReviewStep(DotGame.Event.GameCanceled event) {
-    gameLog.logGameCanceled(event);
-
-    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
-
-    var gameReview = componentClient
-        .forAgent()
-        .inSession(currentState().sessionId())
-        .method(AgentPlayerPostGameReviewAgent::postGameReview)
-        .invoke(prompt);
-
-    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
-
-    return stepEffects()
-        .updateState(currentState().withGameReview(gameReview))
-        .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-        .withInput(gameReview);
-  }
-
-  StepEffect postGameReviewStep(DotGame.Event.GameFinished event) {
-    gameLog.logGameFinished(currentState().agent().id(), event);
 
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 

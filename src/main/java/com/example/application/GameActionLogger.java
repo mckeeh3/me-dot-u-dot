@@ -117,12 +117,14 @@ public class GameActionLogger {
         .invoke();
 
     var time = event.updatedAt();
+    var player1Id = state.player1Status().player().id();
+    var player2Id = state.player2Status().player().id();
     var didPlayer1Win = state.player1Status().isWinner();
     var didPlayer2Win = state.player2Status().isWinner();
 
-    var messagePlayer1 = "player 1 " + (didPlayer1Win ? "won" : "lost");
-    var messagePlayer2 = "player 2 " + (didPlayer2Win ? "won" : "lost");
-    var message = "Game finished, " + messagePlayer1 + " and " + messagePlayer2;
+    var messagePlayer1 = "player %s %s".formatted(player1Id, didPlayer1Win ? "won" : "lost");
+    var messagePlayer2 = "player %s %s".formatted(player2Id, didPlayer2Win ? "won" : "lost");
+    var message = "Game finished, %s and %s".formatted(messagePlayer1, messagePlayer2);
     logGameFinished(time, event.gameId(), message);
   }
 

@@ -32,7 +32,7 @@ public class DotGameToAgentWorkflowConsumer extends Consumer {
       case DotGame.Event.MoveMade e -> onEvent(e);
       case DotGame.Event.MoveForfeited e -> onEvent(e);
       case DotGame.Event.GameFinished e -> onEvent(e);
-      // case DotGame.Event.GameCanceled e -> onEvent(e);
+      case DotGame.Event.GameCanceled e -> onEvent(e);
       default -> effects().done();
     };
   }
@@ -42,7 +42,7 @@ public class DotGameToAgentWorkflowConsumer extends Consumer {
 
     log.debug("Player turn completed: {}, move count: {},\n_Current player status: {}", event.status(), event.moveHistory().size(), currentPlayerStatus);
 
-    if (DotGame.Status.in_progress != event.status()) {
+    if (DotGame.Status.in_progress != event.status()) { // game over
       if (event.player1Status().player().isAgent()) {
         var sessionId = AgentPlayer.sessionId(event.gameId(), event.player1Status().player().id());
         componentClient
@@ -106,108 +106,6 @@ public class DotGameToAgentWorkflowConsumer extends Consumer {
 
   Effect onEvent(DotGame.Event.GameCanceled event) {
     gameLog.logGameCanceled(event);
-
-    return effects().done();
-  }
-
-  Effect onEventOLD(DotGame.Event.GameCreated event) {
-    var currentPlayer = event.currentPlayerStatus();
-
-    if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var agentPlayer = currentPlayer.get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::gameCreated)
-          .invoke(event);
-    }
-
-    return effects().done();
-  }
-
-  Effect onEventOLD(DotGame.Event.MoveMade event) {
-    var currentPlayer = event.currentPlayerStatus();
-
-    if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var agentPlayer = currentPlayer.get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::moveMade)
-          .invoke(event);
-    } else {
-      gameLog.logLastMove(event);
-    }
-
-    return effects().done();
-  }
-
-  Effect onEventOLD(DotGame.Event.MoveForfeited event) {
-    var currentPlayer = event.currentPlayerStatus();
-
-    if (currentPlayer.isPresent() && currentPlayer.get().player().isAgent()) {
-      var agentPlayer = currentPlayer.get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::moveForfeited)
-          .invoke(event);
-    }
-
-    return effects().done();
-  }
-
-  Effect onEventOLD(DotGame.Event.GameFinished event) {
-    var state = componentClient
-        .forEventSourcedEntity(event.gameId())
-        .method(DotGameEntity::getState)
-        .invoke();
-
-    if (state.player1Status().player().isAgent()) {
-      var sessionId = AgentPlayer.sessionId(event.gameId(), state.player1Status().player().id());
-
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::postGameReview)
-          .invoke(event);
-    }
-
-    if (state.player2Status().player().isAgent()) {
-      var sessionId = AgentPlayer.sessionId(event.gameId(), state.player2Status().player().id());
-
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::postGameReview)
-          .invoke(event);
-    }
-
-    return effects().done();
-  }
-
-  Effect onEventOLD(DotGame.Event.GameCanceled event) {
-    var state = componentClient
-        .forEventSourcedEntity(event.gameId())
-        .method(DotGameEntity::getState)
-        .invoke();
-
-    if (state.player1Status().player().isAgent()) {
-      var sessionId = AgentPlayer.sessionId(event.gameId(), state.player1Status().player().id());
-
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::canceledGameReview)
-          .invoke(event);
-    }
-
-    if (state.player2Status().player().isAgent()) {
-      var sessionId = AgentPlayer.sessionId(event.gameId(), state.player2Status().player().id());
-
-      componentClient
-          .forWorkflow(sessionId)
-          .method(AgentPlayerWorkflow::canceledGameReview)
-          .invoke(event);
-    }
 
     return effects().done();
   }
