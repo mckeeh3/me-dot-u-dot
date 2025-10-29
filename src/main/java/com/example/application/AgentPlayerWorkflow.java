@@ -42,6 +42,26 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     return AgentPlayer.State.empty();
   }
 
+  public Effect<Done> playerTurnCompleted(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
+
+    if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) {
+      return effects()
+          .transitionTo(AgentPlayerWorkflow::turnMakeMoveStep)
+          .withInput(event)
+          .thenReply(Done.getInstance());
+    }
+
+    if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) {
+      return effects()
+          .transitionTo(AgentPlayerWorkflow::turnStartGameReviewStep)
+          .withInput(event)
+          .thenReply(Done.getInstance());
+    }
+
+    return effects().reply(Done.getInstance()); // ignore duplicate messages
+  }
+
   public Effect<Done> gameCreated(DotGame.Event.GameCreated event) {
     log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
 
@@ -85,6 +105,48 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .transitionTo(AgentPlayerWorkflow::canceledGameReviewStep)
         .withInput(event)
         .thenReply(Done.getInstance());
+  }
+
+  StepEffect turnMakeMoveStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Turn make move step: {}, move count: {}", event.gameId(), event.moveHistory().size());
+
+    var agentPlayer = event.currentPlayerStatus().get();
+    var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
+
+    var prompt = makeMovePromptFor(sessionId, event.gameId(), agentPlayer.player());
+
+    if (currentState().isEmpty()) {
+      makeMove(sessionId, prompt, "Make move (1 game created)");
+
+      return stepEffects()
+          .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()).withMoveCount(event.moveHistory().size()))
+          .thenPause();
+    }
+
+    makeMove(sessionId, prompt, "Make move (2 game in progress)");
+
+    return stepEffects()
+        .updateState(currentState().withMoveCount(event.moveHistory().size()))
+        .thenPause();
+  }
+
+  StepEffect turnStartGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Turn start game review step: {}, move count: {}", event.gameId(), event.moveHistory().size());
+
+    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
+
+    var gameReview = componentClient
+        .forAgent()
+        .inSession(currentState().sessionId())
+        .method(AgentPlayerPostGameReviewAgent::postGameReview)
+        .invoke(prompt);
+
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
+
+    return stepEffects()
+        .updateState(currentState().withGameReview(gameReview))
+        .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
+        .withInput(gameReview);
   }
 
   StepEffect gameCreatedStep(DotGame.Event.GameCreated event) {
@@ -133,7 +195,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect canceledGameReviewStep(DotGame.Event.GameCanceled event) {
-    gameLog.logGameCanceled(currentState().agent().id(), event);
+    gameLog.logGameCanceled(event);
 
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 

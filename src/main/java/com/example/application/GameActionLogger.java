@@ -35,11 +35,44 @@ public class GameActionLogger {
         .invoke(command);
   }
 
+  public void logGameCreated(DotGame.Event.GameCreated event) {
+    var time = event.createdAt();
+    var message = "Game created";
+    logGameCreated(time, event.gameId(), message);
+  }
+
   public void logLastMove(DotGame.Event.MoveMade event) {
     var lastMove = event.moveHistory().get(event.moveHistory().size() - 1);
     var playerId = lastMove.playerId();
     var squareId = lastMove.squareId();
     var time = event.updatedAt();
+
+    var isPlayer1ThisPlayer = playerId.equals(event.player1Status().player().id());
+    var thisPlayerScoringMovesJson = isPlayer1ThisPlayer
+        ? json(event.player1Status().scoringMoves())
+        : json(event.player2Status().scoringMoves());
+    var otherPlayerScoringMovesJson = isPlayer1ThisPlayer
+        ? json(event.player2Status().scoringMoves())
+        : json(event.player1Status().scoringMoves());
+
+    var message = """
+        Move to square %s made by %s
+
+        Game status: %s
+
+        This player scoring moves:\n%s
+
+        Other player scoring moves:\n%s
+        """.formatted(squareId, playerId, event.status().name(), thisPlayerScoringMovesJson, otherPlayerScoringMovesJson);
+
+    logLastMove(time, event.gameId(), playerId, message);
+  }
+
+  public void logLastPlayerTurnCompleted(DotGame.Event.PlayerTurnCompleted event) {
+    var lastMove = event.moveHistory().get(event.moveHistory().size() - 1);
+    var playerId = lastMove.playerId();
+    var squareId = lastMove.squareId();
+    var time = event.turnCompletedAt();
 
     var isPlayer1ThisPlayer = playerId.equals(event.player1Status().player().id());
     var thisPlayerScoringMovesJson = isPlayer1ThisPlayer
@@ -77,6 +110,22 @@ public class GameActionLogger {
     logForfeitMove(time, event.gameId(), playerId, event.message());
   }
 
+  public void logGameFinished(DotGame.Event.GameFinished event) {
+    var state = componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    var time = event.updatedAt();
+    var didPlayer1Win = state.player1Status().isWinner();
+    var didPlayer2Win = state.player2Status().isWinner();
+
+    var messagePlayer1 = "player 1 " + (didPlayer1Win ? "won" : "lost");
+    var messagePlayer2 = "player 2 " + (didPlayer2Win ? "won" : "lost");
+    var message = "Game finished, " + messagePlayer1 + " and " + messagePlayer2;
+    logGameFinished(time, event.gameId(), message);
+  }
+
   public void logGameFinished(String agentId, DotGame.Event.GameFinished event) {
     var state = componentClient
         .forEventSourcedEntity(event.gameId())
@@ -89,17 +138,17 @@ public class GameActionLogger {
     var isAgentWinner = state.player1Status().isWinner() && player1Id.equals(agentId)
         || state.player2Status().isWinner() && player2Id.equals(agentId);
     var message = "Game finished, you " + (isAgentWinner ? "won" : "lost");
-    logGameFinished(time, event.gameId(), agentId, message);
+    logGameFinished(time, event.gameId(), message);
   }
 
-  public void logGameCanceled(String agentId, DotGame.Event.GameCanceled event) {
+  public void logGameCanceled(DotGame.Event.GameCanceled event) {
     var time = event.updatedAt();
     var message = "Game canceled";
-    logGameCanceled(time, event.gameId(), agentId, message);
+    logGameCanceled(time, event.gameId(), "", message);
   }
 
-  public void logGameCanceled(Instant time, String gameId, String playerId, String message) {
-    log(GameActionLog.Type.game_canceled, time, playerId, gameId, message);
+  public void logGameCreated(Instant time, String gameId, String message) {
+    log(GameActionLog.Type.game_created, time, "", gameId, message);
   }
 
   public void logLastMove(Instant time, String gameId, String playerId, String message) {
@@ -122,8 +171,12 @@ public class GameActionLogger {
     log(GameActionLog.Type.forfeit_move, time, playerId, gameId, message);
   }
 
-  public void logGameFinished(Instant time, String gameId, String playerId, String message) {
-    log(GameActionLog.Type.game_finished, time, playerId, gameId, message);
+  public void logGameFinished(Instant time, String gameId, String message) {
+    log(GameActionLog.Type.game_finished, time, "", gameId, message);
+  }
+
+  public void logGameCanceled(Instant time, String gameId, String playerId, String message) {
+    log(GameActionLog.Type.game_canceled, time, playerId, gameId, message);
   }
 
   public void logGuardrailEvent(String gameId, String playerId, String message) {

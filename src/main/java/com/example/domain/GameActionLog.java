@@ -6,6 +6,7 @@ public interface GameActionLog {
 
   public enum Type {
     empty,
+    game_created,
     make_move,
     tool_call,
     model_prompt,
