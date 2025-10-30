@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
+import akka.javasdk.agent.AgentContext;
 import akka.javasdk.agent.JsonParsingException;
 import akka.javasdk.agent.ModelException;
 import akka.javasdk.agent.ModelProvider;
@@ -23,11 +24,13 @@ import akka.javasdk.annotations.Component;
 public class AgentPlayerMakeMoveAgent extends Agent {
   static final Logger log = LoggerFactory.getLogger(AgentPlayerMakeMoveAgent.class);
   final ComponentClient componentClient;
+  final String sessionId;
   final GameActionLogger gameLog;
   final List<Object> functionTools;
 
-  public AgentPlayerMakeMoveAgent(ComponentClient componentClient) {
+  public AgentPlayerMakeMoveAgent(ComponentClient componentClient, AgentContext agentContext) {
     this.componentClient = componentClient;
+    this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
         new GameStateTool(componentClient),
@@ -37,7 +40,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
   public Effect<String> makeMove(MakeMovePrompt prompt) {
     var promptFormatted = prompt.toPrompt(componentClient);
 
-    log.debug("MakeMovePrompt: {}", prompt);
+    log.debug("SessionId: {}\n_MakeMovePrompt: {}", sessionId, prompt);
     gameLog.logModelPrompt(prompt.gameId, prompt.agent().id(), promptFormatted);
 
     return effects()
@@ -75,7 +78,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
   }
 
   String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
-    log.error("Forfeiting move due to agent error: %s".formatted(exception.getMessage()), exception);
+    log.error("SessionId: {}\n_Forfeiting move due to agent error: {}".formatted(sessionId, exception.getMessage()), exception);
 
     var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
     var command = new DotGame.Command.ForfeitMove(prompt.gameId, prompt.agent().id(), message);

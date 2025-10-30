@@ -9,6 +9,7 @@ import com.example.domain.DotGame;
 
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.agent.Agent;
+import akka.javasdk.agent.AgentContext;
 import akka.javasdk.agent.JsonParsingException;
 import akka.javasdk.agent.ModelException;
 import akka.javasdk.agent.ModelProvider;
@@ -21,11 +22,13 @@ import akka.javasdk.annotations.Component;
 public class AgentPlayerSystemPromptReviewAgent extends Agent {
   static final Logger log = LoggerFactory.getLogger(AgentPlayerSystemPromptReviewAgent.class);
   final ComponentClient componentClient;
+  final String sessionId;
   final GameActionLogger gameLog;
   final List<Object> functionTools;
 
-  public AgentPlayerSystemPromptReviewAgent(ComponentClient componentClient) {
+  public AgentPlayerSystemPromptReviewAgent(ComponentClient componentClient, AgentContext agentContext) {
     this.componentClient = componentClient;
+    this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
         new SystemPromptTool(componentClient));
@@ -34,7 +37,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
   public Effect<String> systemPromptReview(SystemPromptReviewPrompt prompt) {
     var promptFormatted = prompt.toPrompt();
 
-    log.debug("SystemPromptReviewPrompt: {}", prompt);
+    log.debug("SessionId: {}\n_SystemPromptReviewPrompt: {}", sessionId, prompt);
     gameLog.logModelPrompt(prompt.gameId, prompt.agent().id(), promptFormatted);
 
     return effects()
