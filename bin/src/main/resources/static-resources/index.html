@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Me-Dot-U-Dot Game</title>
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/journal-viewer.css" />
+    <link rel="stylesheet" href="/css/square-popup.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item current">Game</div>
+                <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
+                <div class="dd-item" onclick="window.location.href='/game-action-log.html'">Game Action Logs</div>
+                <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-header-center">
+          <div id="controlMessage" class="game-control-message">
+            <span class="control-message-icons" aria-hidden="true">🎮</span>
+            <span class="control-message-text">Me-Dot-U-Dot</span>
+          </div>
+          <div id="levelSelection" class="level-selection" style="display: none">
+            <span class="level-label">Select the game level</span>
+            <div class="dd" id="level-dd">
+              <button type="button" class="dd-toggle" onclick="ddToggle('level-dd')" id="level-btn">one</button>
+              <div class="dd-menu" id="level-menu"></div>
+            </div>
+            <button class="btn-primary" id="beginBtn" onclick="beginGame()" disabled>Begin</button>
+          </div>
+        </div>
+        <div class="app-header-right">
+          <button id="resetBtn" class="icon-btn icon-btn-reset" onclick="resetGame()" style="display: none" title="Reset Game">
+            <span class="icon-symbol" aria-hidden="true">↺</span>
+          </button>
+          <button id="cancelBtn" class="icon-btn" onclick="cancelGame()" style="display: none" title="Cancel Game">❌</button>
+        </div>
+      </header>
+
+      <main class="app-main game-main">
+        <aside class="app-panel player-panel player-panel-p1" data-player="p1">
+          <div class="app-panel-header">
+            <h2 class="app-panel-title">Player 1</h2>
+          </div>
+          <div class="app-panel-body player-panel-body">
+            <div id="p1Setup" class="player-setup">
+              <div class="player-select-section">
+                <label>Choose existing</label>
+                <div class="dd" id="p1-dd">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p1-dd')" id="p1-dd-btn">— Select a player —</button>
+                  <div class="dd-menu" id="p1-dd-menu"></div>
+                </div>
+                <button class="btn-secondary" onclick="selectExistingPlayer('p1')">Select</button>
+              </div>
+
+              <div class="or-divider"></div>
+
+              <div class="player-create-section">
+                <label>Create new</label>
+                <input type="text" id="p1-id" placeholder="player-id" />
+                <input type="text" id="p1-name" placeholder="player-name" />
+                <div class="dd" id="p1-type-dd">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p1-type-dd')" id="p1-type-btn">human</button>
+                  <div class="dd-menu" id="p1-type-menu"></div>
+                </div>
+                <div class="dd" id="p1-model-dd" style="display: none">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p1-model-dd')" id="p1-model-btn">Select Model</button>
+                  <div class="dd-menu" id="p1-model-menu"></div>
+                </div>
+                <button class="btn-primary" onclick="createPlayer('p1')" id="p1-create-btn">Create &amp; Select</button>
+              </div>
+            </div>
+
+            <div id="p1Stats" class="player-stats" style="display: none">
+              <div class="player-avatar">
+                <div id="p1Avatar" class="avatar">👤</div>
+                <div id="p1Name" class="player-name">Player 1</div>
+                <div id="p1Type" class="player-type">Human</div>
+              </div>
+              <div class="player-stats-grid">
+                <div class="stat-item">
+                  <div class="stat-label">Score</div>
+                  <div id="p1Score" class="stat-value">0</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Moves</div>
+                  <div id="p1Moves" class="stat-value">0</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Think Time</div>
+                  <div id="p1Timer" class="stat-value">0s</div>
+                </div>
+              </div>
+              <button id="p1JournalBtn" class="btn-primary journal-btn" onclick="openJournalViewer('p1')" style="display: none">View Journal</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="app-panel board-panel">
+          <div id="gameBoard" class="app-panel-body board-panel-body">
+            <div class="game-board-wrapper">
+              <div id="gameBoardGrid" class="game-board" style="--size: 5"></div>
+            </div>
+          </div>
+
+          <div id="journalViewer" class="app-panel-body board-panel-body" style="display: none">
+            <div class="app-panel-header journal-viewer-content">
+              <h2 class="app-panel-title">Agent Playbook Journal</h2>
+            </div>
+
+            <div class="app-panel-body journal-viewer-content">
+              <div class="journal-content journal-viewer-content">
+                <div class="journal-info">
+                  <div class="journal-field">
+                    <span class="journal-label">Agent:</span>
+                    <span id="journalAgentId" class="journal-value">-</span>
+                  </div>
+                  <div class="journal-field">
+                    <span class="journal-label">Sequence ID:</span>
+                    <span id="journalSequenceId" class="journal-value">-</span>
+                  </div>
+                  <div class="journal-field">
+                    <span class="journal-label">Updated At:</span>
+                    <span id="journalUpdatedAt" class="journal-value">-</span>
+                  </div>
+                </div>
+
+                <div class="journal-instructions-container">
+                  <div class="journal-instructions-label">Instructions:</div>
+                  <div id="journalInstructions" class="journal-instructions">Select an agent to view their playbook journal.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="journal-navigation journal-viewer-content">
+              <button id="journalUpBtn" class="nav-btn" onclick="navigateJournal('up')" title="Previous Entry" disabled>▲</button>
+              <button id="journalDownBtn" class="nav-btn" onclick="navigateJournal('down')" title="Next Entry" disabled>▼</button>
+              <label class="diff-checkbox-label"> <input type="checkbox" id="showDiffCheckbox" onchange="toggleDiff()" disabled /> Show diff </label>
+            </div>
+          </div>
+        </section>
+
+        <aside class="app-panel player-panel player-panel-p2" data-player="p2">
+          <div class="app-panel-header">
+            <h2 class="app-panel-title">Player 2</h2>
+          </div>
+          <div class="app-panel-body player-panel-body">
+            <div id="p2Setup" class="player-setup">
+              <div class="player-select-section">
+                <label>Choose existing</label>
+                <div class="dd" id="p2-dd">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p2-dd')" id="p2-dd-btn">— Select a player —</button>
+                  <div class="dd-menu" id="p2-dd-menu"></div>
+                </div>
+                <button class="btn-secondary" onclick="selectExistingPlayer('p2')">Select</button>
+              </div>
+
+              <div class="or-divider"></div>
+
+              <div class="player-create-section">
+                <label>Create new</label>
+                <input type="text" id="p2-id" placeholder="player-id" />
+                <input type="text" id="p2-name" placeholder="player-name" />
+                <div class="dd" id="p2-type-dd">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p2-type-dd')" id="p2-type-btn">human</button>
+                  <div class="dd-menu" id="p2-type-menu"></div>
+                </div>
+                <div class="dd" id="p2-model-dd" style="display: none">
+                  <button type="button" class="dd-toggle" onclick="ddToggle('p2-model-dd')" id="p2-model-btn">Select Model</button>
+                  <div class="dd-menu" id="p2-model-menu"></div>
+                </div>
+                <button class="btn-primary" onclick="createPlayer('p2')" id="p2-create-btn">Create &amp; Select</button>
+              </div>
+            </div>
+
+            <div id="p2Stats" class="player-stats" style="display: none">
+              <div class="player-avatar">
+                <div id="p2Avatar" class="avatar">👤</div>
+                <div id="p2Name" class="player-name">Player 2</div>
+                <div id="p2Type" class="player-type">Human</div>
+              </div>
+              <div class="player-stats-grid">
+                <div class="stat-item">
+                  <div class="stat-label">Score</div>
+                  <div id="p2Score" class="stat-value">0</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Moves</div>
+                  <div id="p2Moves" class="stat-value">0</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Think Time</div>
+                  <div id="p2Timer" class="stat-value">0s</div>
+                </div>
+              </div>
+              <button id="p2JournalBtn" class="btn-primary journal-btn" onclick="openJournalViewer('p2')" style="display: none">View Journal</button>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
+    <script src="/js/index.js"></script>
+    <script src="/js/journal-viewer.js"></script>
+    <script src="/js/diff.js"></script>
+    <script src="/js/square-popup.js"></script>
+  </body>
+</html>

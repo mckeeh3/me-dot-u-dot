@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Leader Board - Me-Dot-U-Dot</title>
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
+    <link rel="stylesheet" href="/css/leader-board.css" />
+    <link rel="stylesheet" href="/css/square-popup.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item" onclick="window.location.href='/'">Game</div>
+                <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item current">Leader Board</div>
+                <div class="dd-item" onclick="window.location.href='/game-action-log.html'">Game Action Logs</div>
+                <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-header-center">
+          <h1 class="app-header-title">🏆 Leader Board</h1>
+        </div>
+        <div class="app-header-right"></div>
+      </header>
+
+      <main class="app-main leader-main">
+        <aside class="app-panel leader-panel" aria-labelledby="leaderBoardTitle">
+          <div class="app-panel-header">
+            <h2 id="leaderBoardTitle" class="app-panel-title">Top Players</h2>
+            <button id="leaderRefreshBtn" class="icon-btn icon-btn-refresh" type="button" title="Refresh leader board" aria-label="Refresh leader board">
+              <span class="icon-symbol" aria-hidden="true">↺</span>
+            </button>
+          </div>
+          <div class="app-panel-body leader-table-container">
+            <table class="leader-table">
+              <thead>
+                <tr>
+                  <th scope="col">Player</th>
+                  <th scope="col">Games Won</th>
+                </tr>
+              </thead>
+              <tbody id="leaderBoardBody">
+                <tr class="leader-empty-row">
+                  <td colspan="2">Loading leader board…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+
+        <section class="app-panel games-panel" aria-labelledby="playerGamesTitle">
+          <div class="app-panel-header">
+            <h2 id="playerGamesTitle" class="app-panel-title">Games for <span id="selectedPlayerId">Select a player</span></h2>
+          </div>
+          <div class="app-panel-body games-table-container">
+            <table class="games-table">
+              <thead>
+                <tr>
+                  <th scope="col">Game Created</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="playerGamesBody">
+                <tr class="leader-empty-row">
+                  <td colspan="2">Select a player to load games…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="app-panel details-panel" aria-labelledby="gameDetailsTitle">
+          <div class="app-panel-header">
+            <h2 id="gameDetailsTitle" class="app-panel-title">Game: <span id="gameDetailsId">-</span></h2>
+            <button
+              id="gameInfoToggleBtn"
+              class="game-info-toggle-btn"
+              type="button"
+              aria-controls="gameInfo"
+              aria-expanded="true"
+              title="Hide game details"
+            >
+              <span class="icon-symbol" aria-hidden="true">👁</span>
+              <span class="toggle-label">Hide details</span>
+            </button>
+          </div>
+          <div class="app-panel-body details-body">
+            <div class="game-info" id="gameInfo"></div>
+            <div class="game-board-container">
+              <div id="gameBoard" class="game-board" role="grid" aria-label="Game board replay"></div>
+              <div class="replay-controls">
+                <div class="replay-controls-group replay-controls-left">
+                  <button id="replayFirstBtn" class="replay-btn" title="First move (<)" aria-label="Go to first move">⏮</button>
+                  <button id="replayPrevBtn" class="replay-btn" title="Previous move (<-)" aria-label="Go to previous move">◀</button>
+                </div>
+                <div id="replayStatus" class="replay-status">Move 0 / 0</div>
+                <div class="replay-controls-group replay-controls-right">
+                  <button id="replayNextBtn" class="replay-btn" title="Next move (->)" aria-label="Go to next move">▶</button>
+                  <button id="replayLastBtn" class="replay-btn" title="Last move (>)" aria-label="Go to last move">⏭</button>
+                </div>
+              </div>
+              <div id="moveDetails" class="move-details">Select a game to review its moves.</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
+    <script src="/js/leader-board.js"></script>
+    <script src="/js/square-popup.js"></script>
+  </body>
+</html>

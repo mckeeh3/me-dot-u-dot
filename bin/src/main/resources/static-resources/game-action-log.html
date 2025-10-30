@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Game Action Logs - Me-Dot-U-Dot</title>
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/common-new.css" />
+    <link rel="stylesheet" href="/css/game-action-log.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="app-header-left">
+          <div class="nav-menu">
+            <div class="dd" id="nav">
+              <button class="menu-btn dd-toggle" onclick="ddToggle('nav')" id="nav-btn" title="Navigation Menu">
+                <img src="/images/hamburger-menu-icon.png" alt="Menu" class="menu-icon" />
+              </button>
+              <div id="nav-menu" class="dd-menu">
+                <div class="dd-item" onclick="window.location.href='/'">Game</div>
+                <div class="dd-item" onclick="window.location.href='/playbook.html'">Playbook Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/agent-role.html'">Agent Role Viewer</div>
+                <div class="dd-item" onclick="window.location.href='/leader-board.html'">Leader Board</div>
+                <div class="dd-item current">Game Action Logs</div>
+                <div class="dd-item" onclick="window.location.href='/help.html'">Help</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-header-center">
+          <h1 class="app-header-title">📜 Game Action Logs</h1>
+        </div>
+        <div class="app-header-right"></div>
+      </header>
+
+      <main class="app-main game-action-main">
+        <aside class="app-panel game-list-panel" aria-labelledby="recentGamesTitle">
+          <div class="app-panel-header">
+            <h2 id="recentGamesTitle" class="app-panel-title">Recent Games</h2>
+            <button id="gamesRefreshBtn" class="icon-btn icon-btn-refresh" type="button" title="Refresh recent games" aria-label="Refresh recent games">
+              <span class="icon-symbol" aria-hidden="true">↺</span>
+            </button>
+          </div>
+          <div class="app-panel-body game-list-body">
+            <table class="game-list-table">
+              <thead>
+                <tr>
+                  <th scope="col">Started</th>
+                  <th scope="col" aria-label="Player 1"></th>
+                  <th scope="col" aria-label="Player 2"></th>
+                </tr>
+              </thead>
+              <tbody id="recentGamesBody">
+                <tr class="game-list-empty-row">
+                  <td colspan="3">Loading recent games…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+
+        <section class="app-panel log-list-panel" aria-labelledby="gameLogsTitle">
+          <div class="app-panel-header log-list-header">
+            <h2 id="gameLogsTitle" class="app-panel-title">Game Actions</h2>
+            <div class="log-pagination-controls">
+              <button id="logsPrevPageBtn" class="pagination-btn" type="button" title="Previous page" aria-label="Previous page" disabled>▲</button>
+              <span id="logsPageStatus" class="pagination-status">Page 1</span>
+              <button id="logsNextPageBtn" class="pagination-btn" type="button" title="Next page" aria-label="Next page" disabled>▼</button>
+            </div>
+          </div>
+          <div class="app-panel-body log-list-body">
+            <table class="log-list-table">
+              <thead>
+                <tr>
+                  <th scope="col">Time</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Summary</th>
+                </tr>
+              </thead>
+              <tbody id="gameLogsBody">
+                <tr class="log-list-empty-row">
+                  <td colspan="4">Select a game to load logs…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="app-panel log-detail-panel" aria-labelledby="logDetailTitle">
+          <div class="app-panel-header">
+            <h2 id="logDetailTitle" class="app-panel-title">Log Detail</h2>
+          </div>
+          <div class="app-panel-body log-detail-body" id="logDetail">
+            <div class="log-detail-placeholder">Select a log entry to view details.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/common-new.js"></script>
+    <script src="/js/game-action-log.js"></script>
+  </body>
+</html>

@@ -1,0 +1,192 @@
+/* Base Theme Variables */
+:root {
+  /* Base Colors */
+  --bg: #0b0f1a;
+  --panel: #0f1526;
+  --text: #e6e9ef;
+  --muted: #9aa3b2;
+
+  /* Responsive Font Scales */
+  --font-size-base: min(1.125rem, calc(1rem + 0.35vw));
+  --font-size-md: min(1rem, calc(0.9rem + 0.25vw));
+  --font-size-sm: min(0.9rem, calc(0.8rem + 0.2vw));
+  --font-size-xs: min(0.8rem, calc(0.7rem + 0.15vw));
+
+  /* Neon Colors */
+  --neon-cyan: #00e5ff;
+  --neon-magenta: #ff3af2;
+  --neon-purple: #8a2be2;
+  --neon-green: #39ff14;
+}
+
+/* Base Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  background: radial-gradient(1200px 800px at 50% -10%, #111730 0%, var(--bg) 60%);
+  color: var(--text);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navigation Menu Styles */
+.nav-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  padding: 10px;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.nav-menu .dd {
+  margin-top: 0;
+}
+
+.nav-menu .dd-menu {
+  min-width: 15rem;
+  z-index: 9999;
+}
+
+.nav-menu .menu-btn {
+  border: none;
+  background: none;
+  padding: 5px;
+}
+
+.nav-menu .menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dd-item.current {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: default;
+}
+
+.dd {
+  position: relative;
+  display: block;
+  margin-top: 8px;
+}
+
+.dd-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dd-toggle:hover {
+  border-color: rgba(0, 229, 255, 0.5);
+}
+
+.dd-toggle:after {
+  content: '▾';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.7;
+  font-size: var(--font-size-xs);
+}
+
+.dd-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(15, 21, 38, 0.98);
+  border: 2px solid rgba(0, 229, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-height: 20rem;
+  overflow: auto;
+  display: none;
+}
+
+.dd.open .dd-menu {
+  display: block;
+}
+
+.dd-item {
+  padding: 12px 16px;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dd-item:hover {
+  background: rgba(0, 229, 255, 0.2);
+}
+
+/* Common Button Styles */
+.btn {
+  background: none;
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: 0.65rem 1.2rem;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: var(--font-size-md);
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  background-color: var(--neon-cyan);
+  color: var(--bg);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Common Panel Styles */
+.panel {
+  background-color: var(--panel);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 10px;
+  padding: 20px;
+}

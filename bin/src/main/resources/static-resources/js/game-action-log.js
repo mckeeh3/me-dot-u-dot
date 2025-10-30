@@ -313,11 +313,8 @@ function renderLogRows(logs) {
     row.appendChild(typeCell);
     row.appendChild(summaryCell);
 
-    const logTypeLower = String(log.type).toLowerCase();
-    if (logTypeLower === 'model_prompt') {
+    if (String(log.type).toLowerCase() === 'model_prompt') {
       row.classList.add('log-row-model-prompt');
-    } else if (logTypeLower === 'model_response') {
-      row.classList.add('log-row-model-response');
     }
 
     row.addEventListener('click', () => selectLog(log.id, false));
