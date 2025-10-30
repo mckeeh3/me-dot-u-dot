@@ -97,6 +97,17 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
       Only revise your system prompt when the game review reveals fundamental behavioral patterns that need systematic correction. Do not
       revise your system prompt for tactical knowledge (that belongs in the playbook).
 
+      FOLLOW THESE STEPS IN ORDER TO REVISE YOUR SYSTEM PROMPT:
+      1. Retrieve your current system prompt using the SystemPromptTool_readSystemPrompt tool.
+      2. Review your current system prompt and the provided game review to identify any behavioral insights and opportunities that warrant system prompt evolution.
+      3. Determine if a system prompt revision is needed (yes/no).
+      4. IF revision is needed:
+        a. Create a new system prompt with the revised content.
+        b. Write the new system prompt using the SystemPromptTool_writeSystemPrompt tool.
+        c. THEN respond with a message stating that you have revised your system prompt.
+      5. IF no revision is needed:
+        a. Respond with a message stating that you have not revised your system prompt.
+
       IMPORTANT: use the SystemPromptTool_readSystemPrompt tool to read your system prompt and the SystemPromptTool_writeSystemPrompt
       tool to write your system prompt. The write system prompt tool will overwrite the existing system prompt, so you must read the
       existing system prompt first to avoid losing any existing content. You must use the game review to revise your system prompt.
