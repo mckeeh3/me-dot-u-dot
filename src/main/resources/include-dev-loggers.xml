@@ -25,13 +25,13 @@
     </appender>
 
     <!-- Use TRACE level for Akka Lang Chain 4j HTTP client -->
-    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="info" additivity="false">
+    <logger name="kalix.runtime.agent.AkkaLangChain4jHttpClient" level="trace" additivity="false">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>
 
     <!-- Use DEBUG level for Kalix runtime agent -->
-    <logger name="kalix.runtime.agent" level="info" additivity="false">
+    <logger name="kalix.runtime.agent" level="debug" additivity="false">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </logger>

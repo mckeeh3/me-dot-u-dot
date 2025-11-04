@@ -195,18 +195,8 @@ public class GameMoveTool {
   @FunctionTool(description = """
       Retrieve the complete move history for a finished game so you can study what happened and decide how to evolve.
 
-      - Use this after a game concludes to review every turn, including who played, think time, and the precise scoring move breakdowns.
-      - Combine the insights you gather here with your playbook and system prompt updates—this data helps you choose which tactics to memorialize in the playbook and which behavioral adjustments belong in the system prompt.
-      - The response contains move order, player IDs, per-move points, and the detailed scoring squares for each scoring move, giving you the evidence you need before calling `update_playbook` or `update_system_prompt`.
-      - Closely examine the move history for scoring moves as they provide valuable insights into your performance and opponent's performance in the game.
-      - Scoring moves include the type of the pattern of moves, the score for the move, and a list of the squares that were scored.
-      - Learning from scoring moves is essential to improve your performance in future games.
-
-      IMPORTANT: It is important to review the move history after each game.
-      Reviewing the move history enables you to improve your performance in future games.
-      Consider updating your playbook and system prompt when you discover a stronger workflow or need to clarify how you should reason and respond.
-      Updating your playbook and system prompt enables you to improve your performance in future games.
-      Preserve the trustworthy foundations while evolving the areas that need refinement.
+      - The response contains move order, player IDs, per-move points, and the detailed scoring squares for each scoring move.
+      - Scoring moves include the type of the scoring pattern, the score for the move, and a list of the squares that were scored.
       """)
   public GetMoveHistoryTool.Response getMoveHistory(
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,

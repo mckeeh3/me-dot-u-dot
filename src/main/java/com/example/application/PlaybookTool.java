@@ -21,18 +21,14 @@ public class PlaybookTool {
   }
 
   @FunctionTool(description = """
-      Read your current playbook text so you can apply or edit it.
+      Read your current playbook contents.
 
       - The playbook is your tactical memory: a persistent, self-authored document containing proven openings, counter-moves, and heuristics.
-      - Use this tool before planning a move to anchor your reasoning in what already works.
-      - Also call it immediately before revising the playbook; copy forward the guidance you still trust and edit only what needs to change.
-      - Returns the full current playbook (plain text).
-
-      Use it immediately before submitting an revise via `writePlaybook` to ensure you copy forward the parts that should remain intact.
+      - Returns the full current playbook contents.
       """)
   public Playbook.State readPlaybook(
       @Description("The ID of your agent") String agentId,
-      @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
+      @Description("The ID of the game you are playing and want to get the playbook for") String gameId) {
     log.debug("AgentId: {}, GameId: {}, Read playbook", agentId, gameId);
 
     var state = componentClient.forEventSourcedEntity(agentId)
@@ -45,32 +41,19 @@ public class PlaybookTool {
   }
 
   @FunctionTool(description = """
-      Write your revised playbook to capture the tactical knowledge you want to reuse next time you play.
+      Write your revised playbook contents.
 
-      - Input: the complete, polished playbook (succinct tactics, heuristics, counter-strategies, and reminders).
-      - When to use: after a turn or game when you have a concrete lesson, new pattern, or clarified move sequence worth memorializing.
-      - Goal: turn raw observations into actionable guidance that future turns can follow without re-deriving the insight.
-      - Remember: the playbook differs from the system prompt—the playbook focuses on situational tactics, while the system prompt
-      governs your overall role. This call replaces the playbook entirely, so bring forward the advice that still works and revise
-      the parts that should change.
-      - Critical: ALWAYS provide the fully revised playbook text on every call—partial snippets or diffs will overwrite the prior content
-      and erase everything you omit.
-
-      IMPORTANT: It is important to review and revise your playbook after each game to capture your learnings and experience from the game
-      to improve your performance in future games.
-      Also, after interesting moves, such as scoring moves, you should consider revising your playbook to capture the move and the reason
-      why it was successful.
-      If you don't revise your playbook, you will not be able to improve your performance in future games. When you do revise it, carry
-      forward the proven guidance and only rewrite the specific sections that should evolve.
+      - Input: the complete revised playbook contents.
+      - Critical: This tool completely replaces the playbook, so you must provide the full revised playbook contents in one message.
       """)
   public Done writePlaybook(
       @Description("The ID of your agent") String agentId,
-      @Description("The revised playbook instructions you want to write") String instructions,
-      @Description("The ID of the game you are playing and want to get the move history for") String gameId) {
+      @Description("The ID of the game you are playing and want to get the playbook for") String gameId,
+      @Description("The revised playbook contents you want to write") String revisedPlaybookContents) {
     log.debug("AgentId: {}, GameId: {}, Write playbook", agentId, gameId);
-    gameLog.logToolCall(gameId, agentId, "writePlaybook", instructions);
+    gameLog.logToolCall(gameId, agentId, "writePlaybook", revisedPlaybookContents);
 
-    var command = new Playbook.Command.WritePlaybook(agentId, instructions);
+    var command = new Playbook.Command.WritePlaybook(agentId, revisedPlaybookContents);
 
     return componentClient.forEventSourcedEntity(agentId)
         .method(PlaybookEntity::writePlaybook)

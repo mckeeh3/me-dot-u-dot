@@ -108,16 +108,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
           TURN BRIEFING — YOUR MOVE
           Game Id: %s | Agent Id: %s | Game Status: %s | Your Score: %d | Opponent Score: %d
 
-          LEARNING OPPORTUNITIES
-          • Note any new scoring formations, opponent habits, or mistakes worth memorializing after the turn.
-          • If you discover rules or counter strategies you do not yet master, flag them for post-game study.
-          • Capture concise hypotheses you will test in upcoming moves.
-
-          OUTPUT RULES
-          • Call GameMoveTool_makeMove exactly once.
-          • Follow with a detailed strategic reflection covering state, intent, and insights.
-          • Do not ask for user input; rely solely on tools and your memories.
-          • No free-form conversation outside this structure.
+          The game is in progress. It's your turn. Make your move.
 
           <OPPONENTS_LAST_MOVE_JSON>
           %s

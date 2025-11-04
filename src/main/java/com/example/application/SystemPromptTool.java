@@ -21,14 +21,10 @@ public class SystemPromptTool {
   }
 
   @FunctionTool(description = """
-      Read your current system prompt so you can evaluate or edit it.
+      Read your current system prompt contents.
 
       - The system prompt defines your enduring role: voice, priorities, required tool order, and guardrails.
-      - Call this tool when you intend to adjust that role; review the existing text, decide what to keep, and prepare the improved version.
-      - Also read it if you feel uncertain about your charter—it is the authoritative source of your mandate.
-      - Returns the full current system prompt (plain text).
-
-      Use it immediately before submitting an revise via `writeSystemPrompt` to ensure you copy forward the parts that should remain intact.
+      - Returns the full current system prompt contents.
       """)
   public AgentRole.State readSystemPrompt(
       @Description("The ID of your agent") String agentId,
@@ -45,27 +41,15 @@ public class SystemPromptTool {
   }
 
   @FunctionTool(description = """
-      Write your revised system prompt so your future turns reflect the lessons you just learned.
+      Write your revised system prompt contents.
 
-      - Input: the complete, revised system prompt (include expectations, tone, mandatory tool order, and any new guardrails).
-      - When to use: after you notice recurring mistakes, discover a stronger workflow, or need to clarify how you should reason and respond.
-      - Goal: capture durable behavioral upgrades so every subsequent turn starts with the improved guidance.
-      - Remember: this call replaces the old prompt entirely—copy forward the parts you still rely on and inject the refinements that will make you more effective.
-      - Critical: ALWAYS supply the full system prompt in one message; sending only the changes will wipe everything you omit.
-      - Unique advantage: few agents can rewrite their own system prompt—treat this like a deliberate upgrade step that locks in stronger behaviors for every future move.
-
-      IMPORTANT: It is important to review your system prompt after each game. Reviewing the system prompt enables you consider opportunities
-      to improve your performance in future games. Preserve the trustworthy foundations while evolving the areas that need refinement.
-      When revising your system prompt, consider revising your system prompt when you discover a stronger workflow or need to clarify how you
-      should reason and respond. Consider revising your system prompt when you discover a stronger workflow or need to clarify how you should
-      reason and respond.
-
-      IMPORTANT: This tool completely replaces the system prompt, so you must provide the full revised prompt in one message.
+      - Input: the complete, revised system prompt contents.
+      - Critical: This tool completely replaces the system prompt, so you must provide the full revised system prompt contents in one message.
       """)
   public Done writeSystemPrompt(
       @Description("The ID of your agent") String agentId,
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
-      @Description("The revised system prompt you want to write") String revisedSystemPrompt) {
+      @Description("The revised system prompt contents you want to write") String revisedSystemPromptContents) {
     log.debug("AgentId: {}, GameId: {}, Write system prompt", agentId, gameId);
 
     var currentState = componentClient.forEventSourcedEntity(agentId)
@@ -73,11 +57,11 @@ public class SystemPromptTool {
         .invoke();
 
     var currentPrompt = currentState.systemPrompt();
-    var finalPrompt = revisedSystemPrompt;
+    var finalPrompt = revisedSystemPromptContents;
 
-    if (currentPrompt != null && !currentPrompt.isBlank() && revisedSystemPrompt != null) {
+    if (currentPrompt != null && !currentPrompt.isBlank() && revisedSystemPromptContents != null) {
       var currentLength = currentPrompt.length();
-      var revisedLength = revisedSystemPrompt.length();
+      var revisedLength = revisedSystemPromptContents.length();
 
       // If the revised system prompt is less than 33% of the current system prompt, append it to the current system prompt.
       // This is to avoid overwriting the current system prompt with a too short revised system prompt.
@@ -87,7 +71,7 @@ public class SystemPromptTool {
             "AgentId: {}, GameId: {}, Revised system prompt shorter than 33% of existing prompt. Appending instead of replacing.",
             agentId,
             gameId);
-        finalPrompt = currentPrompt + "\n\n" + revisedSystemPrompt;
+        finalPrompt = currentPrompt + "\n\n" + revisedSystemPromptContents;
         var message = "System prompt revision too short (%d vs %d chars). Appended instead of replacing.".formatted(revisedLength, currentLength);
         gameLog.logGuardrailEvent(gameId, agentId, message);
       }
