@@ -35,7 +35,7 @@ public interface AgentRole {
     }
 
     // ============================================================
-    // Command UpdateAgentRole
+    // Command WriteAgentRole
     // ============================================================
     public Optional<Event> onCommand(Command.WriteAgentRole command) {
       return Optional.of(new Event.AgentRoleUpdated(

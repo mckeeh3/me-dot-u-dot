@@ -34,7 +34,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
         new PlaybookTool(componentClient));
   }
 
-  public Effect<String> playbookReview(PlaybookReviewPrompt prompt) {
+  public Effect<PlaybookRevised> playbookReview(PlaybookReviewPrompt prompt) {
     var promptFormatted = prompt.toPrompt();
 
     log.debug("SessionId: {}\n_PlaybookReviewPrompt: {}", sessionId, prompt);
@@ -45,11 +45,12 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(promptFormatted)
+        .responseAs(PlaybookRevised.class)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
   }
 
-  String handleError(PlaybookReviewPrompt prompt, Throwable exception) {
+  PlaybookRevised handleError(PlaybookReviewPrompt prompt, Throwable exception) {
     return switch (exception) {
       case ModelException e -> tryAgain(prompt, e);
       case RateLimitException e -> throwException(prompt, e);
@@ -61,11 +62,11 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
     };
   }
 
-  String tryAgain(PlaybookReviewPrompt prompt, Throwable exception) {
-    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
+  PlaybookRevised tryAgain(PlaybookReviewPrompt prompt, Throwable exception) {
+    throw new TryAgainException(prompt, exception);
   }
 
-  String throwException(PlaybookReviewPrompt prompt, Throwable exception) {
+  PlaybookRevised throwException(PlaybookReviewPrompt prompt, Throwable exception) {
     throw new RuntimeException(exception);
   }
 
@@ -103,20 +104,28 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
       • Opponent modeling: log recurring tactics opponents use; adapt counters into your playbook immediately.
       • Endgame foresight: learn to transition from incremental gains to forced scoring closures.
 
-      FOLLOW THESE STEPS IN ORDER TO REVISE YOUR PLAYBOOK:
-      1. Retrieve your current playbook using the PlaybookTool_readPlaybook tool.
-      2. Review your current playbook and the provided game review to identify any strategic insights and tactical opportunities that warrant playbook evolution.
-      3. Determine if a playbook revision is needed (yes/no).
-      4. IF revision is needed:
-        a. Create a new playbook with the revised content.
-        b. Write the new playbook using the PlaybookTool_writePlaybook tool.
-        c. THEN respond with a message stating that you have revised your playbook.
-      5. IF no revision is needed:
-        a. Respond with a message stating that you have not revised your playbook.
+      Response Protocol (MANDATORY)
+      First output must be a tool call. No free-form text or intent announcements before tools.
+      1) Call PlaybookTool_readPlaybook to read your current playbook.
+      2) Review your current playbook and the provided game review to identify any strategic insights and tactical opportunities that warrant playbook evolution.
+      3) Determine if a playbook revision is needed (yes/no).
+      4) If yes: Call PlaybookTool_writePlaybook to write your revised playbook.
+      5) After completing tool calls, you MUST respond with a JSON object matching this exact structure:
+         {"playbookRevised": true} or {"playbookRevised": false}
+         - Use true if you revised the playbook using PlaybookTool_writePlaybook
+         - Use false if no revision was needed
+      Prohibitions:
+      • No I'll now.../preambles, no summaries before writing, no multi-message narratives.
+      • Do not request user input.
+      Edge cases and failures:
+      • If playbook is empty, mandatory to write a complete playbook before any assistant text.
 
+      IMPORTANT: If your playbook is empty, you must write a complete playbook before you return your response.
       IMPORTANT: use the PlaybookTool_readPlaybook tool to read your playbook and the PlaybookTool_writePlaybook tool to write your
       playbook. The write playbook tool will overwrite the existing playbook, so you must read the existing playbook first to avoid losing any
       existing content. You must use the game review to revise your playbook.
+      IMPORTANT: After completing all tool calls, you MUST respond with a JSON object in this exact format:
+      {"playbookRevised": true} if you revised the playbook, or {"playbookRevised": false} if no revision was needed.
       IMPORTANT: you must use the provided game review to identify the opportunities to revise your playbook.
       """.stripIndent();
 
@@ -130,16 +139,22 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
 
           IMPORTANT: you must write your revised playbook before you return your response.
 
-          OUTPUT DISCIPLINE
-          • Provide a message stating that you have or have not revised your playbook.
-          • Do not request user input; rely solely on your analysis and the provided tools.
-          • No free-form conversation outside this structure.
+          IMPORTANT: After completing all tool calls, you MUST respond with a JSON object in this exact format:
+          {"playbookRevised": true} if you revised the playbook, or {"playbookRevised": false} if no revision was needed.
 
           <GAME_REVIEW>
           %s
           </GAME_REVIEW>
           """
           .formatted(gameId(), agent().id(), gameReview);
+    }
+  }
+
+  public record PlaybookRevised(boolean playbookRevised) {}
+
+  public class TryAgainException extends RuntimeException {
+    public TryAgainException(PlaybookReviewPrompt prompt, Throwable cause) {
+      super("Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agent().id(), cause.getMessage()));
     }
   }
 }

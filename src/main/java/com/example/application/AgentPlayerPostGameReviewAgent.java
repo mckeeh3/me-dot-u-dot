@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
+import akka.javasdk.agent.AgentContext;
 import akka.javasdk.agent.JsonParsingException;
 import akka.javasdk.agent.ModelException;
 import akka.javasdk.agent.ModelProvider;
@@ -24,11 +25,13 @@ import akka.javasdk.client.ComponentClient;
 public class AgentPlayerPostGameReviewAgent extends Agent {
   static final Logger log = LoggerFactory.getLogger(AgentPlayerPostGameReviewAgent.class);
   final ComponentClient componentClient;
+  final String sessionId;
   final GameActionLogger gameLog;
   final List<Object> functionTools;
 
-  public AgentPlayerPostGameReviewAgent(ComponentClient componentClient) {
+  public AgentPlayerPostGameReviewAgent(ComponentClient componentClient, AgentContext agentContext) {
     this.componentClient = componentClient;
+    this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
         new GameMoveTool(componentClient));
@@ -37,7 +40,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
   public Effect<String> postGameReview(PostGameReviewPrompt prompt) {
     var promptFormatted = prompt.toPrompt(componentClient);
 
-    log.debug("PostGameReviewPrompt: {}", prompt);
+    log.debug("SessionId: {}\n_PostGameReviewPrompt: {}", sessionId, prompt);
     gameLog.logModelPrompt(prompt.gameId, prompt.agent().id(), promptFormatted);
 
     return effects()

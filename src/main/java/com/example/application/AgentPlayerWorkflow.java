@@ -113,10 +113,10 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerPlaybookReviewAgent::playbookReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview.toString());
 
     return stepEffects()
-        .updateState(currentState().withPlaybookReview(playbookReview))
+        .updateState(currentState().withPlaybookReview(playbookReview.toString()))
         .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
         .withInput(gameReview);
   }
@@ -130,10 +130,10 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerSystemPromptReviewAgent::systemPromptReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), systemPromptReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), systemPromptReview.toString());
 
     return stepEffects()
-        .updateState(currentState().withSystemPromptReview(systemPromptReview))
+        .updateState(currentState().withSystemPromptReview(systemPromptReview.toString()))
         .thenEnd();
   }
 
