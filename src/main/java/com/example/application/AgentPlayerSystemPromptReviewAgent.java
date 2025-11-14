@@ -34,7 +34,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
         new SystemPromptTool(componentClient));
   }
 
-  public Effect<SystemPromptRevised> systemPromptReview(SystemPromptReviewPrompt prompt) {
+  public Effect<String> systemPromptReview(SystemPromptReviewPrompt prompt) {
     var promptFormatted = prompt.toPrompt();
 
     log.debug("SessionId: {}\n_SystemPromptReviewPrompt: {}", sessionId, prompt);
@@ -45,12 +45,11 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(promptFormatted)
-        .responseAs(SystemPromptRevised.class)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
   }
 
-  SystemPromptRevised handleError(SystemPromptReviewPrompt prompt, Throwable exception) {
+  String handleError(SystemPromptReviewPrompt prompt, Throwable exception) {
     return switch (exception) {
       case ModelException e -> tryAgain(prompt, e);
       case RateLimitException e -> throwException(prompt, e);
@@ -62,11 +61,11 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
     };
   }
 
-  SystemPromptRevised tryAgain(SystemPromptReviewPrompt prompt, Throwable exception) {
+  String tryAgain(SystemPromptReviewPrompt prompt, Throwable exception) {
     throw new TryAgainException(prompt, exception);
   }
 
-  SystemPromptRevised throwException(SystemPromptReviewPrompt prompt, Throwable exception) {
+  String throwException(SystemPromptReviewPrompt prompt, Throwable exception) {
     throw new RuntimeException(exception);
   }
 
@@ -163,18 +162,15 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
       • Revising the system prompt is optional—only revise if the game review reveals clear opportunities to improve
         the player's behavioral approach or decision-making process.
       • Focus on behavioral improvements, workflow enhancements, and decision-making processes, not tactical knowledge.
-      • After completing all tool calls, respond with JSON: {"revised": true} or {"revised": false}.
-      • After completing all tool calls, in the JSON response, include your response text in the "response" field.
       • Do not ask for user input—the environment does not provide interactive users.
 
       VERIFY YOUR WORK
-      Before responding with your JSON, verify your work by:
+      Before responding with your response text, verify your work by:
       - Reading the current system prompt to ensure you didn't lose any existing content
       - Reviewing the game review to ensure you incorporated all relevant learnings
       - Checking that you wrote the complete revised system prompt
-      - Ensuring you responded with valid JSON: {"revised": true} or {"revised": false}
-      - Ensuring you included your response text in the "response" field.
-      - If you are confident in your work, respond with your JSON.
+      - If you are not confident in your work, you can try again.
+      - If you are confident in your work, respond with your response text.
       """.stripIndent();
 
   record SystemPromptReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
@@ -192,8 +188,6 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
           .formatted(gameId(), agent().id(), gameReview);
     }
   }
-
-  public record SystemPromptRevised(boolean revised, String response) {}
 
   public class TryAgainException extends RuntimeException {
     public TryAgainException(SystemPromptReviewPrompt prompt, Throwable cause) {

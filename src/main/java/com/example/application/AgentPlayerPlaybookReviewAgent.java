@@ -34,7 +34,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
         new PlaybookTool(componentClient));
   }
 
-  public Effect<PlaybookRevised> playbookReview(PlaybookReviewPrompt prompt) {
+  public Effect<String> playbookReview(PlaybookReviewPrompt prompt) {
     var promptFormatted = prompt.toPrompt();
 
     log.debug("SessionId: {}\n_PlaybookReviewPrompt: {}", sessionId, prompt);
@@ -45,12 +45,11 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(promptFormatted)
-        .responseAs(PlaybookRevised.class)
         .onFailure(e -> handleError(prompt, e))
         .thenReply();
   }
 
-  PlaybookRevised handleError(PlaybookReviewPrompt prompt, Throwable exception) {
+  String handleError(PlaybookReviewPrompt prompt, Throwable exception) {
     return switch (exception) {
       case ModelException e -> tryAgain(prompt, e);
       case RateLimitException e -> throwException(prompt, e);
@@ -62,11 +61,11 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
     };
   }
 
-  PlaybookRevised tryAgain(PlaybookReviewPrompt prompt, Throwable exception) {
+  String tryAgain(PlaybookReviewPrompt prompt, Throwable exception) {
     throw new TryAgainException(prompt, exception);
   }
 
-  PlaybookRevised throwException(PlaybookReviewPrompt prompt, Throwable exception) {
+  String throwException(PlaybookReviewPrompt prompt, Throwable exception) {
     throw new RuntimeException(exception);
   }
 
@@ -148,19 +147,15 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
       • When the playbook is empty, you MUST create the initial version.
       • Use the game review to identify what should be added or updated in the playbook.
       • Focus on maintaining the best possible playbook contents for future gameplay.
-      • After completing all tool calls, respond with JSON: {"revised": true} or {"revised": false}.
-      • After completing all tool calls, in the JSON response, include your response text in the "response" field.
       • Do not ask for user input—the environment does not provide interactive users.
 
       VERIFY YOUR WORK
-      Before responding with your JSON, verify your work by:
+      Before responding with your response text, verify your work by:
       - Reading the current playbook to ensure you didn't lose any existing content
       - Reviewing the game review to ensure you incorporated all relevant learnings
       - Checking that you wrote the complete revised playbook
-      - Ensuring you responded with valid JSON: {"revised": true} or {"revised": false}
-      - Ensuring you included your response text in the "response" field.
       - If you are not confident in your work, you can try again.
-      - If you are confident in your work, respond with your JSON.
+      - If you are confident in your work, respond with your response text.
       """.stripIndent();
 
   record PlaybookReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
@@ -178,8 +173,6 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
           .formatted(gameId(), agent().id(), gameReview);
     }
   }
-
-  public record PlaybookRevised(boolean revised, String response) {}
 
   public class TryAgainException extends RuntimeException {
     public TryAgainException(PlaybookReviewPrompt prompt, Throwable cause) {
