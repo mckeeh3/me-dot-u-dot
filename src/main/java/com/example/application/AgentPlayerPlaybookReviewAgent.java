@@ -149,7 +149,18 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
       • Use the game review to identify what should be added or updated in the playbook.
       • Focus on maintaining the best possible playbook contents for future gameplay.
       • After completing all tool calls, respond with JSON: {"revised": true} or {"revised": false}.
+      • After completing all tool calls, in the JSON response, include your response text in the "response" field.
       • Do not ask for user input—the environment does not provide interactive users.
+
+      VERIFY YOUR WORK
+      Before responding with your JSON, verify your work by:
+      - Reading the current playbook to ensure you didn't lose any existing content
+      - Reviewing the game review to ensure you incorporated all relevant learnings
+      - Checking that you wrote the complete revised playbook
+      - Ensuring you responded with valid JSON: {"revised": true} or {"revised": false}
+      - Ensuring you included your response text in the "response" field.
+      - If you are not confident in your work, you can try again.
+      - If you are confident in your work, respond with your JSON.
       """.stripIndent();
 
   record PlaybookReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
@@ -168,7 +179,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
     }
   }
 
-  public record PlaybookRevised(boolean revised) {}
+  public record PlaybookRevised(boolean revised, String response) {}
 
   public class TryAgainException extends RuntimeException {
     public TryAgainException(PlaybookReviewPrompt prompt, Throwable cause) {

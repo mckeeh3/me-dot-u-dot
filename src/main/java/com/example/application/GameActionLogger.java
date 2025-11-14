@@ -185,6 +185,10 @@ public class GameActionLogger {
     log(GameActionLog.Type.guardrail_event, playerId, gameId, message);
   }
 
+  public void logError(String gameId, String playerId, String message) {
+    log(GameActionLog.Type.error, playerId, gameId, message);
+  }
+
   String json(DotGame.ScoringMoves scoringMoves) {
     var om = JsonSupport.getObjectMapper();
     try {

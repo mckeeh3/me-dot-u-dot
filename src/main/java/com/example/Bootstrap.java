@@ -86,6 +86,27 @@ public class Bootstrap implements ServiceSetup {
     // log.info("--------------------------------------------------------------------------------");
     // log.info("Full config listing - end");
     // log.info("--------------------------------------------------------------------------------");
+
+    var openAiApiKey = System.getenv("OPENAI_API_KEY");
+    if (openAiApiKey == null || openAiApiKey.isBlank()) {
+      log.warn("================================================================================");
+      log.warn("OPENAI_API_KEY is not set");
+      log.warn("--------------------------------------------------------------------------------");
+    }
+
+    var googleAiGeminiApiKey = System.getenv("GOOGLE_AI_GEMINI_API_KEY");
+    if (googleAiGeminiApiKey == null || googleAiGeminiApiKey.isBlank()) {
+      log.warn("================================================================================");
+      log.warn("GOOGLE_AI_GEMINI_API_KEY is not set");
+      log.warn("--------------------------------------------------------------------------------");
+    }
+
+    var anthropicApiKey = System.getenv("ANTHROPIC_API_KEY");
+    if (anthropicApiKey == null || anthropicApiKey.isBlank()) {
+      log.warn("================================================================================");
+      log.warn("ANTHROPIC_API_KEY is not set");
+      log.warn("--------------------------------------------------------------------------------");
+    }
   }
 
   static void searchConfig(String searchValue, String prefix, ConfigObject configObject) {

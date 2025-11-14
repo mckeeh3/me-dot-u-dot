@@ -19,7 +19,6 @@ public class DotGameView extends View {
       SELECT *
         FROM dot_game_view
        WHERE gameId = :gameId
-       LIMIT 1
       """, streamUpdates = true)
   public QueryStreamEffect<DotGameRow> getMoveStreamByGameId(GetMoveStreamByGameIdRequest request) {
     return queryStreamResult();

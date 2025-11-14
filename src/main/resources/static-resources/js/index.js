@@ -736,7 +736,7 @@ function openMoveStream(gameId) {
   evtSrc.onmessage = (e) => {
     try {
       const event = JSON.parse(e.data);
-      // console.log(`${new Date().toISOString()} lastAction: ${event.lastAction}`);
+      console.log(`${new Date().toISOString()} lastAction: ${event.lastAction}`);
       if (event.lastAction === 'move_forfeited') {
         playSound('game-alarm.wav');
         alert(event.message);

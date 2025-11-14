@@ -164,7 +164,17 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
         the player's behavioral approach or decision-making process.
       • Focus on behavioral improvements, workflow enhancements, and decision-making processes, not tactical knowledge.
       • After completing all tool calls, respond with JSON: {"revised": true} or {"revised": false}.
+      • After completing all tool calls, in the JSON response, include your response text in the "response" field.
       • Do not ask for user input—the environment does not provide interactive users.
+
+      VERIFY YOUR WORK
+      Before responding with your JSON, verify your work by:
+      - Reading the current system prompt to ensure you didn't lose any existing content
+      - Reviewing the game review to ensure you incorporated all relevant learnings
+      - Checking that you wrote the complete revised system prompt
+      - Ensuring you responded with valid JSON: {"revised": true} or {"revised": false}
+      - Ensuring you included your response text in the "response" field.
+      - If you are confident in your work, respond with your JSON.
       """.stripIndent();
 
   record SystemPromptReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
@@ -183,7 +193,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
     }
   }
 
-  public record SystemPromptRevised(boolean revised) {}
+  public record SystemPromptRevised(boolean revised, String response) {}
 
   public class TryAgainException extends RuntimeException {
     public TryAgainException(SystemPromptReviewPrompt prompt, Throwable cause) {
