@@ -1,9 +1,12 @@
 package com.example.application;
 
+import static java.time.Duration.ofMinutes;
+
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.application.AgentPlayerPlaybookReviewAgent.TryAgainException;
 import com.example.domain.AgentPlayer;
 import com.example.domain.AgentPlayer.State;
 import com.example.domain.DotGame;
@@ -13,10 +16,6 @@ import akka.javasdk.annotations.Component;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.workflow.Workflow;
 import akka.javasdk.workflow.WorkflowContext;
-
-import static java.time.Duration.ofMinutes;
-
-import java.util.stream.Stream;
 
 @Component(id = "agent-player-workflow")
 public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
@@ -108,48 +107,30 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   StepEffect postGamePlaybookReviewStep(String gameReview) {
     var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), gameReview);
 
-    try {
-      var playbookReview = componentClient
-          .forAgent()
-          .inSession(currentState().sessionId())
-          .method(AgentPlayerPlaybookReviewAgent::playbookReview)
-          .invoke(prompt);
+    var playbookReview = componentClient
+        .forAgent()
+        .inSession(currentState().sessionId())
+        .method(AgentPlayerPlaybookReviewAgent::playbookReview)
+        .invoke(prompt);
 
-      gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview.toString());
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview);
 
+    var playbook = componentClient
+        .forEventSourcedEntity(currentState().agent().id())
+        .method(PlaybookEntity::getState)
+        .invoke();
+
+    if (playbook.instructions().isEmpty() && currentState().stepRetryCount() < 3) {
       return stepEffects()
-          .updateState(currentState().withPlaybookReview(playbookReview.toString()))
-          .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
-          .withInput(gameReview);
-    } catch (TryAgainException e) {
-      if (currentState().stepRetryCount() > 2) {
-        log.error("Playbook review failed after {} attempts: {}", currentState().stepRetryCount(), e.getMessage());
-        gameLog.logError(currentState().gameId(), currentState().agent().id(), "Playbook review failed after %d attempts: %s"
-            .formatted(currentState().stepRetryCount(), e.getMessage()));
-
-        return stepEffects()
-            .updateState(currentState().resetStepRetryCount())
-            .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
-            .withInput(gameReview);
-      }
-      log.error("Playbook review failed after {} attempts: {}", currentState().stepRetryCount() + 1, e.getMessage());
-      gameLog.logError(currentState().gameId(), currentState().agent().id(), "Playbook review failed after %d attempts: %s"
-          .formatted(currentState().stepRetryCount() + 1, e.getMessage()));
-
-      return stepEffects()
-          .updateState(currentState().incrementStepRetryCount())
+          .updateState(currentState().incrementStepRetryCount().withPlaybookReview(playbookReview))
           .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
           .withInput(gameReview);
-    } catch (Throwable e) {
-      log.error("Playbook review failed unrecoverable error: {}", e.getMessage());
-      gameLog.logError(currentState().gameId(), currentState().agent().id(), "Playbook review failed  unrecoverable error: %s"
-          .formatted(e.getMessage()));
-
-      return stepEffects()
-          .updateState(currentState().resetStepRetryCount())
-          .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
-          .withInput(gameReview);
     }
+
+    return stepEffects()
+        .updateState(currentState().resetStepRetryCount().withPlaybookReview(playbookReview))
+        .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
+        .withInput(gameReview);
   }
 
   StepEffect postGameSystemPromptReviewStep(String gameReview) {
