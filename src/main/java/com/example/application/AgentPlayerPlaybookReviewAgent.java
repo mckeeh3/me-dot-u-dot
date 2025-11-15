@@ -121,8 +121,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
          - You must write the complete revised playbook, not just changes or additions.
          - If you don't include existing content in your write, it will be lost.
 
-      5. Respond with a JSON object indicating whether the playbook was revised:
-         {"revised": true} if you revised the playbook, or {"revised": false} if no revision was needed.
+      5. Respond with your response text.
 
       HANDLING EMPTY PLAYBOOK
       When the playbook is empty, you MUST create the initial playbook version. Use the game review to identify:
