@@ -35,6 +35,11 @@ public class PlayerGamesToPlayerGamesConsumer extends Consumer {
   }
 
   Effect onEvent(PlayerGames.Event.DelegatedGameToSubBranch event) {
+    if (!messageContext().hasLocalOrigin()) {
+      log.debug("Ignoring event from other region: {}", event);
+      return effects().done();
+    }
+
     log.debug("Event: {}", event);
 
     var command = new PlayerGames.Command.AddGameToBranch(

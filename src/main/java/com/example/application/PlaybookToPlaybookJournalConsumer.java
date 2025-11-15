@@ -24,6 +24,11 @@ public class PlaybookToPlaybookJournalConsumer extends Consumer {
   }
 
   public Effect onEvent(Playbook.Event event) {
+    if (!messageContext().hasLocalOrigin()) {
+      log.debug("Ignoring event from other region: {}", event);
+      return effects().done();
+    }
+
     log.debug("Event: {}", event);
 
     return switch (event) {

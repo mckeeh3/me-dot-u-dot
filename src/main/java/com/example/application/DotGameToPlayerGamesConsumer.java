@@ -22,6 +22,11 @@ public class DotGameToPlayerGamesConsumer extends Consumer {
   }
 
   public Effect onEvent(DotGame.Event event) {
+    if (!messageContext().hasLocalOrigin()) {
+      log.debug("Ignoring event from other region: {}", event);
+      return effects().done();
+    }
+
     return switch (event) {
       case DotGame.Event.GameResults e -> onEvent(e);
       default -> effects().done();

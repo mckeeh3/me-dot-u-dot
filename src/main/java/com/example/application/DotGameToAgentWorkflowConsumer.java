@@ -24,6 +24,11 @@ public class DotGameToAgentWorkflowConsumer extends Consumer {
   }
 
   public Effect onEvent(DotGame.Event event) {
+    if (!messageContext().hasLocalOrigin()) {
+      log.debug("Ignoring event from other region: {}", event);
+      return effects().done();
+    }
+
     log.debug("Event: {}", event);
 
     return switch (event) {

@@ -23,6 +23,11 @@ public class SessionMemoryConsumer extends Consumer {
   }
 
   public Effect onEvent(SessionMemoryEntity.Event event) {
+    if (!messageContext().hasLocalOrigin()) {
+      log.debug("Ignoring event from other region: {}", event);
+      return effects().done();
+    }
+
     var entityId = messageContext().eventSubject().get();
     var sequenceId = messageContext().metadata().asCloudEvent().sequence().orElse(-1l);
 
