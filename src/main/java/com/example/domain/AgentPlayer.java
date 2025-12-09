@@ -30,6 +30,10 @@ public interface AgentPlayer {
       return sessionId.isEmpty();
     }
 
+    public State withGameId(String newGameId) {
+      return new State(sessionId, newGameId, agent, status, moveCount, stepRetryCount, gameReview, playbookReview, systemPromptReview);
+    }
+
     public State with(String newSessionId, String newGameId, DotGame.Player newAgent) {
       return new State(newSessionId, newGameId, newAgent, Status.in_progress, 0, 0, "", "", "");
     }

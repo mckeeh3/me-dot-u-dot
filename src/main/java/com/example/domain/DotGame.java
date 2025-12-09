@@ -277,7 +277,8 @@ public interface DotGame {
           Optional.of(Instant.now()),
           player1Status,
           player2Status,
-          Optional.empty()));
+          Optional.empty(),
+          command.reason));
     }
 
     // ============================================================
@@ -462,7 +463,7 @@ public interface DotGame {
 
     public record GameCanceled(String gameId) implements Command {}
 
-    public record CancelGame(String gameId) implements Command {}
+    public record CancelGame(String gameId, String reason) implements Command {}
   }
 
   // ============================================================
@@ -514,7 +515,8 @@ public interface DotGame {
         Optional<Instant> finishedAt,
         PlayerStatus player1Status,
         PlayerStatus player2Status,
-        Optional<PlayerStatus> currentPlayerStatus) implements Event {}
+        Optional<PlayerStatus> currentPlayerStatus,
+        String reason) implements Event {}
 
     @TypeName("move-forfeited")
     public record MoveForfeited(

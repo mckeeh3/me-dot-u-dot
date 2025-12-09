@@ -71,7 +71,8 @@ public class GameEndpoint {
   public GameResponse cancelGame(CancelGame request) {
     log.debug("Cancel game: {}", request);
 
-    var command = new DotGame.Command.CancelGame(request.gameId);
+    var reason = "User cancelled game";
+    var command = new DotGame.Command.CancelGame(request.gameId, reason);
 
     var gameState = componentClient
         .forEventSourcedEntity(request.gameId)

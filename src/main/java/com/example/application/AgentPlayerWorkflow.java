@@ -2,8 +2,6 @@ package com.example.application;
 
 import static java.time.Duration.ofMinutes;
 
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,30 +29,45 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   @Override
-  public WorkflowSettings settings() {
-    return WorkflowSettings.builder()
-        .defaultStepTimeout(ofMinutes(10))
-        .build();
+  public State emptyState() {
+    return AgentPlayer.State.empty();
   }
 
   @Override
-  public State emptyState() {
-    return AgentPlayer.State.empty();
+  public WorkflowSettings settings() {
+    return WorkflowSettings.builder()
+        .defaultStepTimeout(ofMinutes(10))
+        .defaultStepRecovery(maxRetries(0).failoverTo(AgentPlayerWorkflow::cancelGameStep))
+        .stepRecovery(
+            AgentPlayerWorkflow::makeMoveStep,
+            maxRetries(0).failoverTo(AgentPlayerWorkflow::cancelGameStep))
+        .build();
   }
 
   public Effect<Done> playerTurnCompleted(DotGame.Event.PlayerTurnCompleted event) {
     log.debug("WorkflowId: {}\n_State: {}\n_Event: {}", workflowId, currentState(), event);
 
+    var state = currentState();
+    if (state.isEmpty()) {
+      var agentPlayer = event.currentPlayerStatus().get();
+      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
+
+      state = state
+          .with(sessionId, event.gameId(), agentPlayer.player());
+    }
+
     if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
       return effects()
-          .transitionTo(AgentPlayerWorkflow::turnMakeMoveStep)
+          .updateState(state)
+          .transitionTo(AgentPlayerWorkflow::makeMoveStep)
           .withInput(event)
           .thenReply(Done.getInstance());
     }
 
     if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
       return effects()
-          .transitionTo(AgentPlayerWorkflow::turnStartGameReviewStep)
+          .updateState(state)
+          .transitionTo(AgentPlayerWorkflow::startGameReviewStep)
           .withInput(event)
           .thenReply(Done.getInstance());
     }
@@ -62,31 +75,95 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     return effects().reply(Done.getInstance()); // ignore duplicate messages
   }
 
-  StepEffect turnMakeMoveStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Turn make move step: {}, move count: {}", event.gameId(), event.moveHistory().size());
+  StepEffect makeMoveStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Make move step: {}\n_state: {}", event.gameId(), currentState());
 
-    var agentPlayer = event.currentPlayerStatus().get();
-    var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
+    var sessionId = AgentPlayer.sessionId(event.gameId(), currentState().agent().id());
+    var prompt = makeMovePromptFor(sessionId, event.gameId(), currentState().agent());
 
-    var prompt = makeMovePromptFor(sessionId, event.gameId(), agentPlayer.player());
-
-    if (currentState().isEmpty()) {
-      makeMove(sessionId, prompt, "Make move (1 game created)");
-
+    if (currentState().stepRetryCount() > 3) {
       return stepEffects()
-          .updateState(currentState().with(sessionId, event.gameId(), agentPlayer.player()).withMoveCount(event.moveHistory().size()))
-          .thenPause();
+          .updateState(currentState().resetStepRetryCount())
+          .thenTransitionTo(AgentPlayerWorkflow::forfeitMoveStep)
+          .withInput(event);
     }
 
-    makeMove(sessionId, prompt, "Make move (2 game in progress)");
+    var response = componentClient
+        .forAgent()
+        .inSession(sessionId)
+        .method(AgentPlayerMakeMoveAgent::makeMove)
+        .invoke(prompt);
+
+    log.debug("Make move step response: {}\n_agent player response: {}\n_state: {}", event.gameId(), response, currentState());
+
+    if (response.startsWith("Forfeit move, ")) { // this is not ideal, we should have a more robust way to handle this
+      return stepEffects()
+          .updateState(currentState().resetStepRetryCount())
+          .thenTransitionTo(AgentPlayerWorkflow::forfeitMoveStep)
+          .withInput(event);
+    }
 
     return stepEffects()
         .updateState(currentState().withMoveCount(event.moveHistory().size()))
+        .thenTransitionTo(AgentPlayerWorkflow::verifyMoveStep)
+        .withInput(event);
+  }
+
+  StepEffect verifyMoveStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Verify move step: {}\n_state: {}", event.gameId(), currentState());
+
+    var gameState = componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(DotGameEntity::getState)
+        .invoke();
+
+    var agentMadeMove = gameState.currentPlayerStatus().isEmpty() || !gameState.currentPlayerStatus().get().player().id().equals(currentState().agent().id());
+
+    if (agentMadeMove) {
+      return stepEffects()
+          .updateState(currentState().resetStepRetryCount())
+          .thenTransitionTo(AgentPlayerWorkflow::moveCompletedStep)
+          .withInput(event);
+    }
+
+    return stepEffects()
+        .updateState(currentState().incrementStepRetryCount())
+        .thenTransitionTo(AgentPlayerWorkflow::makeMoveStep)
+        .withInput(event);
+  }
+
+  StepEffect moveCompletedStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Move completed step: {}\n_state: {}", event.gameId(), currentState());
+
+    var command = new DotGame.Command.PlayerTurnCompleted(event.gameId(), currentState().agent().id());
+    componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(DotGameEntity::playerTurnCompleted)
+        .invoke(command);
+
+    return stepEffects()
+        .updateState(currentState().resetStepRetryCount())
         .thenPause();
   }
 
-  StepEffect turnStartGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Turn start game review step: {}, move count: {}", event.gameId(), event.moveHistory().size());
+  StepEffect forfeitMoveStep(DotGame.Event.PlayerTurnCompleted event) {
+    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(currentState().agent().id(), currentState().stepRetryCount());
+    var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), message);
+    var playerId = prompt.agent().id();
+    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), playerId, message);
+
+    componentClient
+        .forEventSourcedEntity(prompt.gameId())
+        .method(DotGameEntity::forfeitMove)
+        .invoke(command);
+
+    return stepEffects()
+        .updateState(currentState().resetStepRetryCount())
+        .thenPause();
+  }
+
+  StepEffect startGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Start game review step: {}, move count: {}", event.gameId(), event.moveHistory().size());
 
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 
@@ -149,69 +226,19 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .thenEnd();
   }
 
-  void makeMove(String sessionId, AgentPlayerMakeMoveAgent.MakeMovePrompt prompt, String logMessage) {
-    Stream.iterate(0, i -> i + 1)
-        .map(i -> {
-          return (i > 2)
-              ? forfeitMove(i, sessionId, prompt, logMessage)
-              : makeMoveAttempt(i, sessionId, prompt, logMessage);
-        })
-        .filter(Boolean::booleanValue)
-        .findFirst(); // keep trying until the agent makes a move or too many attempts
-  }
+  StepEffect cancelGameStep() {
+    log.error("WorkflowId: {}\n_Cancelling game\n_State: {}", workflowId, currentState());
 
-  boolean makeMoveAttempt(int i, String sessionId, AgentPlayerMakeMoveAgent.MakeMovePrompt prompt, String logMessage) {
-    log.debug("Make move attempt: {}, agentId: {}", i + 1, prompt.agent().id());
-
-    var response = "";
-    try {
-      response = componentClient
-          .forAgent()
-          .inSession(sessionId)
-          .method(AgentPlayerMakeMoveAgent::makeMove)
-          .invoke(prompt);
-    } catch (Throwable e) {
-      log.error("Exception making move attempt: {}, agentId: {}", i + 1, prompt.agent().id(), e);
-      return false;
-    }
-
-    var gameState = componentClient
-        .forEventSourcedEntity(prompt.gameId())
-        .method(DotGameEntity::getState)
-        .invoke();
-
-    var playerId = prompt.agent().id();
-    var agentMadeMove = gameState.currentPlayerStatus().isEmpty() || !gameState.currentPlayerStatus().get().player().id().equals(playerId);
-
-    log.debug("{}, agent response: {}", logMessage, response);
-    log.debug("Game status: {}, game over or agent: {} made move: {}", gameState.status(), playerId, agentMadeMove);
-
-    gameLog.logModelResponse(prompt.gameId(), playerId, response);
-
-    if (agentMadeMove && gameState.status() == DotGame.Status.in_progress) {
-      var command = new DotGame.Command.PlayerTurnCompleted(prompt.gameId(), prompt.agent().id());
-      componentClient
-          .forEventSourcedEntity(prompt.gameId())
-          .method(DotGameEntity::playerTurnCompleted)
-          .invoke(command);
-    }
-
-    return agentMadeMove;
-  }
-
-  boolean forfeitMove(int i, String sessionId, AgentPlayerMakeMoveAgent.MakeMovePrompt prompt, String logMessage) {
-    var playerId = prompt.agent().id();
-    log.debug("{}, forfeit move after {} failed attempts, agentId: {}", logMessage, i + 1, playerId);
-
-    var message = "Agent: %s, forfeited move after %d failed attempts".formatted(playerId, i + 1);
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), playerId, message);
+    var reason = "Workflow cancelled game due to unexpected error";
+    var command = new DotGame.Command.CancelGame(currentState().gameId(), reason);
 
     componentClient
-        .forEventSourcedEntity(prompt.gameId())
-        .method(DotGameEntity::forfeitMove)
+        .forEventSourcedEntity(currentState().gameId())
+        .method(DotGameEntity::cancelGame)
         .invoke(command);
 
-    return true;
+    return stepEffects()
+        .thenEnd();
   }
 
   AgentPlayerMakeMoveAgent.MakeMovePrompt makeMovePromptFor(String sessionId, String gameId, DotGame.Player agent) {

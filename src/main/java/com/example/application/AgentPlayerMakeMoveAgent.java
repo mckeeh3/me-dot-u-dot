@@ -64,23 +64,23 @@ public class AgentPlayerMakeMoveAgent extends Agent {
 
   String handleError(MakeMovePrompt prompt, Throwable exception) {
     return switch (exception) {
-      case ModelException e -> tryAgain(prompt, e);
-      case RateLimitException e -> forfeitMoveDueToError(prompt, e);
-      case ModelTimeoutException e -> tryAgain(prompt, e);
-      case ToolCallExecutionException e -> tryAgain(prompt, e);
-      case JsonParsingException e -> tryAgain(prompt, e);
-      case NullPointerException e -> tryAgain(prompt, e);
-      default -> forfeitMoveDueToError(prompt, exception);
+      case ModelException e -> retryMove(prompt, e);
+      case RateLimitException e -> forfeitMove(prompt, e);
+      case ModelTimeoutException e -> retryMove(prompt, e);
+      case ToolCallExecutionException e -> retryMove(prompt, e);
+      case JsonParsingException e -> retryMove(prompt, e);
+      case NullPointerException e -> retryMove(prompt, e);
+      default -> forfeitMove(prompt, exception);
     };
   }
 
-  String tryAgain(MakeMovePrompt prompt, Throwable exception) {
-    log.warn("SessionId: {}\n_Trying again, possible recoverable agent error: {}".formatted(sessionId, exception.getMessage()), exception);
+  String retryMove(MakeMovePrompt prompt, Throwable exception) {
+    log.warn("SessionId: {}\n_Retrying move, possible recoverable agent error: {}".formatted(sessionId, exception.getMessage()), exception);
 
-    return "Try again, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
+    return "Retry move, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
   }
 
-  String forfeitMoveDueToError(MakeMovePrompt prompt, Throwable exception) {
+  String forfeitMove(MakeMovePrompt prompt, Throwable exception) {
     log.error("SessionId: {}\n_Forfeiting move due to agent error: {}".formatted(sessionId, exception.getMessage()), exception);
 
     var message = "Agent: %s, forfeited move due to agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
@@ -91,7 +91,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
         .method(DotGameEntity::forfeitMove)
         .invoke(command);
 
-    return "Forfeited move due to agent error: %s".formatted(exception.getMessage());
+    return "Forfeit move, agent: %s, agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
   }
 
   record MakeMovePrompt(String sessionId, String gameId, DotGame.Player agent) {
