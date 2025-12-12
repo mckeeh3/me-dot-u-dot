@@ -518,7 +518,7 @@ public class DotGameEntityTest {
 
     createGame(testKit, gameId, player1, player2, DotGame.Board.Level.one);
 
-    var command = new DotGame.Command.CancelGame(gameId);
+    var command = new DotGame.Command.CancelGame(gameId, "Test exception");
     var result = testKit.method(DotGameEntity::cancelGame).invoke(command);
     assertTrue(result.isReply());
     assertEquals(DotGame.Status.canceled, result.getReply().status());

@@ -1,6 +1,7 @@
 package com.example.application;
 
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,20 +44,20 @@ public class SessionMemoryConsumer extends Consumer {
   }
 
   Effect onEvent(SessionMemoryEntity.Event.UserMessageAdded event, String entityId, long sequenceId) {
+    log.debug("UserMessageAdded ================================= {}\n_Event: {}", event.timestamp(), event);
     log.debug("EntityId: {}\n_SequenceId: {}\n_Timestamp: {}\n_UserMessage:\n_message: {}",
         entityId, sequenceId, event.timestamp(), event.message());
 
     var history = getHistory(entityId);
-    history.messages().forEach(message -> {
-      log.debug("EntityId: {}\n_SequenceId: {}\n_HistoryMessage: {}",
-          entityId, sequenceId, message);
+    IntStream.range(0, history.messages().size()).forEach(i -> {
+      log.debug("EntityId: {}\n_SequenceId: {}\n_Index: {}\n_HistoryMessage: {}",
+          entityId, sequenceId, i, history.messages().get(i));
     });
-    log.debug("EntityId: {}\n_SequenceId: {}\n_HistorySize: {}\n_History: {}",
-        entityId, sequenceId, history.messages().size(), history.messages());
     return effects().done();
   }
 
   Effect onEvent(SessionMemoryEntity.Event.AiMessageAdded event, String entityId, long sequenceId) {
+    log.debug("AiMessageAdded ================================= {}\n_Event: {}", event.timestamp(), event);
     var historySize = event.historySizeInBytes();
     var toolCallRequests = event.toolCallRequests();
 
@@ -71,6 +72,7 @@ public class SessionMemoryConsumer extends Consumer {
   }
 
   Effect onEvent(SessionMemoryEntity.Event.ToolResponseMessageAdded event, String entityId, long sequenceId) {
+    log.debug("ToolResponseMessageAdded ================================= {}\n_Event: {}", event.timestamp(), event);
     log.debug("EntityId: {}\n_SequenceId: {}\n_Timestamp: {}\n_ToolResponseMessage:\n_name: {}\n_content: {}",
         entityId, sequenceId, event.timestamp(), event.name(), event.content());
     return effects().done();

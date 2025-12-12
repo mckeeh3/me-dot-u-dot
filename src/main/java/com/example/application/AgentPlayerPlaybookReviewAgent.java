@@ -157,8 +157,20 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
       - If you are confident in your work, respond with your response text.
       """.stripIndent();
 
-  record PlaybookReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
-    public String toPrompt() {
+  record PlaybookReviewPrompt(String sessionId, String gameId, DotGame.Player agent, String gameReview, boolean isRetry) {
+    static PlaybookReviewPrompt with(String sessionId, String gameId, DotGame.Player agent, String gameReview) {
+      return new PlaybookReviewPrompt(sessionId, gameId, agent, gameReview, false);
+    }
+
+    static PlaybookReviewPrompt withRetry() {
+      return new PlaybookReviewPrompt("", "", null, "", true);
+    }
+
+    String toPrompt() {
+      if (isRetry()) {
+        return "Try again, you must update the playbook when it is empty";
+      }
+
       return """
           PLAYBOOK REVIEW
           Game Id: %s | Agent Id: %s
@@ -166,7 +178,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
           The game is over. Use the provided game review to revise your playbook.
 
           <GAME_REVIEW>
-          %s
+
           </GAME_REVIEW>
           """
           .formatted(gameId(), agent().id(), gameReview);

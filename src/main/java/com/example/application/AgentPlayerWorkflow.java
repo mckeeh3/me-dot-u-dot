@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.AgentPlayer;
 import com.example.domain.AgentPlayer.State;
 import com.example.domain.DotGame;
+import com.example.domain.GameLog;
 
 import akka.Done;
 import akka.javasdk.annotations.Component;
@@ -49,11 +50,11 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     var state = currentState();
     if (state.isEmpty()) {
-      var agentPlayer = event.currentPlayerStatus().get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayer.player().id());
+      var agentPlayerStatus = event.currentPlayerStatus().get();
+      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayerStatus.player().id());
 
       state = state
-          .with(sessionId, event.gameId(), agentPlayer.player());
+          .with(sessionId, event.gameId(), agentPlayerStatus.player());
     }
 
     if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
@@ -67,7 +68,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
       return effects()
           .updateState(state)
-          .transitionTo(AgentPlayerWorkflow::startGameReviewStep)
+          .transitionTo(AgentPlayerWorkflow::startPostGameReviewStep)
           .withInput(event)
           .thenReply(Done.getInstance());
     }
@@ -76,12 +77,16 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect makeMoveStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Make move step: {}\n_state: {}", event.gameId(), currentState());
+    log.debug("Make move step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
-    var sessionId = AgentPlayer.sessionId(event.gameId(), currentState().agent().id());
+    var agentId = currentState().agent().id();
+    var sessionId = AgentPlayer.sessionId(event.gameId(), agentId);
     var prompt = makeMovePromptFor(sessionId, event.gameId(), currentState().agent());
 
     if (currentState().stepRetryCount() > 3) {
+      log.debug("Make move step, WorkflowId: {}\n_state: {}\n_forfeiting move due to too many retries", workflowId, currentState());
+      gameLog.logError(event.gameId(), agentId, "Make move step: forfeiting move due to too many retries");
+
       return stepEffects()
           .updateState(currentState().resetStepRetryCount())
           .thenTransitionTo(AgentPlayerWorkflow::forfeitMoveStep)
@@ -94,14 +99,26 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerMakeMoveAgent::makeMove)
         .invoke(prompt);
 
-    log.debug("Make move step response: {}\n_agent player response: {}\n_state: {}", event.gameId(), response, currentState());
+    log.debug("Make move step response, WorkflowId: {}\n_agent player response: {}\n_state: {}", workflowId, response, currentState());
+
+    gameLog.logModelResponse(prompt.gameId(), agentId, response);
 
     if (response.startsWith("Forfeit move, ")) { // this is not ideal, we should have a more robust way to handle this
+      log.debug("Make move step, WorkflowId: {}\n_state: {}\n_forfeiting move due to agent error", workflowId, currentState());
+      gameLog.logError(event.gameId(), agentId, "Make move step: forfeiting move due to agent error");
+
       return stepEffects()
           .updateState(currentState().resetStepRetryCount())
           .thenTransitionTo(AgentPlayerWorkflow::forfeitMoveStep)
           .withInput(event);
     }
+
+    var moveNumber = event.currentPlayerStatus().get().moves();
+    var command = new GameLog.Command.CreateMakeMoveResponse(event.gameId(), agentId, moveNumber, response);
+    componentClient
+        .forEventSourcedEntity(event.gameId())
+        .method(GameLogEntity::createMakeMoveResponse)
+        .invoke(command);
 
     return stepEffects()
         .updateState(currentState().withMoveCount(event.moveHistory().size()))
@@ -110,7 +127,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect verifyMoveStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Verify move step: {}\n_state: {}", event.gameId(), currentState());
+    log.debug("Verify move step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var gameState = componentClient
         .forEventSourcedEntity(event.gameId())
@@ -133,7 +150,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect moveCompletedStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Move completed step: {}\n_state: {}", event.gameId(), currentState());
+    log.debug("Move completed step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var command = new DotGame.Command.PlayerTurnCompleted(event.gameId(), currentState().agent().id());
     componentClient
@@ -147,13 +164,14 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect forfeitMoveStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Forfeit move step, WorkflowId: {}\n_state: {}", workflowId, currentState());
+
     var message = "Agent: %s, forfeited move after %d failed attempts".formatted(currentState().agent().id(), currentState().stepRetryCount());
-    var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), message);
-    var playerId = prompt.agent().id();
-    var command = new DotGame.Command.ForfeitMove(prompt.gameId(), playerId, message);
+    var playerId = currentState().agent().id();
+    var command = new DotGame.Command.ForfeitMove(currentState().gameId(), playerId, message);
 
     componentClient
-        .forEventSourcedEntity(prompt.gameId())
+        .forEventSourcedEntity(currentState().gameId())
         .method(DotGameEntity::forfeitMove)
         .invoke(command);
 
@@ -162,27 +180,31 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .thenPause();
   }
 
-  StepEffect startGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
-    log.debug("Start game review step: {}, move count: {}", event.gameId(), event.moveHistory().size());
+  StepEffect startPostGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
+    log.debug("Start post game review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
 
-    var gameReview = componentClient
+    var postGameReview = componentClient
         .forAgent()
         .inSession(currentState().sessionId())
         .method(AgentPlayerPostGameReviewAgent::postGameReview)
         .invoke(prompt);
 
-    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), gameReview);
+    gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), postGameReview);
 
     return stepEffects()
-        .updateState(currentState().withGameReview(gameReview))
+        .updateState(currentState().withPostGameReview(postGameReview))
         .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-        .withInput(gameReview);
+        .withInput(postGameReview);
   }
 
-  StepEffect postGamePlaybookReviewStep(String gameReview) {
-    var prompt = new AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), gameReview);
+  StepEffect postGamePlaybookReviewStep(String postGameReview) {
+    log.debug("Post game playbook review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
+
+    var prompt = currentState().stepRetryCount() > 0
+        ? AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview)
+        : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.withRetry();
 
     var playbookReview = componentClient
         .forAgent()
@@ -192,6 +214,15 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview);
 
+    return stepEffects()
+        .updateState(currentState().resetStepRetryCount().withPlaybookReview(playbookReview))
+        .thenTransitionTo(AgentPlayerWorkflow::verifyPlaybookNotEmptyStep)
+        .withInput(postGameReview);
+  }
+
+  StepEffect verifyPlaybookNotEmptyStep(String postGameReview) {
+    log.debug("Verify playbook not empty step, WorkflowId: {}\n_state: {}", workflowId, currentState());
+
     var playbook = componentClient
         .forEventSourcedEntity(currentState().agent().id())
         .method(PlaybookEntity::getState)
@@ -199,19 +230,25 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     if (playbook.instructions().isEmpty() && currentState().stepRetryCount() < 3) {
       return stepEffects()
-          .updateState(currentState().incrementStepRetryCount().withPlaybookReview(playbookReview))
+          .updateState(currentState()
+              .incrementStepRetryCount()
+              .withPlaybookReview(postGameReview))
           .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-          .withInput(gameReview);
+          .withInput(postGameReview);
     }
 
     return stepEffects()
-        .updateState(currentState().resetStepRetryCount().withPlaybookReview(playbookReview))
+        .updateState(currentState()
+            .resetStepRetryCount()
+            .withPlaybookReview(postGameReview))
         .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
-        .withInput(gameReview);
+        .withInput(postGameReview);
   }
 
-  StepEffect postGameSystemPromptReviewStep(String gameReview) {
-    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), gameReview);
+  StepEffect postGameSystemPromptReviewStep(String postGameReview) {
+    log.debug("Post game system prompt review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
+
+    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview);
 
     var systemPromptReview = componentClient
         .forAgent()
@@ -227,7 +264,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   }
 
   StepEffect cancelGameStep() {
-    log.error("WorkflowId: {}\n_Cancelling game\n_State: {}", workflowId, currentState());
+    log.error("Cancelling game step, WorkflowId: {}\n_State: {}", workflowId, currentState());
 
     var reason = "Workflow cancelled game due to unexpected error";
     var command = new DotGame.Command.CancelGame(currentState().gameId(), reason);
