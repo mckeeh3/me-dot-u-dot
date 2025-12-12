@@ -14,12 +14,12 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class GameStateTool {
-  static final Logger log = LoggerFactory.getLogger(GameStateTool.class);
+public class GameStateTools {
+  static final Logger log = LoggerFactory.getLogger(GameStateTools.class);
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
 
-  public GameStateTool(ComponentClient componentClient) {
+  public GameStateTools(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
   }

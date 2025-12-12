@@ -34,7 +34,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new GameMoveTool(componentClient));
+        new GameMoveTools(componentClient));
   }
 
   public Effect<String> postGameReview(PostGameReviewPrompt prompt) {

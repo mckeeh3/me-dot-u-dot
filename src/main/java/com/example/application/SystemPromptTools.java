@@ -10,12 +10,12 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class SystemPromptTool {
-  static final Logger log = LoggerFactory.getLogger(SystemPromptTool.class);
+public class SystemPromptTools {
+  static final Logger log = LoggerFactory.getLogger(SystemPromptTools.class);
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
 
-  public SystemPromptTool(ComponentClient componentClient) {
+  public SystemPromptTools(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
   }

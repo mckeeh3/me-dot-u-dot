@@ -31,7 +31,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new SystemPromptTool(componentClient));
+        new SystemPromptTools(componentClient));
   }
 
   public Effect<String> systemPromptReview(SystemPromptReviewPrompt prompt) {
@@ -102,7 +102,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
 
       CRITICAL WORKFLOW
       You MUST follow this exact workflow:
-      1. Call SystemPromptTool_readSystemPrompt to retrieve the current system prompt.
+      1. Call SystemPromptTools_readSystemPrompt to retrieve the current system prompt.
          - Read the current system prompt to understand what it currently contains.
          - This is the system prompt that guides the make-move agent during gameplay.
 
@@ -132,7 +132,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
            * Removes or updates outdated or ineffective guidance
            * Maintains clear structure for use during gameplay
 
-      5. If revision is needed, call SystemPromptTool_writeSystemPrompt to write the revised system prompt.
+      5. If revision is needed, call SystemPromptTools_writeSystemPrompt to write the revised system prompt.
          - CRITICAL: The write system prompt tool COMPLETELY REPLACES the entire system prompt document.
          - You must write the complete revised system prompt, not just changes or additions.
          - If you don't include existing content in your write, it will be lost.

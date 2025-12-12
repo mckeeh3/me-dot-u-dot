@@ -31,7 +31,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new PlaybookTool(componentClient));
+        new PlaybookTools(componentClient));
   }
 
   public Effect<String> playbookReview(PlaybookReviewPrompt prompt) {
@@ -98,7 +98,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
 
       CRITICAL WORKFLOW
       You MUST follow this exact workflow:
-      1. Call PlaybookTool_readPlaybook to retrieve the current playbook contents.
+      1. Call PlaybookTools_readPlaybook to retrieve the current playbook contents.
          - The playbook may be empty (initially) or contain existing tactical knowledge.
          - You must read it first to understand what is already documented.
 
@@ -116,7 +116,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
            * Removes or updates outdated or incorrect information
            * Organizes content for easy use during gameplay
 
-      4. Call PlaybookTool_writePlaybook to write the revised playbook.
+      4. Call PlaybookTools_writePlaybook to write the revised playbook.
          - CRITICAL: The write playbook tool COMPLETELY REPLACES the entire playbook document.
          - You must write the complete revised playbook, not just changes or additions.
          - If you don't include existing content in your write, it will be lost.

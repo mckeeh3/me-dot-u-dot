@@ -33,9 +33,9 @@ public class AgentPlayerMakeMoveAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new GameStateTool(componentClient),
-        new PlaybookTool(componentClient),
-        new GameMoveTool(componentClient));
+        new GameStateTools(componentClient),
+        new PlaybookTools(componentClient),
+        new GameMoveTools(componentClient));
   }
 
   public Effect<String> makeMove(MakeMovePrompt prompt) {

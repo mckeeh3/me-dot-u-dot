@@ -10,12 +10,12 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class PlaybookTool {
-  static final Logger log = LoggerFactory.getLogger(PlaybookTool.class);
+public class PlaybookTools {
+  static final Logger log = LoggerFactory.getLogger(PlaybookTools.class);
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
 
-  public PlaybookTool(ComponentClient componentClient) {
+  public PlaybookTools(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
   }

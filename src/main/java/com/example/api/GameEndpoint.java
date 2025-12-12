@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
-import com.example.application.GameMoveTool;
-import com.example.application.GameStateTool;
+import com.example.application.GameMoveTools;
+import com.example.application.GameStateTools;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
 import com.example.domain.DotGame.Player;
@@ -156,9 +156,9 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-state-tool/{gameId}")
-  public GameStateTool.CompactGameState getGameStateTool(String gameId) {
+  public GameStateTools.CompactGameState getGameStateTool(String gameId) {
     log.debug("Get game state tool: {}", gameId);
-    return new GameStateTool(componentClient).getGameState(gameId, "");
+    return new GameStateTools(componentClient).getGameState(gameId, "");
   }
 
   @Get("/get-game-move-history/{gameId}")
@@ -168,15 +168,15 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
-  public GameMoveTool.GetMoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
+  public GameMoveTools.GetMoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
-    return new GameMoveTool(componentClient).getMoveHistory(gameId, "");
+    return new GameMoveTools(componentClient).getMoveHistory(gameId, "");
   }
 
   @Get("/make-move-tool-test/{gameId}/{agentId}/{squareId}")
-  public GameMoveTool.MakeMoveTool.Response getMakeMoveTool(String gameId, String agentId, String squareId) {
+  public GameMoveTools.MakeMoveTool.Response getMakeMoveTool(String gameId, String agentId, String squareId) {
     log.debug("Get make move tool: {}, {}, {}", gameId, agentId, squareId);
-    return new GameMoveTool(componentClient).makeMove(gameId, agentId, squareId);
+    return new GameMoveTools(componentClient).makeMove(gameId, agentId, squareId);
   }
 
   GetMoveHistory.Response getMoveHistoryResponse(String gameId) {
