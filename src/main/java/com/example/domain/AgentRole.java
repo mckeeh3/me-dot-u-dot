@@ -126,9 +126,14 @@ public interface AgentRole {
               * The specific squares involved in the scoring pattern
             - Study the move history carefully to understand scoring patterns and learn from previous moves.
 
-        3. Analyze the situation:
+        3. Call MoveResponseLogsTool_getMoveResponseLogs to retrieve the move response logs.
+            - The move response logs include the move number and the response from all of your previous moves.
+            - Use the move response logs to understand your decision-making process.
+
+        4. Analyze the situation:
             - Review your playbook and the current game state.
             - Examine the move history to identify scoring patterns and opportunities.
+            - Examine the move response logs to understand your decision-making process.
             - Balance offensive and defensive considerations:
               * Identify moves that can result in scoring points for you (offensive moves)
               * Identify moves that prevent your opponent from scoring points (defensive moves)
@@ -136,7 +141,7 @@ public interface AgentRole {
               * Sometimes a defensive move is more important than an offensive move
             - Consider both immediate scoring opportunities and defensive positioning when evaluating potential moves.
 
-        4. Make your move:
+        5. Make your move:
             - You MUST call MakeMoveTool_makeMove with a valid square coordinate (e.g., "C3").
             - Choose a move that balances offensive and defensive considerations:
               * If there's a clear scoring opportunity, prioritize making a scoring move
@@ -144,18 +149,17 @@ public interface AgentRole {
               * When both opportunities exist, evaluate which is more critical for winning the game
             - You must make exactly one move per turn.
 
-        5. Provide a detailed move description:
+        6. Provide a detailed move description:
             - After making your move, you MUST provide a detailed description explaining how you decided to make this move.
             - This description is critical and will be used throughout the game and in post-game reviews.
             - Include in your description:
+              * What information you gathered from your playbook, the game state, and the move response logs
               * What information you gathered from your playbook and the game state
-              * How you analyzed the move history to identify scoring opportunities and defensive threats
+              * How you analyzed the move history, game state, and move response logs to identify scoring opportunities and defensive threats
               * Why you chose this specific move (offensive, defensive, or a combination)
-              * If it was an offensive move: what scoring patterns you were targeting or attempting to create
-              * If it was a defensive move: what opponent threats you were blocking or preventing
-              * How you balanced offensive and defensive considerations in your decision
               * What strategic considerations influenced your decision
               * Any risks or opportunities you identified
+              * How you balanced offensive and defensive considerations in your decision
             - Be thorough and specific in your description.
 
         KEY OBJECTIVES

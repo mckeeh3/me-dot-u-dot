@@ -32,7 +32,7 @@ public class MoveResponseLogsTool {
   public Response getMoveResponseLogs(
       @Description("The ID of the game you want to get move logs for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
-    log.debug("GameId: {}, AgentId: {}, Get game move logs", gameId, agentId);
+    log.debug("GameId: {}, AgentId: {}, Get move response logs", gameId, agentId);
 
     var request = new GameMoveLogView.GetByGameIdAndAgentIdRequest(gameId, agentId);
     var logs = componentClient.forView()

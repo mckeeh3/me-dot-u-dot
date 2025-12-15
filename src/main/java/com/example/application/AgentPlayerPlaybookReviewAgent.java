@@ -178,7 +178,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
           The game is over. Use the provided game review to revise your playbook.
 
           <GAME_REVIEW>
-
+          %s
           </GAME_REVIEW>
           """
           .formatted(gameId(), agent().id(), gameReview);

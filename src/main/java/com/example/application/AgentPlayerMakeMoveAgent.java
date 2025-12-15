@@ -35,6 +35,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
     this.functionTools = List.of(
         new GameStateTool(componentClient),
         new PlaybookTools(componentClient),
+        new MoveResponseLogsTool(componentClient),
         new MakeMoveTool(componentClient));
   }
 

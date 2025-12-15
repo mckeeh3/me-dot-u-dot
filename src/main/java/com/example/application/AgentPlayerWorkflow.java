@@ -42,6 +42,15 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .stepRecovery(
             AgentPlayerWorkflow::makeMoveStep,
             maxRetries(0).failoverTo(AgentPlayerWorkflow::cancelGameStep))
+        .stepRecovery(
+            AgentPlayerWorkflow::startPostGameReviewStep,
+            maxRetries(3).failoverTo(AgentPlayerWorkflow::postGameReviewCompletedStep))
+        .stepRecovery(
+            AgentPlayerWorkflow::postGamePlaybookReviewStep,
+            maxRetries(3).failoverTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep))
+        .stepRecovery(
+            AgentPlayerWorkflow::postGameSystemPromptReviewStep,
+            maxRetries(3).failoverTo(AgentPlayerWorkflow::postGameReviewCompletedStep))
         .build();
   }
 
@@ -80,7 +89,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     log.debug("Make move step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var agentId = currentState().agent().id();
-    var sessionId = AgentPlayer.sessionId(event.gameId(), agentId);
+    var sessionId = "%s/move-%d".formatted(currentState().sessionId(), currentState().moveCount() + 1);
     var prompt = makeMovePromptFor(sessionId, event.gameId(), currentState().agent());
 
     if (currentState().stepRetryCount() > 3) {
@@ -185,11 +194,12 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   StepEffect startPostGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
     log.debug("Start post game review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
-    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent());
+    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-review");
+    var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(sessionId, currentState().gameId(), currentState().agent());
 
     var postGameReview = componentClient
         .forAgent()
-        .inSession(currentState().sessionId())
+        .inSession(sessionId)
         .method(AgentPlayerPostGameReviewAgent::postGameReview)
         .invoke(prompt);
 
@@ -197,20 +207,25 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     return stepEffects()
         .updateState(currentState().withPostGameReview(postGameReview))
-        .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-        .withInput(postGameReview);
+        .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep);
   }
 
-  StepEffect postGamePlaybookReviewStep(String postGameReview) {
+  StepEffect postGamePlaybookReviewStep() {
     log.debug("Post game playbook review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
+    var postGameReview = currentState().postGameReview();
+    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-playbook-review");
     var prompt = currentState().stepRetryCount() > 0
         ? AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.withRetry()
-        : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview);
+        : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(
+            currentState().sessionId(),
+            currentState().gameId(),
+            currentState().agent(),
+            postGameReview);
 
     var playbookReview = componentClient
         .forAgent()
-        .inSession(currentState().sessionId())
+        .inSession(sessionId)
         .method(AgentPlayerPlaybookReviewAgent::playbookReview)
         .invoke(prompt);
 
@@ -218,13 +233,13 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     return stepEffects()
         .updateState(currentState().resetStepRetryCount().withPlaybookReview(playbookReview))
-        .thenTransitionTo(AgentPlayerWorkflow::verifyPlaybookNotEmptyStep)
-        .withInput(postGameReview);
+        .thenTransitionTo(AgentPlayerWorkflow::verifyPlaybookNotEmptyStep);
   }
 
-  StepEffect verifyPlaybookNotEmptyStep(String postGameReview) {
+  StepEffect verifyPlaybookNotEmptyStep() {
     log.debug("Verify playbook not empty step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
+    var postGameReview = currentState().postGameReview();
     var playbook = componentClient
         .forEventSourcedEntity(currentState().agent().id())
         .method(PlaybookEntity::getState)
@@ -235,26 +250,26 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
           .updateState(currentState()
               .incrementStepRetryCount()
               .withPlaybookReview(postGameReview))
-          .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep)
-          .withInput(postGameReview);
+          .thenTransitionTo(AgentPlayerWorkflow::postGamePlaybookReviewStep);
     }
 
     return stepEffects()
         .updateState(currentState()
             .resetStepRetryCount()
             .withPlaybookReview(postGameReview))
-        .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep)
-        .withInput(postGameReview);
+        .thenTransitionTo(AgentPlayerWorkflow::postGameSystemPromptReviewStep);
   }
 
-  StepEffect postGameSystemPromptReviewStep(String postGameReview) {
+  StepEffect postGameSystemPromptReviewStep() {
     log.debug("Post game system prompt review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
-    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview);
+    var postGameReview = currentState().postGameReview();
+    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-system-prompt-review");
+    var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(sessionId, currentState().gameId(), currentState().agent(), postGameReview);
 
     var systemPromptReview = componentClient
         .forAgent()
-        .inSession(currentState().sessionId())
+        .inSession(sessionId)
         .method(AgentPlayerSystemPromptReviewAgent::systemPromptReview)
         .invoke(prompt);
 
@@ -262,6 +277,13 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
 
     return stepEffects()
         .updateState(currentState().withSystemPromptReview(systemPromptReview.toString()))
+        .thenTransitionTo(AgentPlayerWorkflow::postGameReviewCompletedStep);
+  }
+
+  StepEffect postGameReviewCompletedStep() {
+    log.debug("Post game review completed step, WorkflowId: {}\n_state: {}", workflowId, currentState());
+
+    return stepEffects()
         .thenEnd();
   }
 

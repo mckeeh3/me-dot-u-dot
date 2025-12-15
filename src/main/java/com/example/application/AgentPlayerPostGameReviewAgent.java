@@ -34,7 +34,8 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new MoveHistoryTool(componentClient));
+        new MoveHistoryTool(componentClient),
+        new MoveResponseLogsTool(componentClient));
   }
 
   public Effect<String> postGameReview(PostGameReviewPrompt prompt) {
@@ -93,12 +94,17 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
            * The specific squares involved in the scoring pattern
          - Use this comprehensive move history as the foundation for your review.
 
-      2. Analyze the move history thoroughly:
+      2. Call MoveResponseLogsTool_getMoveResponseLogs to retrieve the move response logs.
+         - The move response logs include the move number and the response from all of your previous moves.
+         - Use the move response logs to understand your decision-making process.
+
+      3. Analyze the move history and move response logs thoroughly:
          - Review every move in chronological order.
          - Identify all scoring moves made by you and by the opponent.
          - Examine the sequence of moves to understand the strategic flow of the game.
+         - Examine the move response logs to understand your decision-making process.
 
-      3. Produce a detailed game summary that includes:
+      4. Produce a detailed game summary that includes:
          - Critical moves: Identify and analyze moves that had significant impact on the game's outcome.
          - Missed opportunities to score: Identify moves where you (or the opponent) could have scored points but didn't.
            Document what scoring opportunities were available and why they weren't taken.
