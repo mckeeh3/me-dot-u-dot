@@ -12,12 +12,12 @@ import akka.javasdk.annotations.Description;
 import akka.javasdk.annotations.FunctionTool;
 import akka.javasdk.client.ComponentClient;
 
-public class GameMoveLogsTool {
-  static final Logger log = LoggerFactory.getLogger(GameMoveLogsTool.class);
+public class MoveResponseLogsTool {
+  static final Logger log = LoggerFactory.getLogger(MoveResponseLogsTool.class);
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
 
-  public GameMoveLogsTool(ComponentClient componentClient) {
+  public MoveResponseLogsTool(ComponentClient componentClient) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
   }
@@ -29,7 +29,7 @@ public class GameMoveLogsTool {
       - Returns a list of move logs, which is an agent's summary of the last move it made.
       - Logs are ordered chronologically from oldest to newest.
       """)
-  public Response getGameMoveLogs(
+  public Response getMoveResponseLogs(
       @Description("The ID of the game you want to get move logs for") String gameId,
       @Description("The ID of your player/agent id for this game") String agentId) {
     log.debug("GameId: {}, AgentId: {}, Get game move logs", gameId, agentId);
@@ -42,7 +42,7 @@ public class GameMoveLogsTool {
     var response = Response.from(gameId, agentId, logs);
 
     if (!agentId.isEmpty()) {
-      gameLog.logToolCall(gameId, agentId, "getGameMoveLogs", json(response));
+      gameLog.logToolCall(gameId, agentId, "getMoveResponseLogs", json(response));
     }
 
     return response;

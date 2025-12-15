@@ -10,7 +10,7 @@ import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
 import com.example.application.MoveHistoryTool;
-import com.example.application.GameMoveLogsTool;
+import com.example.application.MoveResponseLogsTool;
 import com.example.application.MakeMoveTool;
 import com.example.application.GameStateTool;
 import com.example.domain.DotGame;
@@ -175,10 +175,10 @@ public class GameEndpoint {
     return new MoveHistoryTool(componentClient).getMoveHistory(gameId, "");
   }
 
-  @Get("/get-game-move-logs-tool/{gameId}/{agentId}")
-  public GameMoveLogsTool.Response getGameMoveLogsTool(String gameId, String agentId) {
+  @Get("/get-move-response-logs-tool/{gameId}/{agentId}")
+  public MoveResponseLogsTool.Response getGameMoveLogsTool(String gameId, String agentId) {
     log.debug("Get game move logs tool: {}, {}", gameId, agentId);
-    return new GameMoveLogsTool(componentClient).getGameMoveLogs(gameId, agentId);
+    return new MoveResponseLogsTool(componentClient).getMoveResponseLogs(gameId, agentId);
   }
 
   @Get("/make-move-tool-test/{gameId}/{agentId}/{squareId}")
