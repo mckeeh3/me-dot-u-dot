@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import com.example.application.DotGameEntity;
 import com.example.application.DotGameView;
 import com.example.application.DotGameView.GetMoveStreamByGameIdRequest;
-import com.example.application.GameMoveTools;
-import com.example.application.GameStateTools;
+import com.example.application.MoveHistoryTool;
+import com.example.application.GameMoveLogsTool;
+import com.example.application.MakeMoveTool;
+import com.example.application.GameStateTool;
 import com.example.domain.DotGame;
 import com.example.domain.DotGame.Board;
 import com.example.domain.DotGame.Player;
@@ -156,9 +158,9 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-state-tool/{gameId}")
-  public GameStateTools.GameState getGameStateTool(String gameId) {
+  public GameStateTool.GameState getGameStateTool(String gameId) {
     log.debug("Get game state tool: {}", gameId);
-    return new GameStateTools(componentClient).getGameState(gameId, "");
+    return new GameStateTool(componentClient).getGameState(gameId, "");
   }
 
   @Get("/get-game-move-history/{gameId}")
@@ -168,21 +170,21 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-move-history-tool/{gameId}")
-  public GameMoveTools.GetMoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
+  public MoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
-    return new GameMoveTools(componentClient).getMoveHistory(gameId, "");
+    return new MoveHistoryTool(componentClient).getMoveHistory(gameId, "");
   }
 
   @Get("/get-game-move-logs-tool/{gameId}/{agentId}")
-  public GameMoveTools.GetGameMoveLogsTool.Response getGameMoveLogsTool(String gameId, String agentId) {
+  public GameMoveLogsTool.Response getGameMoveLogsTool(String gameId, String agentId) {
     log.debug("Get game move logs tool: {}, {}", gameId, agentId);
-    return new GameMoveTools(componentClient).getGameMoveLogs(gameId, agentId);
+    return new GameMoveLogsTool(componentClient).getGameMoveLogs(gameId, agentId);
   }
 
   @Get("/make-move-tool-test/{gameId}/{agentId}/{squareId}")
-  public GameMoveTools.MakeMoveTool.Response getMakeMoveTool(String gameId, String agentId, String squareId) {
+  public MakeMoveTool.Response getMakeMoveTool(String gameId, String agentId, String squareId) {
     log.debug("Get make move tool: {}, {}, {}", gameId, agentId, squareId);
-    return new GameMoveTools(componentClient).makeMove(gameId, agentId, squareId);
+    return new MakeMoveTool(componentClient).makeMove(gameId, agentId, squareId);
   }
 
   GetMoveHistory.Response getMoveHistoryResponse(String gameId) {

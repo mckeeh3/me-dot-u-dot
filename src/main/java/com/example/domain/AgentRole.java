@@ -117,7 +117,7 @@ public interface AgentRole {
             - Your playbook starts empty but may contain tactical instructions you've learned.
             - Use the playbook to guide your decision-making, but rely primarily on the current game state.
 
-        2. Call GameStateTools_getGameState to retrieve the current game state.
+        2. Call GameStateTool_getGameState to retrieve the current game state.
             - This provides complete information about the board, scores, and move history.
             - The move history includes detailed turn-by-turn information for every move made by both players.
             - When a move results in scoring points, the move history includes detailed information about:
@@ -137,7 +137,7 @@ public interface AgentRole {
             - Consider both immediate scoring opportunities and defensive positioning when evaluating potential moves.
 
         4. Make your move:
-            - You MUST call GameMoveTool_makeMove with a valid square coordinate (e.g., "C3").
+            - You MUST call MakeMoveTool_makeMove with a valid square coordinate (e.g., "C3").
             - Choose a move that balances offensive and defensive considerations:
               * If there's a clear scoring opportunity, prioritize making a scoring move
               * If your opponent has a threatening scoring opportunity, prioritize blocking it with a defensive move

@@ -34,7 +34,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
     this.sessionId = agentContext.sessionId();
     this.gameLog = new GameActionLogger(componentClient);
     this.functionTools = List.of(
-        new GameMoveTools(componentClient));
+        new MoveHistoryTool(componentClient));
   }
 
   public Effect<String> postGameReview(PostGameReviewPrompt prompt) {
@@ -85,7 +85,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
       Write your review from the perspective of the player (referred to as "you") and the player's opponent.
 
       REQUIRED WORKFLOW
-      1. Call GameMoveTool_getMoveHistory to retrieve the complete turn-by-turn move history for the game.
+      1. Call MoveHistoryTool_getMoveHistory to retrieve the complete turn-by-turn move history for the game.
          - The move history includes every move made by both players in chronological order.
          - For each move that resulted in scoring points, the move history includes detailed information:
            * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent squares, etc.)
@@ -130,7 +130,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
       Analyze both your moves and the opponent's moves objectively to identify what worked, what didn't, and what could be improved.
 
       IMPORTANT REMINDERS
-      • You MUST call GameMoveTool_getMoveHistory to retrieve the move history before writing your review.
+      • You MUST call MoveHistoryTool_getMoveHistory to retrieve the move history before writing your review.
       • Base your review entirely on the move history data—do not make assumptions.
       • Be thorough and specific in identifying missed opportunities—these are critical learning moments.
       • Document newly discovered patterns and strategies clearly so they can be applied in future games.
