@@ -25,9 +25,9 @@ public class GameStateTools {
   }
 
   @FunctionTool(description = """
-      Retrieve the current game state as a structured CompactGameState object.
+      Retrieve the current game state as a structured GameState object.
 
-      Returns CompactGameState with nested objects:
+      Returns GameState with nested objects:
       - gameInfo: {gameId, createdAt, status, currentPlayerId}
         - status: empty | in_progress | won_by_player | draw | canceled
         - currentPlayerId: ID of player whose turn it is (null if game not in progress)
@@ -44,7 +44,7 @@ public class GameStateTools {
       Coordinates: A1 = top-left, columns A–U, rows 1–21 depending on level.
       This is the authoritative source for board state, scores, and whose turn it is.
       """)
-  public CompactGameState getGameState(
+  public GameState getGameState(
       @Description("The ID of the game you are playing and want to get the move history for") String gameId,
       @Description("The ID of your agent id for this game") String agentId) {
     log.debug("GameId: {}, AgentId: {}, Get game state", gameId, agentId);
@@ -53,23 +53,23 @@ public class GameStateTools {
         .method(DotGameEntity::getState)
         .invoke();
 
-    var compactGameState = CompactGameState.from(agentId, fullState);
+    var gameState = GameState.from(agentId, fullState);
 
-    gameLog.logToolCall(gameId, agentId, "getGameState", json(compactGameState));
+    gameLog.logToolCall(gameId, agentId, "getGameState", json(gameState));
 
-    return compactGameState;
+    return gameState;
   }
 
-  String json(CompactGameState compactGameState) {
+  String json(GameState gameState) {
     var om = JsonSupport.getObjectMapper();
     try {
-      return om.writerWithDefaultPrettyPrinter().writeValueAsString(compactGameState);
+      return om.writerWithDefaultPrettyPrinter().writeValueAsString(gameState);
     } catch (JsonProcessingException e) {
       return "Get game state failed: %s".formatted(e.getMessage());
     }
   }
 
-  public record CompactGameState(
+  public record GameState(
       GameInfo gameInfo,
       CumulativeScore cumulativeScore,
       ActivePlayer activePlayer,
@@ -77,8 +77,8 @@ public class GameStateTools {
       AvailableSquares availableSquares,
       MoveHistory moveHistory) {
 
-    static CompactGameState from(String agentId, DotGame.State gameState) {
-      return new CompactGameState(
+    static GameState from(String agentId, DotGame.State gameState) {
+      return new GameState(
           GameInfo.from(gameState),
           CumulativeScore.from(agentId, gameState),
           ActivePlayer.from(agentId, gameState),

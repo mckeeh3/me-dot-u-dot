@@ -5,28 +5,28 @@ import static akka.Done.done;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.domain.GameLog;
+import com.example.domain.GameMoveLog;
 
 import akka.Done;
 import akka.javasdk.annotations.Component;
 import akka.javasdk.eventsourcedentity.EventSourcedEntity;
 import akka.javasdk.eventsourcedentity.EventSourcedEntityContext;
 
-@Component(id = "make-move-response-entity")
-public class GameLogEntity extends EventSourcedEntity<GameLog.State, GameLog.Event> {
+@Component(id = "game-move-log-entity")
+public class GameMoveLogEntity extends EventSourcedEntity<GameMoveLog.State, GameMoveLog.Event> {
   final Logger log = LoggerFactory.getLogger(getClass());
   final String entityId;
 
-  public GameLogEntity(EventSourcedEntityContext context) {
+  public GameMoveLogEntity(EventSourcedEntityContext context) {
     this.entityId = context.entityId();
   }
 
   @Override
-  public GameLog.State emptyState() {
-    return GameLog.State.empty();
+  public GameMoveLog.State emptyState() {
+    return GameMoveLog.State.empty();
   }
 
-  public Effect<Done> createMakeMoveResponse(GameLog.Command.CreateMakeMoveResponse command) {
+  public Effect<Done> createGameMoveLog(GameMoveLog.Command.CreateGameMoveLog command) {
     log.debug("EntityId: {}\n_State: {}\n_Command: {}", entityId, currentState(), command);
 
     return effects()
@@ -34,7 +34,7 @@ public class GameLogEntity extends EventSourcedEntity<GameLog.State, GameLog.Eve
         .thenReply(newState -> done());
   }
 
-  public ReadOnlyEffect<GameLog.State> getState() {
+  public ReadOnlyEffect<GameMoveLog.State> getState() {
     log.debug("EntityId: {}\n_State: {}", entityId, currentState());
 
     if (currentState().isEmpty()) {
@@ -45,11 +45,11 @@ public class GameLogEntity extends EventSourcedEntity<GameLog.State, GameLog.Eve
   }
 
   @Override
-  public GameLog.State applyEvent(GameLog.Event event) {
+  public GameMoveLog.State applyEvent(GameMoveLog.Event event) {
     log.debug("EntityId: {}\n_State: {}\n_Event: {}", entityId, currentState(), event);
 
     return switch (event) {
-      case GameLog.Event.MakeMoveResponseCreated e -> currentState().onEvent(e);
+      case GameMoveLog.Event.GameMoveLogCreated e -> currentState().onEvent(e);
     };
   }
 }

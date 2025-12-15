@@ -156,7 +156,7 @@ public class GameEndpoint {
   }
 
   @Get("/get-game-state-tool/{gameId}")
-  public GameStateTools.CompactGameState getGameStateTool(String gameId) {
+  public GameStateTools.GameState getGameStateTool(String gameId) {
     log.debug("Get game state tool: {}", gameId);
     return new GameStateTools(componentClient).getGameState(gameId, "");
   }
@@ -171,6 +171,12 @@ public class GameEndpoint {
   public GameMoveTools.GetMoveHistoryTool.Response getGameMoveHistoryTool(String gameId) {
     log.debug("Get game move history tool: {}", gameId);
     return new GameMoveTools(componentClient).getMoveHistory(gameId, "");
+  }
+
+  @Get("/get-game-move-logs-tool/{gameId}/{agentId}")
+  public GameMoveTools.GetGameMoveLogsTool.Response getGameMoveLogsTool(String gameId, String agentId) {
+    log.debug("Get game move logs tool: {}, {}", gameId, agentId);
+    return new GameMoveTools(componentClient).getGameMoveLogs(gameId, agentId);
   }
 
   @Get("/make-move-tool-test/{gameId}/{agentId}/{squareId}")

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.AgentPlayer;
 import com.example.domain.AgentPlayer.State;
 import com.example.domain.DotGame;
-import com.example.domain.GameLog;
+import com.example.domain.GameMoveLog;
 
 import akka.Done;
 import akka.javasdk.annotations.Component;
@@ -113,11 +113,13 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
           .withInput(event);
     }
 
-    var moveNumber = event.currentPlayerStatus().get().moves();
-    var command = new GameLog.Command.CreateMakeMoveResponse(event.gameId(), agentId, moveNumber, response);
+    var moveNumber = event.currentPlayerStatus().get().moves() + 1;
+    var command = new GameMoveLog.Command.CreateGameMoveLog(event.gameId(), agentId, moveNumber, response);
+    var entityId = GameMoveLog.State.entityIdFrom(event.gameId(), agentId, moveNumber);
+
     componentClient
-        .forEventSourcedEntity(event.gameId())
-        .method(GameLogEntity::createMakeMoveResponse)
+        .forEventSourcedEntity(entityId)
+        .method(GameMoveLogEntity::createGameMoveLog)
         .invoke(command);
 
     return stepEffects()
@@ -203,8 +205,8 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     log.debug("Post game playbook review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var prompt = currentState().stepRetryCount() > 0
-        ? AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview)
-        : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.withRetry();
+        ? AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.withRetry()
+        : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(currentState().sessionId(), currentState().gameId(), currentState().agent(), postGameReview);
 
     var playbookReview = componentClient
         .forAgent()

@@ -3,7 +3,7 @@ package com.example.application;
 import java.time.Instant;
 import java.util.List;
 
-import com.example.domain.GameLog;
+import com.example.domain.GameMoveLog;
 
 import akka.javasdk.annotations.Component;
 import akka.javasdk.annotations.Consume;
@@ -11,31 +11,31 @@ import akka.javasdk.annotations.Query;
 import akka.javasdk.view.TableUpdater;
 import akka.javasdk.view.View;
 
-@Component(id = "make-move-response-view")
-public class GameLogView extends View {
+@Component(id = "game-move-log-view")
+public class GameMoveLogView extends View {
 
   @Query("""
-      SELECT * AS responses
-        FROM make_move_response_view
+      SELECT * AS gameMoveLogs
+        FROM game_move_log_view
        WHERE gameId = :gameId
        AND agentId = :agentId
        ORDER BY moveNumber ASC
       """)
-  public QueryEffect<Responses> getByGameIdAndAgentId(GetByGameIdAndAgentIdRequest request) {
+  public QueryEffect<GameMoveLogs> getByGameIdAndAgentId(GetByGameIdAndAgentIdRequest request) {
     return queryResult();
   }
 
-  @Consume.FromEventSourcedEntity(GameLogEntity.class)
-  public static class ByGameAndAgent extends TableUpdater<ResponseRow> {
+  @Consume.FromEventSourcedEntity(GameMoveLogEntity.class)
+  public static class ByGameAndAgent extends TableUpdater<GameMoveLogRow> {
 
-    public Effect<ResponseRow> onEvent(GameLog.Event event) {
+    public Effect<GameMoveLogRow> onEvent(GameMoveLog.Event event) {
       return switch (event) {
-        case GameLog.Event.MakeMoveResponseCreated e -> effects().updateRow(onEvent(e));
+        case GameMoveLog.Event.GameMoveLogCreated e -> effects().updateRow(onEvent(e));
       };
     }
 
-    private ResponseRow onEvent(GameLog.Event.MakeMoveResponseCreated e) {
-      return new ResponseRow(
+    private GameMoveLogRow onEvent(GameMoveLog.Event.GameMoveLogCreated e) {
+      return new GameMoveLogRow(
           e.gameId(),
           e.agentId(),
           e.moveNumber(),
@@ -44,7 +44,7 @@ public class GameLogView extends View {
     }
   }
 
-  public record ResponseRow(
+  public record GameMoveLogRow(
       String gameId,
       String agentId,
       int moveNumber,
@@ -53,5 +53,5 @@ public class GameLogView extends View {
 
   public record GetByGameIdAndAgentIdRequest(String gameId, String agentId) {}
 
-  public record Responses(List<ResponseRow> responses) {}
+  public record GameMoveLogs(List<GameMoveLogRow> gameMoveLogs) {}
 }
