@@ -15,7 +15,7 @@
   <parent>
     <groupId>io.akka</groupId>
     <artifactId>akka-javasdk-parent</artifactId>
-    <version>3.5.6</version>
+    <version>3.5.10</version>
   </parent>
   <groupId>com.example</groupId>
   <artifactId>me-dot-u-dot</artifactId>
@@ -42,15 +42,15 @@
     <url>https://github.com/akka/akka-sdk/me-dot-u-dot</url>
   </scm>
   <properties>
-    <akka-javasdk.version>3.5.6</akka-javasdk.version>
-    <akka-runtime.version>1.5.19</akka-runtime.version>
-    <akka.grpc.version>2.5.7</akka.grpc.version>
+    <akka-javasdk.version>3.5.10</akka-javasdk.version>
+    <akka-runtime.version>1.5.27</akka-runtime.version>
+    <akka.grpc.version>2.5.9</akka.grpc.version>
     <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
     <docker-maven-plugin.version>0.45.1</docker-maven-plugin.version>
     <docker.base.image>alpine:3.14</docker.base.image>
     <docker.image>me-dot-u-dot</docker.image>
     <docker.platform>linux/amd64</docker.platform>
-    <docker.tag>1.0.0-20251215150856</docker.tag>
+    <docker.tag>1.0.0-20251216143834</docker.tag>
     <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -68,6 +68,7 @@
     <os.detected.release>arch</os.detected.release>
     <os.detected.release.like.arch>true</os.detected.release.like.arch>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <protobuf-java.version>3.25.8</protobuf-java.version>
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
     <skip.deploy>true</skip.deploy>
     <skip.docker>false</skip.docker>
@@ -77,17 +78,17 @@
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-javasdk</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.10</version>
       </dependency>
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-javasdk-testkit</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.10</version>
       </dependency>
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-runtime-dev_2.13</artifactId>
-        <version>1.5.19</version>
+        <version>1.5.27</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -95,19 +96,19 @@
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-javasdk</artifactId>
-      <version>3.5.6</version>
+      <version>3.5.10</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-javasdk-testkit</artifactId>
-      <version>3.5.6</version>
+      <version>3.5.10</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-runtime-dev_2.13</artifactId>
-      <version>1.5.19</version>
+      <version>1.5.27</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -131,10 +132,6 @@
       <id>akka-plugin-repository</id>
       <name>Akka Plugin Repository</name>
       <url>https://repo.akka.io/zYjBM6TlkgebcjcQD9dPGS1rQoW-OeXTTHZGEWVSziDzwMN4/secure</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>akka-repository</id>
-      <url>https://repo.akka.io/maven</url>
     </pluginRepository>
     <pluginRepository>
       <snapshots>
@@ -197,13 +194,14 @@
               <arg>-parameters</arg>
             </compilerArgs>
             <annotationProcessors>
+              <annotationProcessor>akka.javasdk.tooling.processor.ComponentValidationProcessor</annotationProcessor>
               <annotationProcessor>akka.javasdk.tooling.processor.ComponentAnnotationProcessor</annotationProcessor>
             </annotationProcessors>
             <annotationProcessorPaths>
               <path>
                 <groupId>io.akka</groupId>
                 <artifactId>akka-javasdk-annotation-processor</artifactId>
-                <version>3.5.6</version>
+                <version>3.5.10</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -230,7 +228,7 @@
                         <platform>linux/amd64</platform>
                       </buildOptions>
                       <tags>
-                        <tag>1.0.0-20251215150856</tag>
+                        <tag>1.0.0-20251216143834</tag>
                       </tags>
                       <assembly>
                         <inline>
@@ -319,7 +317,7 @@
                     <platform>linux/amd64</platform>
                   </buildOptions>
                   <tags>
-                    <tag>1.0.0-20251215150856</tag>
+                    <tag>1.0.0-20251216143834</tag>
                   </tags>
                   <assembly>
                     <inline>
@@ -528,13 +526,14 @@
                 <arg>-parameters</arg>
               </compilerArgs>
               <annotationProcessors>
+                <annotationProcessor>akka.javasdk.tooling.processor.ComponentValidationProcessor</annotationProcessor>
                 <annotationProcessor>akka.javasdk.tooling.processor.ComponentAnnotationProcessor</annotationProcessor>
               </annotationProcessors>
               <annotationProcessorPaths>
                 <path>
                   <groupId>io.akka</groupId>
                   <artifactId>akka-javasdk-annotation-processor</artifactId>
-                  <version>3.5.6</version>
+                  <version>3.5.10</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
@@ -551,13 +550,14 @@
                 <arg>-parameters</arg>
               </compilerArgs>
               <annotationProcessors>
+                <annotationProcessor>akka.javasdk.tooling.processor.ComponentValidationProcessor</annotationProcessor>
                 <annotationProcessor>akka.javasdk.tooling.processor.ComponentAnnotationProcessor</annotationProcessor>
               </annotationProcessors>
               <annotationProcessorPaths>
                 <path>
                   <groupId>io.akka</groupId>
                   <artifactId>akka-javasdk-annotation-processor</artifactId>
-                  <version>3.5.6</version>
+                  <version>3.5.10</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
@@ -569,13 +569,14 @@
             <arg>-parameters</arg>
           </compilerArgs>
           <annotationProcessors>
+            <annotationProcessor>akka.javasdk.tooling.processor.ComponentValidationProcessor</annotationProcessor>
             <annotationProcessor>akka.javasdk.tooling.processor.ComponentAnnotationProcessor</annotationProcessor>
           </annotationProcessors>
           <annotationProcessorPaths>
             <path>
               <groupId>io.akka</groupId>
               <artifactId>akka-javasdk-annotation-processor</artifactId>
-              <version>3.5.6</version>
+              <version>3.5.10</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -718,7 +719,7 @@
                       <platform>linux/amd64</platform>
                     </buildOptions>
                     <tags>
-                      <tag>1.0.0-20251215150856</tag>
+                      <tag>1.0.0-20251216143834</tag>
                     </tags>
                     <assembly>
                       <inline>
@@ -807,7 +808,7 @@
                   <platform>linux/amd64</platform>
                 </buildOptions>
                 <tags>
-                  <tag>1.0.0-20251215150856</tag>
+                  <tag>1.0.0-20251216143834</tag>
                 </tags>
                 <assembly>
                   <inline>

@@ -60,13 +60,13 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     var state = currentState();
     if (state.isEmpty()) {
       var agentPlayerStatus = event.currentPlayerStatus().get();
-      var sessionId = AgentPlayer.sessionId(event.gameId(), agentPlayerStatus.player().id());
+      var sessionIdPrefix = AgentPlayer.sessionId(event.gameId(), agentPlayerStatus.player().id());
 
       state = state
-          .with(sessionId, event.gameId(), agentPlayerStatus.player());
+          .with(sessionIdPrefix, event.gameId(), agentPlayerStatus.player());
     }
 
-    if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
+    if (DotGame.Status.in_progress == event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup (game is in progress and move count is less than move history size)
       return effects()
           .updateState(state)
           .transitionTo(AgentPlayerWorkflow::makeMoveStep)
@@ -74,7 +74,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
           .thenReply(Done.getInstance());
     }
 
-    if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup check
+    if (DotGame.Status.in_progress != event.status() && currentState().moveCount() < event.moveHistory().size()) { // de-dup (game is not in progress and move count is less than move history size)
       return effects()
           .updateState(state)
           .transitionTo(AgentPlayerWorkflow::startPostGameReviewStep)
@@ -89,7 +89,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     log.debug("Make move step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var agentId = currentState().agent().id();
-    var sessionId = "%s/move-%d".formatted(currentState().sessionId(), currentState().moveCount() + 1);
+    var sessionId = "%s/move-%d".formatted(currentState().sessionIdPrefix(), currentState().moveCount() + 1);
     var prompt = makeMovePromptFor(sessionId, event.gameId(), currentState().agent());
 
     if (currentState().stepRetryCount() > 3) {
@@ -194,7 +194,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   StepEffect startPostGameReviewStep(DotGame.Event.PlayerTurnCompleted event) {
     log.debug("Start post game review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
-    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-review");
+    var sessionId = currentState().sessionIdPrefix() + "/post-game-review";
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(sessionId, currentState().gameId(), currentState().agent());
 
     var postGameReview = componentClient
@@ -214,11 +214,11 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     log.debug("Post game playbook review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var postGameReview = currentState().postGameReview();
-    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-playbook-review");
+    var sessionId = currentState().sessionIdPrefix() + "/post-game-playbook-review";
     var prompt = currentState().stepRetryCount() > 0
         ? AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.withRetry()
         : AgentPlayerPlaybookReviewAgent.PlaybookReviewPrompt.with(
-            currentState().sessionId(),
+            currentState().sessionIdPrefix(),
             currentState().gameId(),
             currentState().agent(),
             postGameReview);
@@ -264,7 +264,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     log.debug("Post game system prompt review step, WorkflowId: {}\n_state: {}", workflowId, currentState());
 
     var postGameReview = currentState().postGameReview();
-    var sessionId = "%s/%s".formatted(currentState().gameId(), "post-game-system-prompt-review");
+    var sessionId = currentState().sessionIdPrefix() + "/post-game-system-prompt-review";
     var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(sessionId, currentState().gameId(), currentState().agent(), postGameReview);
 
     var systemPromptReview = componentClient
