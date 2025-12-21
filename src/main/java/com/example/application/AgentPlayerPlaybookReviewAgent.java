@@ -42,6 +42,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
 
     return effects()
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agent().model()))
+        // .model(ModelProvider.custom(new GeminiCustomModelProvider()))
         .tools(functionTools)
         .systemMessage(systemPrompt)
         .userMessage(promptFormatted)

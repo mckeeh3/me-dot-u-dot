@@ -137,7 +137,7 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
          - You must write the complete revised system prompt, not just changes or additions.
          - If you don't include existing content in your write, it will be lost.
 
-      6. Respond with your response text.
+      6. Respond with your response text. If no change is needed, respond with an empty string.
 
       WHEN TO REVISE
       Consider revising the system prompt when the game review reveals:

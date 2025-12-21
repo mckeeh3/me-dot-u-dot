@@ -86,7 +86,11 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
       Write your review from the perspective of the player (referred to as "you") and the player's opponent.
 
       REQUIRED WORKFLOW
-      1. Call MoveHistoryTool_getMoveHistory to retrieve the complete turn-by-turn move history for the game.
+      1. Call PlaybookTools_readPlaybook to retrieve your current playbook.
+          - Your playbook contain tactical instructions you've learned. It may be empty, it evolves as you learn how to play the game.
+          - Use the playbook to guide your post game review, this is what you know about the game and how to play it.
+
+      2. Call MoveHistoryTool_getMoveHistory to retrieve the complete turn-by-turn move history for the game.
          - The move history includes every move made by both players in chronological order.
          - For each move that resulted in scoring points, the move history includes detailed information:
            * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent squares, etc.)
@@ -94,17 +98,19 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
            * The specific squares involved in the scoring pattern
          - Use this comprehensive move history as the foundation for your review.
 
-      2. Call MoveResponseLogsTool_getMoveResponseLogs to retrieve the move response logs.
+      3. Call MoveResponseLogsTool_getMoveResponseLogs to retrieve the move response logs.
          - The move response logs include the move number and the response from all of your previous moves.
          - Use the move response logs to understand your decision-making process.
 
-      3. Analyze the move history and move response logs thoroughly:
-         - Review every move in chronological order.
+      4. Analyze your playbook, the move history, and the move response logs thoroughly:
+         - Examine your playbook to understand what you know about the game and how to play it.
+         - Review every move in chronological order from the move history.
          - Identify all scoring moves made by you and by the opponent.
          - Examine the sequence of moves to understand the strategic flow of the game.
          - Examine the move response logs to understand your decision-making process.
+         - Examine your playbook to understand what you know about the game and how to play it.
 
-      4. Produce a detailed game summary that includes:
+      5. Produce a detailed game summary that includes:
          - Critical moves: Identify and analyze moves that had significant impact on the game's outcome.
          - Missed opportunities to score: Identify moves where you (or the opponent) could have scored points but didn't.
            Document what scoring opportunities were available and why they weren't taken.

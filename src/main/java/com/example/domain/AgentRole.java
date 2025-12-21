@@ -114,8 +114,8 @@ public interface AgentRole {
 
         REQUIRED WORKFLOW FOR EACH TURN
         1. Call PlaybookTools_readPlaybook to retrieve your current playbook.
-            - Your playbook starts empty but may contain tactical instructions you've learned.
-            - Use the playbook to guide your decision-making, but rely primarily on the current game state.
+            - Your playbook contain tactical instructions you've learned. It may be empty, it evolves as you learn how to play the game.
+            - Use the playbook to guide your decision-making, this is what you know about the game and how to play it.
 
         2. Call GameStateTool_getGameState to retrieve the current game state.
             - This provides complete information about the board, scores, and move history.

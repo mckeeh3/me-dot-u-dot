@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.example.domain.DotGame;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import akka.javasdk.client.ComponentClient;
 import akka.javasdk.JsonSupport;
 import akka.javasdk.agent.Agent;
 import akka.javasdk.agent.AgentContext;
@@ -19,6 +18,7 @@ import akka.javasdk.agent.ModelTimeoutException;
 import akka.javasdk.agent.RateLimitException;
 import akka.javasdk.agent.ToolCallExecutionException;
 import akka.javasdk.annotations.Component;
+import akka.javasdk.client.ComponentClient;
 
 @Component(id = "agent-player-make-move-agent")
 public class AgentPlayerMakeMoveAgent extends Agent {
@@ -47,6 +47,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
 
     return effects()
         .model(ModelProvider.fromConfig("ai-agent-model-" + prompt.agent().model()))
+        // .model(ModelProvider.custom(new GeminiCustomModelProvider()))
         .tools(functionTools)
         .systemMessage(systemPrompt(prompt.agent().id()))
         .userMessage(promptFormatted)

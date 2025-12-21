@@ -196,7 +196,7 @@ View historical agent roles via `/agent-role.html`, which mirrors the playbook j
 ```bash
 git clone https://github.com/your-org/me-dot-u-dot.git
 cd me-dot-u-dot
-./mvn compile exec:java
+mvn compile exec:java
 ```
 
 **Access the application:**
@@ -259,7 +259,7 @@ This platform enables research into:
 * Event-sourced entities (`DotGameEntity`, `PlaybookEntity`, `AgentRoleEntity`, `PlaybookJournalEntity`, `AgentRoleJournalEntity`, `PlayerGamesEntity`) and a key-value `PlayerEntity` wrap the domain logic with Akka SDK persistence semantics.
 * `DotGameAgent` is the Akka Agent that drives LLM interactions, wiring together the available tools, selecting a model from configuration, and handling recoverable vs. fatal errors during move execution.
 * Consumers stream entity events into agent sessions or archival stores: `DotGameToAgentConsumer` orchestrates turn-by-turn prompting, while `PlaybookToPlaybookJournalConsumer` and `AgentRoleToAgentRoleJournalConsumer` record every playbook/system prompt change with ordered sequence IDs; a `SessionMemoryConsumer` logs Akka session-memory events.
-* Tool classes (`GetGameStateTool`, `MakeMoveTool`, `GetYourPlaybookTool`, `UpdateYourPlaybookTool`, `GetYourSystemPromptTool`, `UpdateYourSystemPromptTool`, `GetGameMoveHistoryTool`) expose structured, documented capabilities the LLM must call each turn.
+* Tool classes (`GameStateTool`, `MakeMoveTool`, `PlaybookTools`, `SystemPromptTools`, `MoveHistoryTool`) expose structured, documented capabilities the LLM must call each turn.
 
 ### Query views and analytics
 
@@ -280,7 +280,7 @@ This platform enables research into:
 
 ### Testing & developer tooling
 
-* A JUnit-based integration test scaffold (`IntegrationTest`) is ready for end-to-end scenarios, and repository guidelines emphasize running `mvn test`/`mvn clean verify` plus adhering to the provided style conventions. Command-line scripts (`cancel-game.sh`, `agent-role-reset.sh`, `get-games-by-player.sh`, `leader-board.sh`) offer quick API probes during development.
+* A JUnit-based integration test scaffold (`IntegrationTest`) is ready for end-to-end scenarios, and repository guidelines emphasize running `mvn test`/`mvn clean verify` plus adhering to the provided style conventions. Command-line scripts (`cancel-game.sh`, `agent-role-reset.sh`, `get-games-by-player.sh`, `leader-board.sh`, `list-*-models.sh`) offer quick API probes during development.
 
 ### Suggested next steps for newcomers
 

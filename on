@@ -1,0 +1,304 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Detecting the operating system and CPU architecture
+[INFO] ------------------------------------------------------------------------
+[INFO] os.detected.name: linux
+[INFO] os.detected.arch: x86_64
+[INFO] os.detected.bitness: 64
+[INFO] os.detected.version: 6.17
+[INFO] os.detected.version.major: 6
+[INFO] os.detected.version.minor: 17
+[INFO] os.detected.release: arch
+[INFO] os.detected.release.like.arch: true
+[INFO] os.detected.classifier: linux-x86_64
+[INFO] 
+[INFO] ----------------------< com.example:me-dot-u-dot >----------------------
+[INFO] Building me-dot-u-dot 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.7.0:list (default-cli) @ me-dot-u-dot ---
+[INFO] Can't extract module name from scalapb-runtime_2.13-0.11.18.jar: scalapb.runtime.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] Can't extract module name from lenses_2.13-0.11.18.jar: lenses.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] Can't extract module name from jackson-module-scala_2.13-2.19.0.jar: jackson.module.scala.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] Can't extract module name from akka-projection-durable-state_2.13-1.6.17.jar: Automatic-Module-Name: akka.projection.durable-state: Invalid module name: 'durable-state' is not a Java identifier
+[INFO] Can't extract module name from jwt-json-common_2.13-10.0.1.jar: jwt.json.common.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] Can't extract module name from jwt-core_2.13-10.0.1.jar: jwt.core.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] Can't extract module name from spray-json_2.13-1.3.6.jar: spray.json.2.13: Invalid module name: '2' is not a Java identifier
+[INFO] 
+[INFO] The following files have been resolved:
+[INFO]    dev.langchain4j:langchain4j-google-ai-gemini:jar:1.9.0:compile -- module langchain4j.google.ai.gemini (auto)
+[INFO]    dev.langchain4j:langchain4j-core:jar:1.9.0:compile -- module langchain4j.core (auto)
+[INFO]    org.jspecify:jspecify:jar:1.0.0:compile -- module org.jspecify
+[INFO]    dev.langchain4j:langchain4j-http-client:jar:1.9.0:compile -- module langchain4j.http.client (auto)
+[INFO]    dev.langchain4j:langchain4j-http-client-jdk:jar:1.9.0:runtime -- module langchain4j.http.client.jdk (auto)
+[INFO]    com.fasterxml.jackson.core:jackson-annotations:jar:2.20:compile -- module com.fasterxml.jackson.annotation
+[INFO]    com.fasterxml.jackson.core:jackson-core:jar:2.20.1:compile -- module com.fasterxml.jackson.core
+[INFO]    com.fasterxml.jackson.core:jackson-databind:jar:2.20.1:compile -- module com.fasterxml.jackson.databind
+[INFO]    io.akka:akka-javasdk:jar:3.5.10:compile -- module akka.javasdk (auto)
+[INFO]    org.scala-lang:scala-library:jar:2.13.17:compile -- module scala.library [auto]
+[INFO]    io.akka:akka-javasdk-validations:jar:3.5.10:compile -- module akka.javasdk.validations (auto)
+[INFO]    com.thesamet.scalapb:scalapb-runtime_2.13:jar:0.11.18:compile
+[INFO]    com.thesamet.scalapb:lenses_2.13:jar:0.11.18:compile
+[INFO]    com.google.protobuf:protobuf-java:jar:3.25.8:compile -- module com.google.protobuf [auto]
+[INFO]    org.scala-lang.modules:scala-collection-compat_2.13:jar:2.12.0:compile -- module scala.collection.compat [auto]
+[INFO]    com.lightbend.akka.grpc:akka-grpc-runtime_2.13:jar:2.5.9:compile -- module akka.grpc.runtime [auto]
+[INFO]    io.grpc:grpc-protobuf:jar:1.76.0:compile -- module io.grpc.protobuf [auto]
+[INFO]    com.google.code.findbugs:jsr305:jar:3.0.2:compile -- module jsr305 (auto)
+[INFO]    com.google.api.grpc:proto-google-common-protos:jar:2.59.2:compile -- module proto.google.common.protos (auto)
+[INFO]    io.grpc:grpc-protobuf-lite:jar:1.76.0:runtime -- module io.grpc.protobuf.lite [auto]
+[INFO]    io.grpc:grpc-core:jar:1.76.0:compile -- module io.grpc.internal [auto]
+[INFO]    com.google.code.gson:gson:jar:2.11.0:runtime -- module com.google.gson
+[INFO]    com.google.android:annotations:jar:4.1.1.4:runtime -- module annotations (auto)
+[INFO]    io.perfmark:perfmark-api:jar:0.27.0:runtime -- module io.perfmark [auto]
+[INFO]    io.grpc:grpc-context:jar:1.76.0:runtime -- module grpc.context (auto)
+[INFO]    io.grpc:grpc-netty-shaded:jar:1.76.0:compile -- module io.grpc.netty.shaded [auto]
+[INFO]    io.grpc:grpc-util:jar:1.76.0:runtime -- module io.grpc.util [auto]
+[INFO]    com.typesafe.akka:akka-http_2.13:jar:10.7.3:compile -- module akka.http [auto]
+[INFO]    io.grpc:grpc-stub:jar:1.76.0:compile -- module io.grpc.stub [auto]
+[INFO]    io.grpc:grpc-api:jar:1.76.0:compile -- module io.grpc [auto]
+[INFO]    org.codehaus.mojo:animal-sniffer-annotations:jar:1.24:compile -- module animal.sniffer.annotations (auto)
+[INFO]    com.google.guava:guava:jar:33.4.8-android:compile -- module guava (auto)
+[INFO]    com.google.guava:failureaccess:jar:1.0.3:compile -- module com.google.common.util.concurrent.internal
+[INFO]    com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile -- module listenablefuture (auto)
+[INFO]    com.google.j2objc:j2objc-annotations:jar:3.0.0:compile -- module com.google.j2objc.annotations
+[INFO]    com.google.errorprone:error_prone_annotations:jar:2.36.0:compile -- module com.google.errorprone.annotations
+[INFO]    io.opentelemetry:opentelemetry-api:jar:1.51.0:compile -- module io.opentelemetry.api [auto]
+[INFO]    io.opentelemetry:opentelemetry-sdk:jar:1.51.0:compile -- module io.opentelemetry.sdk [auto]
+[INFO]    io.opentelemetry:opentelemetry-sdk-common:jar:1.51.0:compile -- module io.opentelemetry.sdk.common [auto]
+[INFO]    io.opentelemetry:opentelemetry-sdk-trace:jar:1.51.0:compile -- module io.opentelemetry.sdk.trace [auto]
+[INFO]    io.opentelemetry:opentelemetry-sdk-metrics:jar:1.51.0:compile -- module io.opentelemetry.sdk.metrics [auto]
+[INFO]    io.opentelemetry:opentelemetry-sdk-logs:jar:1.51.0:compile -- module io.opentelemetry.sdk.logs [auto]
+[INFO]    io.opentelemetry:opentelemetry-exporter-otlp:jar:1.51.0:compile -- module io.opentelemetry.exporter.otlp [auto]
+[INFO]    io.opentelemetry:opentelemetry-exporter-otlp-common:jar:1.51.0:runtime -- module io.opentelemetry.exporter.internal.otlp [auto]
+[INFO]    io.opentelemetry:opentelemetry-exporter-common:jar:1.51.0:runtime -- module io.opentelemetry.exporter.internal [auto]
+[INFO]    io.opentelemetry:opentelemetry-exporter-sender-okhttp:jar:1.51.0:runtime -- module io.opentelemetry.exporter.sender.okhttp.internal [auto]
+[INFO]    com.squareup.okhttp3:okhttp:jar:4.12.0:runtime -- module okhttp3 [auto]
+[INFO]    com.squareup.okio:okio:jar:3.6.0:runtime -- module okio (auto)
+[INFO]    com.squareup.okio:okio-jvm:jar:3.6.0:runtime -- module okio [auto]
+[INFO]    org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.9.10:runtime -- module kotlin.stdlib.common (auto)
+[INFO]    org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.8.21:runtime -- module kotlin.stdlib.jdk8
+[INFO]    org.jetbrains.kotlin:kotlin-stdlib:jar:1.8.21:runtime -- module kotlin.stdlib
+[INFO]    org.jetbrains:annotations:jar:13.0:runtime -- module annotations (auto)
+[INFO]    org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.8.21:runtime -- module kotlin.stdlib.jdk7
+[INFO]    io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:jar:1.51.0:runtime -- module io.opentelemetry.sdk.autoconfigure.spi [auto]
+[INFO]    io.opentelemetry:opentelemetry-context:jar:1.51.0:compile -- module io.opentelemetry.context [auto]
+[INFO]    io.opentelemetry.semconv:opentelemetry-semconv:jar:1.34.0:compile -- module io.opentelemetry.semconv [auto]
+[INFO]    com.typesafe.akka:akka-pki_2.13:jar:2.10.13:compile -- module akka.pki [auto]
+[INFO]    com.typesafe.akka:akka-actor_2.13:jar:2.10.13:compile -- module akka.actor [auto]
+[INFO]    com.typesafe:config:jar:1.4.5:compile -- module typesafe.config [auto]
+[INFO]    com.hierynomus:asn-one:jar:0.6.0:compile -- module com.hierynomus.asnone [auto]
+[INFO]    com.typesafe.akka:akka-discovery_2.13:jar:2.10.13:compile -- module akka.discovery [auto]
+[INFO]    org.slf4j:slf4j-api:jar:2.0.16:compile -- module org.slf4j
+[INFO]    ch.qos.logback:logback-classic:jar:1.5.18:compile -- module ch.qos.logback.classic
+[INFO]    ch.qos.logback:logback-core:jar:1.5.18:compile -- module ch.qos.logback.core
+[INFO]    ch.qos.logback.contrib:logback-json-classic:jar:0.1.5:compile -- module logback.json.classic (auto)
+[INFO]    ch.qos.logback.contrib:logback-json-core:jar:0.1.5:compile -- module logback.json.core (auto)
+[INFO]    ch.qos.logback.contrib:logback-jackson:jar:0.1.5:compile -- module logback.jackson (auto)
+[INFO]    com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.19.0:compile -- module com.fasterxml.jackson.datatype.jdk8
+[INFO]    com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.19.0:compile -- module com.fasterxml.jackson.datatype.jsr310
+[INFO]    com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.19.0:compile -- module com.fasterxml.jackson.module.paramnames
+[INFO]    com.fasterxml.jackson.module:jackson-module-scala_2.13:jar:2.19.0:compile
+[INFO]    com.thoughtworks.paranamer:paranamer:jar:2.8.3:compile -- module paranamer (auto)
+[INFO]    dev.langchain4j:langchain4j:jar:1.5.0:compile -- module langchain4j (auto)
+[INFO]    org.apache.opennlp:opennlp-tools:jar:2.5.4:compile -- module org.apache.opennlp.tools [auto]
+[INFO]    io.akka:akka-sdk-spi_2.13:jar:1.5.27:compile -- module akka.runtime.sdk.spi [auto]
+[INFO]    com.typesafe.akka:akka-http-core_2.13:jar:10.7.3:compile -- module akka.http.core [auto]
+[INFO]    com.typesafe.akka:akka-parsing_2.13:jar:10.7.3:compile -- module akka.http.parsing [auto]
+[INFO]    com.typesafe.akka:akka-stream_2.13:jar:2.10.13:compile -- module akka.stream [auto]
+[INFO]    com.typesafe.akka:akka-protobuf-v3_2.13:jar:2.10.13:compile -- module akka.protobuf.v3 [auto]
+[INFO]    org.reactivestreams:reactive-streams:jar:1.0.4:compile -- module org.reactivestreams [auto]
+[INFO]    io.akka:akka-javasdk-testkit:jar:3.5.10:test -- module akka.javasdk.testkit (auto)
+[INFO]    com.typesafe.akka:akka-actor-testkit-typed_2.13:jar:2.10.13:test -- module akka.actor.testkit.typed [auto]
+[INFO]    com.typesafe.akka:akka-actor-typed_2.13:jar:2.10.13:runtime -- module akka.actor.typed [auto]
+[INFO]    com.typesafe.akka:akka-slf4j_2.13:jar:2.10.13:runtime -- module akka.slf4j [auto]
+[INFO]    com.typesafe.akka:akka-stream-testkit_2.13:jar:2.10.13:test -- module akka.stream.testkit [auto]
+[INFO]    com.typesafe.akka:akka-testkit_2.13:jar:2.10.13:test -- module akka.actor.testkit [auto]
+[INFO]    org.junit.jupiter:junit-jupiter:jar:5.10.1:test -- module org.junit.jupiter
+[INFO]    org.junit.jupiter:junit-jupiter-api:jar:5.10.1:test -- module org.junit.jupiter.api
+[INFO]    org.opentest4j:opentest4j:jar:1.3.0:test -- module org.opentest4j
+[INFO]    org.junit.platform:junit-platform-commons:jar:1.10.1:test -- module org.junit.platform.commons
+[INFO]    org.apiguardian:apiguardian-api:jar:1.1.2:test -- module org.apiguardian.api
+[INFO]    org.junit.jupiter:junit-jupiter-params:jar:5.10.1:test -- module org.junit.jupiter.params
+[INFO]    org.junit.jupiter:junit-jupiter-engine:jar:5.10.1:test -- module org.junit.jupiter.engine
+[INFO]    org.junit.platform:junit-platform-engine:jar:1.10.1:test -- module org.junit.platform.engine
+[INFO]    org.awaitility:awaitility:jar:4.2.1:test -- module awaitility (auto)
+[INFO]    org.hamcrest:hamcrest:jar:2.1:test -- module org.hamcrest [auto]
+[INFO]    org.assertj:assertj-core:jar:3.24.2:test -- module org.assertj.core
+[INFO]    net.bytebuddy:byte-buddy:jar:1.12.21:test -- module net.bytebuddy
+[INFO]    io.akka:akka-runtime-dev_2.13:jar:1.5.27:runtime -- module akka.runtime.dev [auto]
+[INFO]    io.akka:akka-runtime-core_2.13:jar:1.5.27:runtime -- module akka.runtime.core [auto]
+[INFO]    com.typesafe.akka:akka-persistence_2.13:jar:2.10.13:runtime -- module akka.persistence [auto]
+[INFO]    com.typesafe.akka:akka-persistence-typed_2.13:jar:2.10.13:runtime -- module akka.persistence.typed [auto]
+[INFO]    com.typesafe.akka:akka-persistence-query_2.13:jar:2.10.13:runtime -- module akka.persistence.query [auto]
+[INFO]    com.typesafe.akka:akka-serialization-jackson_2.13:jar:2.10.13:runtime -- module akka.serialization.jackson [auto]
+[INFO]    org.lz4:lz4-java:jar:1.8.0:runtime -- module org.lz4.java [auto]
+[INFO]    com.typesafe.akka:akka-stream-typed_2.13:jar:2.10.13:runtime -- module akka.stream.typed [auto]
+[INFO]    com.typesafe.akka:akka-remote_2.13:jar:2.10.13:runtime -- module akka.remote [auto]
+[INFO]    org.agrona:agrona:jar:1.22.0:runtime -- module org.agrona.core [auto]
+[INFO]    com.typesafe.akka:akka-cluster_2.13:jar:2.10.13:runtime -- module akka.cluster [auto]
+[INFO]    com.typesafe.akka:akka-coordination_2.13:jar:2.10.13:runtime -- module akka.coordination [auto]
+[INFO]    com.typesafe.akka:akka-cluster-typed_2.13:jar:2.10.13:runtime -- module akka.cluster.typed [auto]
+[INFO]    com.typesafe.akka:akka-cluster-tools_2.13:jar:2.10.13:runtime -- module akka.cluster.tools [auto]
+[INFO]    com.typesafe.akka:akka-distributed-data_2.13:jar:2.10.13:runtime -- module akka.cluster.ddata [auto]
+[INFO]    org.lmdbjava:lmdbjava:jar:0.9.1:runtime -- module lmdbjava (auto)
+[INFO]    com.github.jnr:jnr-constants:jar:0.10.4:runtime -- module org.jnrproject.constants [auto]
+[INFO]    com.github.jnr:jnr-ffi:jar:2.2.17:runtime -- module org.jnrproject.ffi [auto]
+[INFO]    com.github.jnr:jffi:jar:1.3.13:runtime -- module org.jnrproject.jffi [auto]
+[INFO]    com.github.jnr:jffi:jar:native:1.3.13:runtime -- module org.jnrproject.jffi.nativelibs [auto]
+[INFO]    org.ow2.asm:asm:jar:9.7.1:runtime -- module org.objectweb.asm
+[INFO]    org.ow2.asm:asm-commons:jar:9.7.1:runtime -- module org.objectweb.asm.commons
+[INFO]    org.ow2.asm:asm-analysis:jar:9.7.1:runtime -- module org.objectweb.asm.tree.analysis
+[INFO]    org.ow2.asm:asm-tree:jar:9.7.1:runtime -- module org.objectweb.asm.tree
+[INFO]    org.ow2.asm:asm-util:jar:9.7.1:runtime -- module org.objectweb.asm.util
+[INFO]    com.github.jnr:jnr-a64asm:jar:1.0.0:runtime -- module jnr.a64asm (auto)
+[INFO]    com.github.jnr:jnr-x86asm:jar:1.0.2:runtime -- module jnr.x86asm (auto)
+[INFO]    com.typesafe.akka:akka-cluster-sharding_2.13:jar:2.10.13:runtime -- module akka.cluster.sharding [auto]
+[INFO]    com.typesafe.akka:akka-cluster-sharding-typed_2.13:jar:2.10.13:runtime -- module akka.cluster.sharding.typed [auto]
+[INFO]    com.typesafe:ssl-config-core_2.13:jar:0.6.1:runtime -- module ssl.config.core [auto]
+[INFO]    org.scala-lang.modules:scala-parser-combinators_2.13:jar:2.4.0:runtime -- module scala.util.parsing [auto]
+[INFO]    io.grpc:grpc-auth:jar:1.76.0:runtime -- module io.grpc.auth [auto]
+[INFO]    com.google.auth:google-auth-library-credentials:jar:1.24.1:runtime -- module com.google.auth [auto]
+[INFO]    com.google.auth:google-auth-library-oauth2-http:jar:1.37.1:runtime -- module com.google.auth.oauth2 [auto]
+[INFO]    com.google.auto.value:auto-value-annotations:jar:1.11.0:runtime -- module auto.value.annotations (auto)
+[INFO]    com.google.http-client:google-http-client:jar:1.47.0:runtime -- module com.google.api.client [auto]
+[INFO]    org.apache.httpcomponents:httpclient:jar:4.5.14:runtime -- module org.apache.httpcomponents.httpclient [auto]
+[INFO]    commons-codec:commons-codec:jar:1.11:runtime -- module org.apache.commons.codec [auto]
+[INFO]    org.apache.httpcomponents:httpcore:jar:4.4.16:runtime -- module org.apache.httpcomponents.httpcore [auto]
+[INFO]    io.opencensus:opencensus-api:jar:0.31.1:runtime -- module opencensus.api (auto)
+[INFO]    io.opencensus:opencensus-contrib-http-util:jar:0.31.1:runtime -- module opencensus.contrib.http.util (auto)
+[INFO]    com.google.http-client:google-http-client-gson:jar:1.47.0:runtime -- module com.google.api.client.json.gson [auto]
+[INFO]    com.typesafe.akka:akka-stream-kafka_2.13:jar:8.0.0:runtime -- module akka.stream.alpakka.kafka [auto]
+[INFO]    org.apache.kafka:kafka-clients:jar:4.1.0:runtime -- module kafka.clients (auto)
+[INFO]    com.github.luben:zstd-jni:jar:1.5.6-10:runtime -- module com.github.luben.zstd_jni
+[INFO]    org.xerial.snappy:snappy-java:jar:1.1.10.7:runtime -- module snappy.java (auto)
+[INFO]    com.azure:azure-messaging-eventhubs-checkpointstore-blob:jar:1.20.8:runtime -- module com.azure.messaging.eventhubs.checkpointstore.blob
+[INFO]    com.azure:azure-messaging-eventhubs:jar:5.20.4:runtime -- module com.azure.messaging.eventhubs
+[INFO]    com.azure:azure-core:jar:1.55.4:runtime -- module com.azure.core
+[INFO]    com.azure:azure-json:jar:1.5.0:runtime -- module com.azure.json
+[INFO]    com.azure:azure-core-amqp:jar:2.10.0:runtime -- module com.azure.core.amqp
+[INFO]    com.microsoft.azure:qpid-proton-j-extensions:jar:1.2.5:runtime -- module com.microsoft.azure.qpid.protonj.extensions [auto]
+[INFO]    org.apache.qpid:proton-j:jar:0.34.1:runtime -- module org.apache.qpid.proton.j [auto]
+[INFO]    com.azure:azure-storage-blob:jar:12.30.1:runtime -- module com.azure.storage.blob
+[INFO]    com.azure:azure-xml:jar:1.2.0:runtime -- module com.azure.xml
+[INFO]    com.azure:azure-core-http-netty:jar:1.15.12:runtime -- module com.azure.http.netty
+[INFO]    io.netty:netty-buffer:jar:4.1.118.Final:runtime -- module io.netty.buffer [auto]
+[INFO]    io.netty:netty-codec:jar:4.1.118.Final:runtime -- module io.netty.codec [auto]
+[INFO]    io.netty:netty-codec-http:jar:4.1.118.Final:runtime -- module io.netty.codec.http [auto]
+[INFO]    io.netty:netty-codec-http2:jar:4.1.118.Final:runtime -- module io.netty.codec.http2 [auto]
+[INFO]    io.netty:netty-transport-native-unix-common:jar:4.1.118.Final:runtime -- module io.netty.transport.unix.common [auto]
+[INFO]    io.netty:netty-transport-native-kqueue:jar:osx-x86_64:4.1.118.Final:runtime -- module io.netty.transport.kqueue.osx.x86_64 [auto]
+[INFO]    io.netty:netty-transport-classes-kqueue:jar:4.1.118.Final:runtime -- module io.netty.transport.classes.kqueue [auto]
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:2.0.70.Final:runtime -- module io.netty.internal.tcnative
+[INFO]    io.netty:netty-tcnative-classes:jar:2.0.70.Final:runtime -- module io.netty.tcnative.classes.openssl
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:linux-x86_64:2.0.70.Final:runtime -- module io.netty.internal.tcnative.openssl.linux.x86_64
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:linux-aarch_64:2.0.70.Final:runtime -- module io.netty.internal.tcnative.openssl.linux.aarch_64
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:osx-x86_64:2.0.70.Final:runtime -- module io.netty.internal.tcnative.openssl.osx.x86_64
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:osx-aarch_64:2.0.70.Final:runtime -- module io.netty.internal.tcnative.openssl.osx.aarch_64
+[INFO]    io.netty:netty-tcnative-boringssl-static:jar:windows-x86_64:2.0.70.Final:runtime -- module io.netty.internal.tcnative.openssl.windows.x86_64
+[INFO]    io.projectreactor.netty:reactor-netty-http:jar:1.0.48:runtime -- module reactor.netty.http [auto]
+[INFO]    io.netty:netty-common:jar:4.1.118.Final:runtime -- module io.netty.common [auto]
+[INFO]    com.azure:azure-storage-common:jar:12.29.1:runtime -- module com.azure.storage.common
+[INFO]    com.azure:azure-storage-internal-avro:jar:12.15.1:runtime -- module com.azure.storage.internal.avro
+[INFO]    com.typesafe.akka:akka-http-spray-json_2.13:jar:10.7.3:runtime -- module akka.http.marshallers.sprayjson [auto]
+[INFO]    com.lightbend.akka.management:akka-management-cluster-bootstrap_2.13:jar:1.6.4:runtime -- module akka.management.cluster.bootstrap [auto]
+[INFO]    com.lightbend.akka.management:akka-management_2.13:jar:1.6.4:runtime -- module akka.management [auto]
+[INFO]    com.lightbend.akka.discovery:akka-discovery-kubernetes-api_2.13:jar:1.6.4:runtime -- module akka.discovery.kubernetesapi [auto]
+[INFO]    com.lightbend.akka.management:akka-management-pki_2.13:jar:1.6.4:runtime -- module akka.management.pki [auto]
+[INFO]    com.lightbend.akka.management:akka-rolling-update-kubernetes_2.13:jar:1.6.4:runtime -- module akka.management.rollingupdate.kubernetes [auto]
+[INFO]    com.lightbend.akka.management:akka-management-loglevels-logback_2.13:jar:1.6.4:runtime -- module akka.management.loglevels.logback [auto]
+[INFO]    com.lightbend.akka:akka-projection-core_2.13:jar:1.6.17:runtime -- module akka.projection.core [auto]
+[INFO]    com.lightbend.akka:akka-projection-eventsourced_2.13:jar:1.6.17:runtime -- module akka.projection.eventsourced [auto]
+[INFO]    com.lightbend.akka:akka-persistence-r2dbc_2.13:jar:1.3.11:runtime -- module akka.persistence.r2dbc [auto]
+[INFO]    io.r2dbc:r2dbc-pool:jar:1.0.2.RELEASE:runtime -- module r2dbc.pool [auto]
+[INFO]    io.projectreactor:reactor-core:jar:3.5.20:runtime -- module reactor.core [auto]
+[INFO]    io.projectreactor.addons:reactor-pool:jar:1.0.8:runtime -- module reactor.pool [auto]
+[INFO]    org.postgresql:r2dbc-postgresql:jar:1.1.0.RELEASE:runtime -- module r2dbc.postgresql [auto]
+[INFO]    com.ongres.scram:scram-client:jar:3.2:runtime -- module com.ongres.scram.client
+[INFO]    com.ongres.stringprep:saslprep:jar:2.2:runtime -- module com.ongres.saslprep
+[INFO]    com.ongres.stringprep:stringprep:jar:2.2:runtime -- module com.ongres.stringprep
+[INFO]    com.ongres.scram:scram-common:jar:3.2:runtime -- module com.ongres.scram.common
+[INFO]    io.projectreactor.netty:reactor-netty-core:jar:1.1.31:runtime -- module reactor.netty.core [auto]
+[INFO]    io.netty:netty-handler:jar:4.1.122.Final:runtime -- module io.netty.handler [auto]
+[INFO]    io.netty:netty-resolver:jar:4.1.122.Final:runtime -- module io.netty.resolver [auto]
+[INFO]    io.netty:netty-transport:jar:4.1.122.Final:runtime -- module io.netty.transport [auto]
+[INFO]    io.netty:netty-handler-proxy:jar:4.1.122.Final:runtime -- module io.netty.handler.proxy [auto]
+[INFO]    io.netty:netty-codec-socks:jar:4.1.122.Final:runtime -- module io.netty.codec.socks [auto]
+[INFO]    io.netty:netty-resolver-dns:jar:4.1.122.Final:runtime -- module io.netty.resolver.dns [auto]
+[INFO]    io.netty:netty-codec-dns:jar:4.1.122.Final:runtime -- module io.netty.codec.dns [auto]
+[INFO]    io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.1.122.Final:runtime -- module io.netty.resolver.dns.macos.osx.x86_64 [auto]
+[INFO]    io.netty:netty-resolver-dns-classes-macos:jar:4.1.122.Final:runtime -- module io.netty.resolver.dns.classes.macos [auto]
+[INFO]    io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.1.122.Final:runtime -- module io.netty.transport.epoll.linux.x86_64 [auto]
+[INFO]    io.netty:netty-transport-classes-epoll:jar:4.1.122.Final:runtime -- module io.netty.transport.classes.epoll [auto]
+[INFO]    com.lightbend.akka:akka-projection-r2dbc_2.13:jar:1.6.17:runtime -- module akka.projection.r2dbc [auto]
+[INFO]    com.lightbend.akka:akka-projection-durable-state_2.13:jar:1.6.17:runtime
+[INFO]    com.lightbend.akka:akka-projection-grpc_2.13:jar:1.6.17:runtime -- module akka.projection.grpc [auto]
+[INFO]    com.google.protobuf:protobuf-java-util:jar:3.25.8:runtime -- module com.google.protobuf.util [auto]
+[INFO]    io.prometheus:prometheus-metrics-core:jar:1.4.2:runtime -- module io.prometheus.metrics.core [auto]
+[INFO]    io.prometheus:prometheus-metrics-model:jar:1.4.2:runtime -- module io.prometheus.metrics.model [auto]
+[INFO]    io.prometheus:prometheus-metrics-config:jar:1.4.2:runtime -- module io.prometheus.metrics.config [auto]
+[INFO]    io.prometheus:prometheus-metrics-tracer-initializer:jar:1.4.2:runtime -- module io.prometheus.metrics.tracer.initializer [auto]
+[INFO]    io.prometheus:prometheus-metrics-tracer-common:jar:1.4.2:runtime -- module io.prometheus.metrics.tracer.common [auto]
+[INFO]    io.prometheus:prometheus-metrics-tracer-otel:jar:1.4.2:runtime -- module io.prometheus.metrics.tracer.otel [auto]
+[INFO]    io.prometheus:prometheus-metrics-tracer-otel-agent:jar:1.4.2:runtime -- module io.prometheus.metrics.tracer.otel_agent [auto]
+[INFO]    io.prometheus:prometheus-metrics-instrumentation-jvm:jar:1.4.2:runtime -- module io.prometheus.metrics.instrumentation.jvm [auto]
+[INFO]    io.prometheus:prometheus-metrics-exposition-formats:jar:1.4.2:runtime -- module io.prometheus.metrics.expositionformats [auto]
+[INFO]    io.prometheus:prometheus-metrics-exposition-textformats:jar:1.4.2:runtime -- module io.prometheus.writer.text [auto]
+[INFO]    com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar:2.19.1:runtime -- module com.fasterxml.jackson.dataformat.cbor
+[INFO]    com.github.jwt-scala:jwt-json-common_2.13:jar:10.0.1:runtime
+[INFO]    com.github.jwt-scala:jwt-core_2.13:jar:10.0.1:runtime
+[INFO]    io.spray:spray-json_2.13:jar:1.3.6:runtime
+[INFO]    dev.langchain4j:langchain4j-open-ai:jar:1.5.0:runtime -- module langchain4j.open.ai (auto)
+[INFO]    com.knuddels:jtokkit:jar:1.1.0:runtime -- module jtokkit (auto)
+[INFO]    dev.langchain4j:langchain4j-anthropic:jar:1.5.0:runtime -- module langchain4j.anthropic (auto)
+[INFO]    dev.langchain4j:langchain4j-local-ai:jar:1.5.0-beta11:runtime -- module langchain4j.local.ai (auto)
+[INFO]    dev.langchain4j:langchain4j-ollama:jar:1.5.0:runtime -- module langchain4j.ollama (auto)
+[INFO]    dev.langchain4j:langchain4j-bedrock:jar:1.5.0:runtime -- module langchain4j.bedrock (auto)
+[INFO]    software.amazon.awssdk:bedrockruntime:jar:2.33.5:runtime -- module software.amazon.awssdk.services.bedrockruntime [auto]
+[INFO]    software.amazon.awssdk:protocol-core:jar:2.33.5:runtime -- module software.amazon.awssdk.protocols.core [auto]
+[INFO]    software.amazon.awssdk:aws-json-protocol:jar:2.33.5:runtime -- module software.amazon.awssdk.protocols.json [auto]
+[INFO]    software.amazon.awssdk:third-party-jackson-core:jar:2.33.5:runtime -- module software.amazon.awssdk.thirdparty.jackson.core [auto]
+[INFO]    software.amazon.awssdk:http-auth-aws:jar:2.33.5:runtime -- module software.amazon.awssdk.http.auth.aws [auto]
+[INFO]    software.amazon.awssdk:checksums-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.checksums.spi [auto]
+[INFO]    software.amazon.awssdk:checksums:jar:2.33.5:runtime -- module software.amazon.awssdk.checksums [auto]
+[INFO]    software.amazon.awssdk:sdk-core:jar:2.33.5:runtime -- module software.amazon.awssdk.core [auto]
+[INFO]    software.amazon.awssdk:profiles:jar:2.33.5:runtime -- module software.amazon.awssdk.profiles [auto]
+[INFO]    software.amazon.awssdk:retries:jar:2.33.5:runtime -- module software.amazon.awssdk.retries [auto]
+[INFO]    software.amazon.awssdk:auth:jar:2.33.5:runtime -- module software.amazon.awssdk.auth [auto]
+[INFO]    software.amazon.awssdk:http-auth-aws-eventstream:jar:2.33.5:runtime -- module software.amazon.awssdk.http.auth.aws.eventstream [auto]
+[INFO]    software.amazon.eventstream:eventstream:jar:1.0.1:runtime -- module software.amazon.eventstream [auto]
+[INFO]    software.amazon.awssdk:http-auth-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.http.auth.spi [auto]
+[INFO]    software.amazon.awssdk:http-auth:jar:2.33.5:runtime -- module software.amazon.awssdk.http.auth [auto]
+[INFO]    software.amazon.awssdk:identity-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.identity.spi [auto]
+[INFO]    software.amazon.awssdk:http-client-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.http [auto]
+[INFO]    software.amazon.awssdk:regions:jar:2.33.5:runtime -- module software.amazon.awssdk.regions [auto]
+[INFO]    software.amazon.awssdk:annotations:jar:2.33.5:runtime -- module software.amazon.awssdk.annotations [auto]
+[INFO]    software.amazon.awssdk:utils:jar:2.33.5:runtime -- module software.amazon.awssdk.utils [auto]
+[INFO]    software.amazon.awssdk:aws-core:jar:2.33.5:runtime -- module software.amazon.awssdk.awscore [auto]
+[INFO]    software.amazon.awssdk:metrics-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.metrics [auto]
+[INFO]    software.amazon.awssdk:json-utils:jar:2.33.5:runtime -- module software.amazon.awssdk.protocols.jsoncore [auto]
+[INFO]    software.amazon.awssdk:endpoints-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.endpoints [auto]
+[INFO]    software.amazon.awssdk:retries-spi:jar:2.33.5:runtime -- module software.amazon.awssdk.retries.api [auto]
+[INFO]    software.amazon.awssdk:apache-client:jar:2.33.5:runtime -- module software.amazon.awssdk.http.apache [auto]
+[INFO]    software.amazon.awssdk:netty-nio-client:jar:2.33.5:runtime -- module software.amazon.awssdk.http.nio.netty [auto]
+[INFO]    org.slf4j:jcl-over-slf4j:jar:2.0.17:runtime -- module org.apache.commons.logging
+[INFO]    dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q:jar:1.5.0-beta11:runtime -- module langchain4j.embeddings.all.minilm.l6.v2.q (auto)
+[INFO]    dev.langchain4j:langchain4j-embeddings:jar:1.5.0-beta11:runtime -- module langchain4j.embeddings (auto)
+[INFO]    com.microsoft.onnxruntime:onnxruntime:jar:1.20.0:runtime -- module com.microsoft.onnxruntime [auto]
+[INFO]    ai.djl:api:jar:0.31.1:runtime -- module ai.djl.api [auto]
+[INFO]    net.java.dev.jna:jna:jar:5.14.0:runtime -- module com.sun.jna [auto]
+[INFO]    org.apache.commons:commons-compress:jar:1.27.1:runtime -- module org.apache.commons.compress
+[INFO]    commons-io:commons-io:jar:2.16.1:runtime -- module org.apache.commons.io
+[INFO]    ai.djl.huggingface:tokenizers:jar:0.31.1:runtime -- module ai.djl.tokenizers [auto]
+[INFO]    io.opentelemetry.semconv:opentelemetry-semconv-incubating:jar:1.34.0-alpha:runtime -- module io.opentelemetry.semconv.incubating [auto]
+[INFO]    com.arize:openinference-semantic-conventions:jar:0.1.9:runtime -- module openinference.semantic.conventions (auto)
+[INFO]    com.h2database:h2:jar:2.2.224:runtime -- module com.h2database [auto]
+[INFO]    io.r2dbc:r2dbc-h2:jar:1.0.0.RELEASE:runtime -- module r2dbc.h2 [auto]
+[INFO]    io.r2dbc:r2dbc-spi:jar:1.0.0.RELEASE:runtime -- module r2dbc.spi [auto]
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.805 s
+[INFO] Finished at: 2025-12-19T07:52:53-05:00
+[INFO] ------------------------------------------------------------------------
