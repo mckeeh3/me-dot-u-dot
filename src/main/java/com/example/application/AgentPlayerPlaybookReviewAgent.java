@@ -64,7 +64,7 @@ public class AgentPlayerPlaybookReviewAgent extends Agent {
 
   String nullResponse(Throwable exception) {
     log.debug("SessionId: {}\n_Null model response, treated as no change needed\n_exception: {}", sessionId, exception.getMessage());
-    return "";
+    return "Null model response, treated as no change needed";
   }
 
   String tryAgain(PlaybookReviewPrompt prompt, Throwable exception) {
