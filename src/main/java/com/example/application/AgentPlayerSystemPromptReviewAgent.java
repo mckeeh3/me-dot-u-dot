@@ -56,9 +56,14 @@ public class AgentPlayerSystemPromptReviewAgent extends Agent {
       case ModelTimeoutException e -> tryAgain(prompt, e);
       case ToolCallExecutionException e -> tryAgain(prompt, e);
       case JsonParsingException e -> tryAgain(prompt, e);
-      case NullPointerException e -> tryAgain(prompt, e);
+      case NullPointerException e -> nullResponse(e);
       default -> throwException(prompt, exception);
     };
+  }
+
+  String nullResponse(Throwable exception) {
+    log.debug("SessionId: {}\n_Null model response, treated as no change needed\n_exception: {}", sessionId, exception.getMessage());
+    return "";
   }
 
   String tryAgain(SystemPromptReviewPrompt prompt, Throwable exception) {
