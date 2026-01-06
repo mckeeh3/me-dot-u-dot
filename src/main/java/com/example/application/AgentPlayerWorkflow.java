@@ -102,6 +102,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
           .withInput(event);
     }
 
+    // sessionId = currentState().sessionIdPrefix(); // TODO remove this after multi-agent issue testing
     var response = componentClient
         .forAgent()
         .inSession(sessionId)
@@ -197,6 +198,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     var sessionId = currentState().sessionIdPrefix() + "/post-game-review";
     var prompt = new AgentPlayerPostGameReviewAgent.PostGameReviewPrompt(sessionId, currentState().gameId(), currentState().agent());
 
+    // sessionId = currentState().sessionIdPrefix(); // TODO remove this after multi-agent issue testing
     var postGameReview = componentClient
         .forAgent()
         .inSession(sessionId)
@@ -223,6 +225,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
             currentState().agent(),
             postGameReview);
 
+    // sessionId = currentState().sessionIdPrefix(); // TODO remove this after multi-agent issue testing
     var playbookReview = componentClient
         .forAgent()
         .inSession(sessionId)
@@ -267,6 +270,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
     var sessionId = currentState().sessionIdPrefix() + "/post-game-system-prompt-review";
     var prompt = new AgentPlayerSystemPromptReviewAgent.SystemPromptReviewPrompt(sessionId, currentState().gameId(), currentState().agent(), postGameReview);
 
+    // sessionId = currentState().sessionIdPrefix(); // TODO remove this after multi-agent issue testing`
     var systemPromptReview = componentClient
         .forAgent()
         .inSession(sessionId)

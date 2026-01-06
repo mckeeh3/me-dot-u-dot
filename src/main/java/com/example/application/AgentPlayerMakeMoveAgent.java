@@ -77,7 +77,7 @@ public class AgentPlayerMakeMoveAgent extends Agent {
   }
 
   String retryMove(MakeMovePrompt prompt, Throwable exception) {
-    log.warn("SessionId: {}\n_Retrying move, possible recoverable agent error: {}".formatted(sessionId, exception.getMessage()), exception);
+    log.warn("SessionId: {}\n_Retrying move, possible recoverable agent error: {}", sessionId, exception.getMessage());
 
     return "Retry move, possible recoverable agent error, agent: %s, agent error: %s".formatted(prompt.agent().id(), exception.getMessage());
   }
