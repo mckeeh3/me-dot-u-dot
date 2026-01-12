@@ -863,8 +863,8 @@ public interface DotGame {
     }
 
     static int scoreAdjacent(Board.Level level, List<Move> moves) {
-      var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore());
-      return moves.size() - 1 >= adjacentSquaresToScore ? Math.max(2, moves.size() - adjacentSquaresToScore) : 0;
+      var adjacentSquaresToScore = Math.min(8, level.concurrentSquaresToScore() + 1);
+      return moves.size() - 1 >= adjacentSquaresToScore ? Math.max(2, moves.size() - 1) : 0;
     }
 
     // ============================================================

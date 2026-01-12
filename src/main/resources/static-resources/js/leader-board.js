@@ -680,17 +680,17 @@ function renderMoveDetails(snapshot) {
   const scoringMoveTypePrefix = (type) => {
     if (!type) return '';
     switch (type) {
-      case 'horizontal':
+      case 'horizontal line':
         return 'H';
-      case 'vertical':
+      case 'vertical line':
         return 'V';
-      case 'diagonal':
+      case 'diagonal line':
         return 'D';
-      case 'adjacent':
+      case 'multiple adjacent squares':
         return 'A';
-      case 'topToBottom':
+      case 'connected squares from top edge to bottom edge':
         return 'T2B';
-      case 'leftToRight':
+      case 'connected squares from left edge to right edge':
         return 'L2R';
       default:
         return type.charAt(0).toUpperCase();
