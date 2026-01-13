@@ -19,16 +19,16 @@
 The game is played on a square grid. Board size is determined by "level":
 
 | Level | Grid Size | Coordinates Range |
-|-------|-----------|-------------------|
-| one   | 5×5       | A1 to E5         |
-| two   | 7×7       | A1 to G7         |
-| three | 9×9       | A1 to I9         |
-| four  | 11×11     | A1 to K11        |
-| five  | 13×13     | A1 to M13        |
-| six   | 15×15     | A1 to O15        |
-| seven | 17×17     | A1 to Q17        |
-| eight | 19×19     | A1 to S19        |
-| nine  | 21×21     | A1 to U21        |
+| ----- | --------- | ----------------- |
+| one   | 5×5       | A1 to E5          |
+| two   | 7×7       | A1 to G7          |
+| three | 9×9       | A1 to I9          |
+| four  | 11×11     | A1 to K11         |
+| five  | 13×13     | A1 to M13         |
+| six   | 15×15     | A1 to O15         |
+| seven | 17×17     | A1 to Q17         |
+| eight | 19×19     | A1 to S19         |
+| nine  | 21×21     | A1 to U21         |
 
 Coordinates: Columns are letters (A-U), rows are numbers (1-21). A1 is top-left.
 
@@ -48,7 +48,7 @@ Players score points by forming patterns with their claimed squares. The scoring
 1. **Horizontal Lines** - Consecutive squares in the same row
 2. **Vertical Lines** - Consecutive squares in the same column
 3. **Diagonal Lines** - Consecutive squares along diagonals (both directions)
-4. **Adjacent Clusters** - Groups of adjacent squares (including diagonal adjacency)
+4. **Adjacent Clusters** - Groups of adjacent cluster (including diagonal adjacency)
 5. **Top-to-Bottom Connections** - Connected path from top edge to bottom edge
 6. **Left-to-Right Connections** - Connected path from left edge to right edge
 
@@ -72,7 +72,7 @@ Players score points by forming patterns with their claimed squares. The scoring
 **Edge-to-Edge Connections:**
 - **Top-to-Bottom:** Score = 8 points for creating connected path from top row to bottom row
 - **Left-to-Right:** Score = 8 points for creating connected path from left column to right column
-- Path must be continuous (adjacent squares forming chain)
+- Path must be continuous (adjacent cluster forming chain)
 
 **Multiple Scoring Patterns:**
 A single move can trigger multiple scoring patterns simultaneously. Total score for a move is the sum of all applicable pattern scores.

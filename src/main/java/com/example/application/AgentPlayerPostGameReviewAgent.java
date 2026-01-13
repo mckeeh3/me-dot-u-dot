@@ -93,7 +93,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
       2. Call MoveHistoryTool_getMoveHistory to retrieve the complete turn-by-turn move history for the game.
          - The move history includes every move made by both players in chronological order.
          - For each move that resulted in scoring points, the move history includes detailed information:
-           * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent squares, etc.)
+           * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent cluster, etc.)
            * The score points earned
            * The specific squares involved in the scoring pattern
          - Use this comprehensive move history as the foundation for your review.
@@ -220,7 +220,7 @@ public class AgentPlayerPostGameReviewAgent extends Agent {
           case horizontal -> "horizontal line";
           case vertical -> "vertical line";
           case diagonal -> "diagonal line";
-          case adjacent -> "adjacent squares";
+          case adjacent -> "adjacent cluster";
           case topToBottom -> "connected squares from top edge to bottom edge";
           case leftToRight -> "connected squares from left edge to right edge";
         };

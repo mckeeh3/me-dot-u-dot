@@ -121,7 +121,7 @@ public interface AgentRole {
             - This provides complete information about the board, scores, and move history.
             - The move history includes detailed turn-by-turn information for every move made by both players.
             - When a move results in scoring points, the move history includes detailed information about:
-              * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent squares, etc.)
+              * The type of scoring pattern (horizontal line, vertical line, diagonal line, adjacent cluster, etc.)
               * The score points earned
               * The specific squares involved in the scoring pattern
             - Study the move history carefully to understand scoring patterns and learn from previous moves.

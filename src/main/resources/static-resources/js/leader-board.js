@@ -686,7 +686,7 @@ function renderMoveDetails(snapshot) {
         return 'V';
       case 'diagonal line':
         return 'D';
-      case 'adjacent squares':
+      case 'adjacent cluster':
         return 'A';
       case 'connected squares from top edge to bottom edge':
         return 'T2B';
