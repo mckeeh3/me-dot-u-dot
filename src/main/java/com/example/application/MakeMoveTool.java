@@ -124,7 +124,7 @@ public class MakeMoveTool {
         case horizontal -> "horizontal line";
         case vertical -> "vertical line";
         case diagonal -> "diagonal line";
-        case adjacent -> "multiple adjacent squares";
+        case adjacent -> "adjacent squares";
         case topToBottom -> "connected squares from top edge to bottom edge";
         case leftToRight -> "connected squares from left edge to right edge";
       };
