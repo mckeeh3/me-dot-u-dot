@@ -15,7 +15,7 @@
   <parent>
     <groupId>io.akka</groupId>
     <artifactId>akka-javasdk-parent</artifactId>
-    <version>3.5.11</version>
+    <version>3.5.12</version>
   </parent>
   <groupId>com.example</groupId>
   <artifactId>me-dot-u-dot</artifactId>
@@ -42,15 +42,15 @@
     <url>https://github.com/akka/akka-sdk/me-dot-u-dot</url>
   </scm>
   <properties>
-    <akka-javasdk.version>3.5.11</akka-javasdk.version>
-    <akka-runtime.version>1.5.28</akka-runtime.version>
+    <akka-javasdk.version>3.5.12</akka-javasdk.version>
+    <akka-runtime.version>1.5.30</akka-runtime.version>
     <akka.grpc.version>2.5.9</akka.grpc.version>
     <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
     <docker-maven-plugin.version>0.45.1</docker-maven-plugin.version>
     <docker.base.image>alpine:3.14</docker.base.image>
     <docker.image>me-dot-u-dot</docker.image>
     <docker.platform>linux/amd64</docker.platform>
-    <docker.tag>1.0.0-20260105130525</docker.tag>
+    <docker.tag>1.0.0-20260202203538</docker.tag>
     <logback.configurationFile>logback-runtime-dev-mode.xml</logback.configurationFile>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -62,12 +62,10 @@
     <maven.compiler.target>21</maven.compiler.target>
     <maven.version>3.9.0</maven.version>
     <non-akka-service>false</non-akka-service>
-    <os.detected.arch>x86_64</os.detected.arch>
+    <os.detected.arch>aarch_64</os.detected.arch>
     <os.detected.bitness>64</os.detected.bitness>
-    <os.detected.classifier>linux-x86_64</os.detected.classifier>
-    <os.detected.name>linux</os.detected.name>
-    <os.detected.release>arch</os.detected.release>
-    <os.detected.release.like.arch>true</os.detected.release.like.arch>
+    <os.detected.classifier>osx-aarch_64</os.detected.classifier>
+    <os.detected.name>osx</os.detected.name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <protobuf-java.version>3.25.8</protobuf-java.version>
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
@@ -78,17 +76,17 @@
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-javasdk</artifactId>
-        <version>3.5.11</version>
+        <version>3.5.12</version>
       </dependency>
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-javasdk-testkit</artifactId>
-        <version>3.5.11</version>
+        <version>3.5.12</version>
       </dependency>
       <dependency>
         <groupId>io.akka</groupId>
         <artifactId>akka-runtime-dev_2.13</artifactId>
-        <version>1.5.28</version>
+        <version>1.5.30</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -96,19 +94,19 @@
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-javasdk</artifactId>
-      <version>3.5.11</version>
+      <version>3.5.12</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-javasdk-testkit</artifactId>
-      <version>3.5.11</version>
+      <version>3.5.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.akka</groupId>
       <artifactId>akka-runtime-dev_2.13</artifactId>
-      <version>1.5.28</version>
+      <version>1.5.30</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -143,11 +141,11 @@
     </pluginRepository>
   </pluginRepositories>
   <build>
-    <sourceDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/java</sourceDirectory>
-    <scriptSourceDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/scripts</scriptSourceDirectory>
-    <testSourceDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/test/java</testSourceDirectory>
-    <outputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/classes</outputDirectory>
-    <testOutputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/test-classes</testOutputDirectory>
+    <sourceDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/java</sourceDirectory>
+    <scriptSourceDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/scripts</scriptSourceDirectory>
+    <testSourceDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/test/java</testSourceDirectory>
+    <outputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/classes</outputDirectory>
+    <testOutputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/test-classes</testOutputDirectory>
     <extensions>
       <extension>
         <groupId>kr.motd.maven</groupId>
@@ -157,15 +155,15 @@
     </extensions>
     <resources>
       <resource>
-        <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/resources</directory>
+        <directory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/main/resources</directory>
       </resource>
     </resources>
     <testResources>
       <testResource>
-        <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/test/resources</directory>
+        <directory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/test/resources</directory>
       </testResource>
     </testResources>
-    <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target</directory>
+    <directory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target</directory>
     <finalName>me-dot-u-dot-1.0.0</finalName>
     <pluginManagement>
       <plugins>
@@ -201,7 +199,7 @@
               <path>
                 <groupId>io.akka</groupId>
                 <artifactId>akka-javasdk-annotation-processor</artifactId>
-                <version>3.5.11</version>
+                <version>3.5.12</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -228,7 +226,7 @@
                         <platform>linux/amd64</platform>
                       </buildOptions>
                       <tags>
-                        <tag>1.0.0-20260105130525</tag>
+                        <tag>1.0.0-20260202203538</tag>
                       </tags>
                       <assembly>
                         <inline>
@@ -317,7 +315,7 @@
                     <platform>linux/amd64</platform>
                   </buildOptions>
                   <tags>
-                    <tag>1.0.0-20260105130525</tag>
+                    <tag>1.0.0-20260202203538</tag>
                   </tags>
                   <assembly>
                     <inline>
@@ -420,7 +418,7 @@
               <configuration>
                 <resources>
                   <resource>
-                    <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/it/resources</directory>
+                    <directory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/it/resources</directory>
                   </resource>
                 </resources>
               </configuration>
@@ -433,7 +431,7 @@
               </goals>
               <configuration>
                 <sources>
-                  <source>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/generated-sources/akka-grpc-java</source>
+                  <source>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/generated-sources/akka-grpc-java</source>
                 </sources>
               </configuration>
             </execution>
@@ -534,7 +532,7 @@
                 <path>
                   <groupId>io.akka</groupId>
                   <artifactId>akka-javasdk-annotation-processor</artifactId>
-                  <version>3.5.11</version>
+                  <version>3.5.12</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
@@ -558,7 +556,7 @@
                 <path>
                   <groupId>io.akka</groupId>
                   <artifactId>akka-javasdk-annotation-processor</artifactId>
-                  <version>3.5.11</version>
+                  <version>3.5.12</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
@@ -577,7 +575,7 @@
             <path>
               <groupId>io.akka</groupId>
               <artifactId>akka-javasdk-annotation-processor</artifactId>
-              <version>3.5.11</version>
+              <version>3.5.12</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -679,7 +677,7 @@
             <configuration>
               <resources>
                 <resource>
-                  <directory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/src/it/resources</directory>
+                  <directory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/src/it/resources</directory>
                 </resource>
               </resources>
             </configuration>
@@ -692,7 +690,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/generated-sources/akka-grpc-java</source>
+                <source>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/generated-sources/akka-grpc-java</source>
               </sources>
             </configuration>
           </execution>
@@ -720,7 +718,7 @@
                       <platform>linux/amd64</platform>
                     </buildOptions>
                     <tags>
-                      <tag>1.0.0-20260105130525</tag>
+                      <tag>1.0.0-20260202203538</tag>
                     </tags>
                     <assembly>
                       <inline>
@@ -809,7 +807,7 @@
                   <platform>linux/amd64</platform>
                 </buildOptions>
                 <tags>
-                  <tag>1.0.0-20260105130525</tag>
+                  <tag>1.0.0-20260202203538</tag>
                 </tags>
                 <assembly>
                   <inline>
@@ -956,7 +954,7 @@
               <goal>site</goal>
             </goals>
             <configuration>
-              <outputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
+              <outputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -972,7 +970,7 @@
               <goal>deploy</goal>
             </goals>
             <configuration>
-              <outputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
+              <outputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -983,7 +981,7 @@
           </execution>
         </executions>
         <configuration>
-          <outputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
+          <outputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
           <reportPlugins>
             <reportPlugin>
               <groupId>org.apache.maven.plugins</groupId>
@@ -995,6 +993,6 @@
     </plugins>
   </build>
   <reporting>
-    <outputDirectory>/home/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
+    <outputDirectory>/Users/hxmc/akka/akka-sdk/me-dot-u-dot/target/site</outputDirectory>
   </reporting>
 </project>

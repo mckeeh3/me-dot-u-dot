@@ -9,6 +9,7 @@
 db.mv.db*
 .cp.txt
 akka-context/
+.cladue
 
 # Java - from https://raw.githubusercontent.com/github/gitignore/master/Java.gitignore
 #=====================================================================================
