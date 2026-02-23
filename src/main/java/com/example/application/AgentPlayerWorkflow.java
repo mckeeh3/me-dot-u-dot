@@ -11,6 +11,7 @@ import com.example.domain.DotGame;
 import com.example.domain.GameMoveLog;
 
 import akka.Done;
+import akka.javasdk.NotificationPublisher;
 import akka.javasdk.annotations.Component;
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.workflow.Workflow;
@@ -22,11 +23,16 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
   final ComponentClient componentClient;
   final GameActionLogger gameLog;
   final String workflowId;
+  final NotificationPublisher<String> notificationPublisher;
 
-  public AgentPlayerWorkflow(ComponentClient componentClient, WorkflowContext workflowContext) {
+  public AgentPlayerWorkflow(
+      ComponentClient componentClient,
+      WorkflowContext workflowContext,
+      NotificationPublisher<String> notificationPublisher) {
     this.componentClient = componentClient;
     this.gameLog = new GameActionLogger(componentClient);
     this.workflowId = workflowContext.workflowId();
+    this.notificationPublisher = notificationPublisher;
   }
 
   @Override
@@ -169,6 +175,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(DotGameEntity::playerTurnCompleted)
         .invoke(command);
 
+    notificationPublisher.publish("moveCompletedStep");
     return stepEffects()
         .updateState(currentState().resetStepRetryCount())
         .thenPause();
@@ -186,6 +193,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(DotGameEntity::forfeitMove)
         .invoke(command);
 
+    notificationPublisher.publish("forfeitMoveStep");
     return stepEffects()
         .updateState(currentState().resetStepRetryCount())
         .thenPause();
@@ -203,6 +211,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerPostGameReviewAgent::postGameReview)
         .invoke(prompt);
 
+    notificationPublisher.publish("startPostGameReviewStep");
     gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), postGameReview);
 
     return stepEffects()
@@ -229,6 +238,7 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerPlaybookReviewAgent::playbookReview)
         .invoke(prompt);
 
+    notificationPublisher.publish("postGamePlaybookReviewStep");
     gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), playbookReview);
 
     return stepEffects()
@@ -273,11 +283,16 @@ public class AgentPlayerWorkflow extends Workflow<AgentPlayer.State> {
         .method(AgentPlayerSystemPromptReviewAgent::systemPromptReview)
         .invoke(prompt);
 
+    notificationPublisher.publish("postGameSystemPromptReviewStep");
     gameLog.logModelResponse(currentState().gameId(), currentState().agent().id(), systemPromptReview.toString());
 
     return stepEffects()
         .updateState(currentState().withSystemPromptReview(systemPromptReview.toString()))
         .thenTransitionTo(AgentPlayerWorkflow::postGameReviewCompletedStep);
+  }
+
+  public NotificationPublisher.NotificationStream<String> stepStream() {
+    return notificationPublisher.stream();
   }
 
   StepEffect postGameReviewCompletedStep() {
